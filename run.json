@@ -520,14 +520,136 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KRXSJZ1P92KRDKYM631EV24S",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-18T14:59:36.656260731Z",
+    "run_branch": "fabro/run/01KRXSJZ1P92KRDKYM631EV24S",
+    "base_sha": "b64c66abd4ed4ad4c633c944578467746765c363"
   },
-  "status_updated_at": "2026-05-18T14:59:35.252387438Z",
-  "last_event_at": "2026-05-18T14:59:36.371132747Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-18T14:59:36.656337787Z",
+  "last_event_at": "2026-05-18T15:02:03.563710846Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 18,
+      "checkpoint": {
+        "timestamp": "2026-05-18T14:59:38.105302571Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "outcome": "succeeded",
+          "failure_signature": "",
+          "internal.node_visit_count": 1,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "internal.retry_count.start": 0,
+          "internal.run_id": "01KRXSJZ1P92KRDKYM631EV24S",
+          "internal.thread_id": null,
+          "internal.fidelity": "compact",
+          "current_node": "start",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "graph.rankdir": "LR",
+          "failure_class": ""
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T15:02:03.663861475Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.thread_id": "planner",
+          "internal.run_id": "01KRXSJZ1P92KRDKYM631EV24S",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output",
+          "failure_class": "",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded",
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/Simulati",
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.start": 0,
+          "failure_signature": "",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "graph.rankdir": "LR",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.fidelity": "compact",
+          "internal.node_visit_count": 1,
+          "current_node": "plan",
+          "last_stage": "plan",
+          "thread.planner.current_node": "plan"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/Simulati",
+              "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 28160,
+                    "output_tokens": 6967,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 441043,
+                    "cache_write_tokens": 31605
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 31605,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 439815
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -547,5 +669,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T14:59:38.105133809Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T14:59:38.105011425Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T14:59:38.105398364Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 28160,
+        "output_tokens": 6967,
+        "total_tokens": 507775,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 441043,
+        "cache_write_tokens": 31605,
+        "total_usd_micros": 439815
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    }
+  }
 }
