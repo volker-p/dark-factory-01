@@ -1,0 +1,551 @@
+{
+  "title": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository a...",
+  "spec": {
+    "run_id": "01KRXSJZ1P92KRDKYM631EV24S",
+    "settings": {
+      "project": {
+        "name": null,
+        "description": null,
+        "metadata": {}
+      },
+      "workflow": {
+        "name": null,
+        "description": null,
+        "graph": "workflow.fabro",
+        "metadata": {}
+      },
+      "run": {
+        "goal": {
+          "type": "inline",
+          "value": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request"
+        },
+        "working_dir": null,
+        "metadata": {},
+        "inputs": {
+          "spec_path": "specs/simulation-path-finder/batch-statistics.md"
+        },
+        "model": {
+          "provider": "anthropic",
+          "name": "claude-sonnet-4-6",
+          "fallbacks": [],
+          "controls": {
+            "reasoning_effort": null,
+            "speed": null
+          }
+        },
+        "git": {
+          "author": null
+        },
+        "prepare": {
+          "commands": [],
+          "timeout_ms": 300000
+        },
+        "execution": {
+          "mode": "normal",
+          "approval": "prompt"
+        },
+        "checkpoint": {
+          "exclude_globs": []
+        },
+        "clone": {
+          "enabled": true
+        },
+        "run_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "meta_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "sandbox": {
+          "provider": "docker",
+          "preserve": false,
+          "stop_on_terminal": true,
+          "devcontainer": false,
+          "env": {},
+          "docker": {
+            "image": "buildpack-deps:noble",
+            "network_mode": null,
+            "memory_limit": 4000000000,
+            "cpu_quota": 200000,
+            "env_vars": {}
+          },
+          "daytona": null
+        },
+        "notifications": {},
+        "interviews": {
+          "provider": null,
+          "slack": null
+        },
+        "agent": {
+          "permissions": null,
+          "mcps": {}
+        },
+        "hooks": [],
+        "scm": {
+          "provider": null,
+          "owner": null,
+          "repository": null,
+          "github": null
+        },
+        "pull_request": {
+          "enabled": true,
+          "draft": true,
+          "auto_merge": false,
+          "merge_strategy": "squash"
+        },
+        "artifacts": {
+          "include": []
+        },
+        "integrations": {
+          "github": {
+            "permissions": {
+              "pull_requests": "write",
+              "contents": "write"
+            }
+          }
+        }
+      }
+    },
+    "graph": {
+      "name": "ImplementSpec",
+      "nodes": {
+        "implement": {
+          "id": "implement",
+          "attrs": {
+            "class": {
+              "String": "coder"
+            },
+            "thread_id": {
+              "String": "impl"
+            },
+            "label": {
+              "String": "Implement"
+            },
+            "fidelity": {
+              "String": "full"
+            },
+            "prompt": {
+              "String": "You are a senior software engineer implementing an approved plan.\n\n## Steps\n\n1. Read `plan.md` — follow it step by step.\n2. Read `specs/simulation-path-finder/batch-statistics.md` — this is the authoritative source for requirements.\n3. Work exclusively in `target-repo/`. Do not modify files outside it.\n4. Before writing code, re-read the relevant section of `target-repo/AGENTS.md` for the conventions that apply (coding patterns, naming, auth, testing).\n5. Implement every checklist item in `plan.md`. Do not skip items.\n6. Write tests as specified in the plan. Full coverage of new code is required.\n7. Do not add features or refactor code that isn't required by the spec.\n8. When all changes are made, stage them:\n   ```bash\n   cd target-repo && git add -A\n   ```\n\nDo not run the test suite — a dedicated step handles that."
+            },
+            "max_visits": {
+              "Integer": 4
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "reasoning_effort": {
+              "String": "high"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 900,
+                "nanos": 0
+              }
+            }
+          },
+          "classes": [
+            "coder"
+          ]
+        },
+        "review": {
+          "id": "review",
+          "attrs": {
+            "class": {
+              "String": "reviewer"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 300,
+                "nanos": 0
+              }
+            },
+            "label": {
+              "String": "Review"
+            },
+            "reasoning_effort": {
+              "String": "high"
+            },
+            "shape": {
+              "String": "tab"
+            },
+            "prompt": {
+              "String": "You are an independent senior engineer reviewing a pull request. You did not write this code.\n\n## Steps\n\n1. Read the spec at `specs/simulation-path-finder/batch-statistics.md` — this is the acceptance criteria.\n2. Get the full diff:\n   ```bash\n   cd target-repo && git diff HEAD\n   ```\n3. Read `target-repo/AGENTS.md` to understand the project conventions.\n\n## Write a satisfaction report to `review-report.md`\n\nStructure it as follows:\n\n### Requirements\nFor each requirement in the spec, mark it as one of: ✅ Met / ⚠️ Partial / ❌ Missing.\nCite the specific file and line that satisfies it (or explain what is missing).\n\n### Test Coverage\n- Are new code paths covered by tests?\n- Are edge cases from the spec tested?\n- Any tests that are too weak to be meaningful?\n\n### Code Quality\n- Does the implementation follow the conventions in AGENTS.md?\n- Any correctness issues, security concerns, or obvious bugs?\n- Anything surprising that a human reviewer should look at?\n\n### Verdict\nEnd with one of:\n- **APPROVE** — all P0 requirements met, no blocking issues\n- **REQUEST CHANGES** — list specific blocking items that must be fixed before merge\n\nBe specific. Reference file names and line numbers throughout."
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "model": {
+              "String": "claude-opus-4-7"
+            }
+          },
+          "classes": [
+            "reviewer"
+          ]
+        },
+        "test_gate": {
+          "id": "test_gate",
+          "attrs": {
+            "label": {
+              "String": "Tests pass?"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            },
+            "shape": {
+              "String": "diamond"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "provider": {
+              "String": "anthropic"
+            }
+          }
+        },
+        "start": {
+          "id": "start",
+          "attrs": {
+            "label": {
+              "String": "Start"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            },
+            "shape": {
+              "String": "Mdiamond"
+            }
+          }
+        },
+        "test": {
+          "id": "test",
+          "attrs": {
+            "script": {
+              "String": "bash run-tests.sh 2>&1"
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "label": {
+              "String": "Test"
+            }
+          }
+        },
+        "gate_pr": {
+          "id": "gate_pr",
+          "attrs": {
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "label": {
+              "String": "Approve PR"
+            },
+            "shape": {
+              "String": "hexagon"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            }
+          }
+        },
+        "plan": {
+          "id": "plan",
+          "attrs": {
+            "prompt": {
+              "String": "You are a senior software engineer. Your job is to produce a detailed implementation plan from a spec — no code yet.\n\n## Steps\n\n1. Read the spec at `specs/simulation-path-finder/batch-statistics.md`. Extract:\n   - `target_repo` from the YAML frontmatter\n   - `type` (feature or bug-fix)\n   - All requirements and constraints\n\n2. Extract the `target_repo` field from the YAML frontmatter of the spec file.\n   Clone it into `target-repo/`:\n   ```bash\n   gh repo clone <target_repo> target-repo 2>&1 || git clone https://github.com/<target_repo>.git target-repo\n   ```\n\n3. Read `target-repo/AGENTS.md` in full. Then read any `docs/` files it references that are relevant to this spec.\n\n4. Write `plan.md` containing:\n   - **Goal** — one sentence\n   - **Files to change** — table: file path, what changes and why\n   - **Implementation checklist** — numbered steps, specific enough that a junior developer could follow them\n   - **Test strategy** — what tests to add, which existing tests may be affected\n   - **Risks and edge cases** — anything that could go wrong\n\n5. Write `run-tests.sh` — the exact shell script to build and run the full test suite for `target-repo/`.\n   Derive the commands from the `## Build & Test` section in `target-repo/AGENTS.md`.\n   The script must:\n   - `cd target-repo` at the top\n   - Exit non-zero on any failure (`set -euo pipefail`)\n   - Capture all output to stdout/stderr\n   ```bash\n   chmod +x run-tests.sh\n   ```\n\nDo not write implementation code. Stop after writing `plan.md` and `run-tests.sh`."
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "class": {
+              "String": "planner"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 300,
+                "nanos": 0
+              }
+            },
+            "reasoning_effort": {
+              "String": "high"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "label": {
+              "String": "Plan"
+            }
+          },
+          "classes": [
+            "planner"
+          ]
+        },
+        "fix": {
+          "id": "fix",
+          "attrs": {
+            "class": {
+              "String": "coder"
+            },
+            "prompt": {
+              "String": "The test suite failed. Fix the failures without breaking passing tests.\n\n## Steps\n\n1. Read the test output from the previous step carefully.\n2. Identify the root cause of each failure — do not guess; trace through the code.\n3. Fix one failure class at a time. Verify your reasoning before changing code.\n4. Rules:\n   - Do not rewrite working code\n   - Do not add workarounds — fix the actual problem\n   - Do not remove tests to make them pass\n   - Do not weaken assertions\n5. After fixing, stage your changes:\n   ```bash\n   cd target-repo && git add -A\n   ```\n\nThe test suite will run again automatically after this step.\n"
+            },
+            "thread_id": {
+              "String": "impl"
+            },
+            "fidelity": {
+              "String": "full"
+            },
+            "reasoning_effort": {
+              "String": "high"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 600,
+                "nanos": 0
+              }
+            },
+            "max_visits": {
+              "Integer": 3
+            },
+            "label": {
+              "String": "Fix"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            }
+          },
+          "classes": [
+            "coder"
+          ]
+        },
+        "gate_plan": {
+          "id": "gate_plan",
+          "attrs": {
+            "shape": {
+              "String": "hexagon"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            },
+            "label": {
+              "String": "Approve Plan"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            }
+          }
+        },
+        "exit": {
+          "id": "exit",
+          "attrs": {
+            "label": {
+              "String": "Exit"
+            },
+            "shape": {
+              "String": "Msquare"
+            },
+            "model": {
+              "String": "claude-sonnet-4-6"
+            },
+            "provider": {
+              "String": "anthropic"
+            },
+            "reasoning_effort": {
+              "String": "medium"
+            }
+          }
+        }
+      },
+      "edges": [
+        {
+          "from": "start",
+          "to": "plan",
+          "attrs": {}
+        },
+        {
+          "from": "plan",
+          "to": "gate_plan",
+          "attrs": {}
+        },
+        {
+          "from": "gate_plan",
+          "to": "implement",
+          "attrs": {
+            "label": {
+              "String": "[A] Approve"
+            }
+          }
+        },
+        {
+          "from": "gate_plan",
+          "to": "plan",
+          "attrs": {
+            "label": {
+              "String": "[R] Revise"
+            }
+          }
+        },
+        {
+          "from": "implement",
+          "to": "test",
+          "attrs": {}
+        },
+        {
+          "from": "test",
+          "to": "test_gate",
+          "attrs": {}
+        },
+        {
+          "from": "test_gate",
+          "to": "review",
+          "attrs": {
+            "condition": {
+              "String": "outcome=succeeded"
+            },
+            "label": {
+              "String": "Pass"
+            }
+          }
+        },
+        {
+          "from": "test_gate",
+          "to": "fix",
+          "attrs": {
+            "label": {
+              "String": "Fix"
+            }
+          }
+        },
+        {
+          "from": "fix",
+          "to": "test",
+          "attrs": {}
+        },
+        {
+          "from": "review",
+          "to": "gate_pr",
+          "attrs": {}
+        },
+        {
+          "from": "gate_pr",
+          "to": "exit",
+          "attrs": {
+            "label": {
+              "String": "[M] Merge"
+            }
+          }
+        },
+        {
+          "from": "gate_pr",
+          "to": "implement",
+          "attrs": {
+            "label": {
+              "String": "[R] Rework"
+            }
+          }
+        }
+      ],
+      "attrs": {
+        "rankdir": {
+          "String": "LR"
+        },
+        "model_stylesheet": {
+          "String": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        "
+        },
+        "goal": {
+          "String": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request"
+        }
+      }
+    },
+    "graph_source": "digraph ImplementSpec {\n    graph [\n        goal=\"Implement the spec at {{ inputs.spec_path }} in the target repository and open a pull request\"\n        rankdir=LR\n        model_stylesheet=\"\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        \"\n    ]\n\n    start [shape=Mdiamond, label=\"Start\"]\n    exit  [shape=Msquare,  label=\"Exit\"]\n\n    // Read spec, clone target repo, write plan.md and run-tests.sh\n    plan [\n        label=\"Plan\"\n        prompt=\"@prompts/plan.md\"\n        class=\"planner\"\n        timeout=\"300s\"\n    ]\n\n    // Human reviews plan before any code is written\n    gate_plan [shape=hexagon, label=\"Approve Plan\"]\n\n    // Implement plan.md in target-repo/\n    implement [\n        label=\"Implement\"\n        prompt=\"@prompts/implement.md\"\n        class=\"coder\"\n        thread_id=\"impl\"\n        fidelity=\"full\"\n        timeout=\"900s\"\n        max_visits=4\n    ]\n\n    // Run the build and test suite written by the plan agent\n    test [\n        label=\"Test\"\n        shape=parallelogram\n        script=\"bash run-tests.sh 2>&1\"\n    ]\n\n    // Route on pass/fail\n    test_gate [shape=diamond, label=\"Tests pass?\"]\n\n    // Fix failures — shares thread with implement for full context\n    fix [\n        label=\"Fix\"\n        prompt=\"@prompts/fix.md\"\n        class=\"coder\"\n        thread_id=\"impl\"\n        fidelity=\"full\"\n        timeout=\"600s\"\n        max_visits=3\n    ]\n\n    // Independent model reviews implementation against spec\n    review [\n        label=\"Review\"\n        shape=tab\n        prompt=\"@prompts/review.md\"\n        class=\"reviewer\"\n        timeout=\"300s\"\n    ]\n\n    // Human sees satisfaction report, approves or requests rework\n    gate_pr [shape=hexagon, label=\"Approve PR\"]\n\n    start    -> plan      -> gate_plan\n    gate_plan -> implement [label=\"[A] Approve\"]\n    gate_plan -> plan      [label=\"[R] Revise\"]\n    implement -> test      -> test_gate\n    test_gate -> review    [label=\"Pass\",  condition=\"outcome=succeeded\"]\n    test_gate -> fix       [label=\"Fix\"]\n    fix       -> test\n    review    -> gate_pr\n    gate_pr   -> exit      [label=\"[M] Merge\"]\n    gate_pr   -> implement [label=\"[R] Rework\"]\n}\n",
+    "workflow_slug": "implement-spec",
+    "source_directory": "/home/fela/CLionProjects/dark-factory-01",
+    "provenance": {
+      "server": {
+        "version": "0.237.0-nightly.0"
+      },
+      "client": {
+        "user_agent": "fabro-cli/0.237.0-nightly.0",
+        "name": "fabro-cli",
+        "version": "0.237.0-nightly.0"
+      },
+      "subject": {
+        "kind": "user",
+        "identity": {
+          "issuer": "fabro:dev",
+          "subject": "dev"
+        },
+        "login": "dev",
+        "auth_method": "dev_token"
+      }
+    },
+    "manifest_blob": "5436dc0934a4de70517e75fa2652cef34999d181cffba8ed9f10932f012ce1c1",
+    "definition_blob": "ebfd4b42b9c82824cb16b7fab634759c824dc51fbd99d37b178e9707d1939500",
+    "git": {
+      "origin_url": "https://github.com/volker-p/dark-factory-01",
+      "branch": "master",
+      "sha": "b64c66abd4ed4ad4c633c944578467746765c363",
+      "dirty": "clean",
+      "push_outcome": {
+        "type": "not_attempted"
+      }
+    }
+  },
+  "web_url": "https://fabro.uawg.xyz/runs/01KRXSJZ1P92KRDKYM631EV24S",
+  "start": null,
+  "status": {
+    "kind": "starting"
+  },
+  "status_updated_at": "2026-05-18T14:59:35.252387438Z",
+  "last_event_at": "2026-05-18T14:59:36.371132747Z",
+  "pending_control": null,
+  "checkpoints": [],
+  "conclusion": null,
+  "sandbox": {
+    "provider": "docker",
+    "image": "buildpack-deps:noble",
+    "runtime": {
+      "id": "33d6ab84063ed9356e93732e56e64202123b0f3bb04bc8395c6b1e0b3f1a9bb8",
+      "working_directory": "/workspace/dark-factory-01",
+      "repo_cloned": true,
+      "clone_origin_url": "https://github.com/volker-p/dark-factory-01",
+      "clone_branch": "master",
+      "workspace_root": "/workspace",
+      "repos_root": "/repos",
+      "primary_repo_path": "/repos/volker-p/dark-factory-01",
+      "primary_repo_link": "/workspace/dark-factory-01"
+    }
+  },
+  "pull_request": null,
+  "superseded_by": null,
+  "pending_interviews": {},
+  "stages": {}
+}
