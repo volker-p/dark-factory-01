@@ -554,7 +554,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-18T15:46:07.414888291Z",
-  "last_event_at": "2026-05-18T15:47:39.198439852Z",
+  "last_event_at": "2026-05-18T15:48:27.079505909Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -954,14 +954,15 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:48:25.896762462Z",
-        "current_node": "test",
+        "timestamp": "2026-05-18T15:48:28.777479201Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
@@ -971,17 +972,19 @@
           "human.gate.gate_plan.question": "Approve Plan",
           "response.implement": "The commit is recorded with real file changes across all 5 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll 5 checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Renamed `step_count` → `step_count_` (private member convention), added `getSampleCount() const` getter.\n\n2. **`src/DataLogger.cpp`** — Updated all 4 occurrences of `step_count` → `step_count_` (constructor initializer, reset in `open()`, increment in `logSample()`, print in `close()`).\n\n3. **`include/Simulation.h`** — Added three getter declarations: `getCompletionPercent()`, `getTotalDistance()`, and `getSampleCount()` (reusing existing `getCurrentStep()` for step count as noted in the plan).\n\n4. **`src/Simulation.cpp`** — Implemented the three new getters as thin delegating pass-throughs to `metrics`, `robot`, and `logger` respectively.\n\n5. **`src/BatchSimulation.cpp`** — Added four accumulator variables before the loop; accumulate inside `if (success)` block only; after the loop, populate `avg_completion_percent`, `avg_steps`, `avg_distance_cm` with division guarded by `successful_runs > 0`; assign `total_samples` unconditionally; removed the placeholder comment.",
           "internal.retry_count.gate_plan": 0,
-          "internal.thread_id": "implement",
+          "thread.test.current_node": "test_gate",
+          "internal.thread_id": "test",
           "preferred_label": "[A] Approve",
+          "internal.retry_count.test_gate": 0,
           "thread.implement.current_node": "test",
           "thread.planner.current_node": "plan",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "internal.fidelity": "compact",
           "thread.plan.current_node": "gate_plan",
-          "failure_class": "deterministic",
+          "failure_class": "",
           "internal.work_dir": "/workspace/dark-factory-01",
-          "outcome": "failed",
-          "current_node": "test",
+          "outcome": "succeeded",
+          "current_node": "test_gate",
           "human.gate.gate_plan.label": "[A] Approve",
           "human.gate.label": "[A] Approve",
           "last_stage": "implement",
@@ -992,7 +995,7 @@
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
           "graph.rankdir": "LR",
           "internal.node_visit_count": 1,
-          "failure_signature": "test|deterministic|command log blob write failed",
+          "failure_signature": "",
           "human.gate.selected": "A",
           "thread.impl.current_node": "implement",
           "internal.retry_count.implement": 0
@@ -1089,6 +1092,11 @@
               "/workspace/dark-factory-01/target-repo/src/Simulation.cpp"
             ]
           },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
           "gate_plan": {
             "status": "succeeded",
             "preferred_label": "[A] Approve",
@@ -1105,10 +1113,11 @@
             "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "gate_plan": 1,
           "start": 1,
+          "test_gate": 1,
           "test": 1,
           "implement": 1,
           "plan": 1
@@ -1208,7 +1217,12 @@
       "first_event_seq": 230,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "command log blob write failed",
+        "timestamp": "2026-05-18T15:48:25.896474881Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1221,6 +1235,7 @@
       "output": null,
       "started_at": "2026-05-18T15:47:39.198362546Z",
       "handler": "command",
+      "duration_ms": 46696,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1229,7 +1244,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     },
     "implement@1": {
       "first_event_seq": 136,
