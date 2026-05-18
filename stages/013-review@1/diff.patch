@@ -1,0 +1,104 @@
+diff --git a/review-report.md b/review-report.md
+new file mode 100644
+index 0000000..1ba952c
+--- /dev/null
++++ b/review-report.md
+@@ -0,0 +1,98 @@
++# PR Review: Populate Batch Simulation Statistics
++
++Spec: `specs/simulation-path-finder/batch-statistics.md`
++Target repo: `volker-p/SimulationPathFinder`
++Commit under review: `c517b12 — Expose simulation metrics via getters; populate BatchResults averages in runBatch()`
++
++Files changed:
++- `include/DataLogger.h` (+1)
++- `include/Simulation.h` (+4)
++- `src/BatchSimulation.cpp` (+13 / −3)
++
++## Requirements
++
++### R1 — `BatchSimulation` must be able to read final completion %, total steps, total distance (cm), and total training samples after each run
++**✅ Met.** Four new getters are exposed on `Simulation` and all delegate to existing, real data sources:
++- `include/Simulation.h:43` — `getCompletionPercent()` → `metrics->getCompletionPercent()` (defined `src/PerformanceMetrics.cpp:63`).
++- `include/Simulation.h:44` — `getTotalSteps()` → `current_step` (the counter actually incremented by the main loop).
++- `include/Simulation.h:45` — `getTotalDistance()` → `robot->getTotalDistance()` (existing getter in `include/Robot.h:46`, backed by `total_distance_cm` which is updated in `Robot::update()`).
++- `include/Simulation.h:46` — `getSampleCount()` → `logger->getSampleCount()` (new getter at `include/DataLogger.h:38` returning `step_count`, which `DataLogger.cpp:97` increments once per `logSample()` call).
++
++All four are `const`, return primitives, and dereference `unique_ptr` members that are constructed in `Simulation`'s constructor and never reset, so they are safe to call after `run()` / `runHeadless()` returns.
++
++### R2 — `BatchResults` must contain correct averages across all runs after `runBatch()` returns
++**✅ Met.** In `src/BatchSimulation.cpp`:
++- Accumulators initialised at lines 14–17.
++- Successful-run metrics summed at lines 51–53.
++- Sample count summed unconditionally at line 55 (correct — CSV samples are written for both successful and failed runs).
++- Averages computed at lines 58–62 with a divide-by-zero guard on `successful_runs > 0`.
++- `total_samples` assigned at line 63.
++
++The semantic choice — averages over successful runs only, samples across all runs — matches the plan and is reasonable. The spec doesn't dictate the denominator; this avoids zero-padding failed runs into the average.
++
++### R3 — `saveSummary()` must write the populated averages
++**✅ Met.** `saveSummary()` was already writing `results.avg_completion_percent`, `results.avg_steps`, `results.avg_distance_cm`, and `results.total_samples` (lines 89–92, unchanged). Now those fields contain real values, so the file content is real.
++
++Verified empirically — `test_output/batch_summary.txt` after a fresh `--batch 5 --headless` run:
++```
++Average completion: 1.0%
++Average steps: 2255.4
++Average distance: 321.5 cm
++Total training samples: 11277
++```
++
++### R4 — Headless batch run (`--headless --batch 5`) must exit 0 with all averages > 0 for successful runs
++**✅ Met.** `run-tests.sh` builds the project, runs `--headless --batch 5 --output-dir ./test_output/`, and asserts each of the four values is `> 0`. All four assertions pass with the values above.
++
++### Constraints
++
++| Constraint | Status |
++|---|---|
++| Add getters to `Simulation`, don't make members public | ✅ Met. All four new methods are public inline getters; no member visibility changed. |
++| Don't change `BatchResults` struct or `saveSummary()` signature | ✅ Met. Neither was touched. |
++| Don't change `common/maze_explorer.c` | ✅ Met. Untouched. |
++| Follow naming conventions (PascalCase classes, snake_case members, `_` suffix for private members) | ⚠️ Partial — see Code Quality. The new code is consistent with **the surrounding file's** style, which itself does not use the `_` suffix for private members. No regressions, but the spec's constraint references an `AGENTS.md` that does not actually exist in this repo (only `CLAUDE.md`). |
++| Build clean with zero `-Wall` warnings | ✅ Met. `cmake --build` succeeded without warning output during `run-tests.sh`. |
++
++## Test Coverage
++
++- The acceptance test (`run-tests.sh`) is end-to-end: it builds, runs `--headless --batch 5`, parses `batch_summary.txt`, and asserts each of the four metrics is `> 0`. This directly mirrors requirement R4.
++- **Edge cases not tested:**
++  - All-runs-fail case (`successful_runs == 0`). The code has a guard at `BatchSimulation.cpp:58`, but no test exercises it. Low risk — with `max_steps = 10000` and 5 runs, all runs reliably "succeed" per the test output.
++  - `getSampleCount()` accumulating samples from failed runs (the plan calls this out as intentional; not exercised).
++- **Test strength:** Assertions are `> 0`, not value-range checks. A trivially-non-zero implementation (e.g., always returning `1`) would pass. That said, the four values are wired to four independent underlying systems (`PerformanceMetrics`, `current_step`, `Robot::total_distance_cm`, `DataLogger::step_count`), and the printed numbers in `test_output/batch_summary.txt` are internally consistent (~2255 steps × ~0.14 cm/step ≈ 321 cm, samples ≈ steps × runs), which is convincing evidence the wiring is correct.
++- No C++ unit test was added. The repo has no existing unit-test framework, so this is consistent with project conventions.
++
++## Code Quality
++
++**Conventions:** The repo has no `AGENTS.md` (the spec's reference is aspirational); the actual conventions doc is `CLAUDE.md`. The change is consistent with the surrounding code:
++- New getter names use camelCase like the existing `getCurrentStep`, `getTotalDistance`, `getCompletionPercent`. ✅
++- New accumulator locals use `snake_case` (`sum_completion`, etc.), matching the file's local-variable style. ✅
++- Private members are accessed via getters, not exposed. ✅
++- The spec's `_` suffix convention is not followed by **any** existing code in `Simulation.h`, `Robot.h`, `DataLogger.h`, or `PerformanceMetrics.h` — the constraint as written would have required refactoring the whole codebase. Not a regression.
++
++**Correctness:**
++- Order of operations is sound: getters are called immediately after `sim.run()` / `sim.runHeadless()` returns, while `sim` is still in scope. No use-after-free risk.
++- `getSampleCount()` works correctly even after `DataLogger::close()` because `close()` does not reset `step_count` (confirmed at `DataLogger.cpp:103` — `step_count` is only read, not zeroed, on close).
++- Integer division is avoided: `sum_steps` is a `double`, so `sum_steps / successful_runs` is real-valued. ✅
++- `sum_samples` is `int`; at default config (max 10 000 steps × a few hundred runs), it fits comfortably in `int32`. Not a concern for current usage. Could overflow at extreme batch sizes; not a blocker.
++
++**Surprises / nits worth a human eye:**
++1. **Missing trailing newline** in `src/BatchSimulation.cpp` after the edit. `git show HEAD` shows `\ No newline at end of file` for the new file. Cosmetic, but POSIX text-file convention and some tooling (e.g., `cat`, `wc -l`) prefers a final newline. The original file did have one.
++2. **Whitespace style mismatch in `Simulation.h:43-46`:** the new getters use aligned-by-column spacing (`int    getTotalSteps()        const`) which differs from the existing two getters above (`int getCurrentStep() const`). Minor inconsistency in the same block.
++3. **`total_samples` semantics are undocumented.** The spec says "total training samples logged by `DataLogger`". The implementation sums samples across **all** runs (success or fail). This matches both the spec wording and intuition for an ML training pipeline, but a brief comment near line 55 of `BatchSimulation.cpp` explaining "samples accumulate across all runs; averages over successful runs only" would help future readers (the plan documents this; the code does not).
++4. **Stale comment removed**, as required by the spec ("would need to expose more metrics" comment is gone). ✅
++5. **`Average completion: 1.0%`** in the test output is surprisingly low — the robot explored ~1 cell out of ~100. That's a property of the existing wall-following algorithm, not this PR. Out of scope, but worth noting that the spec's "non-trivial" bar is met only barely on the completion axis. Steps, distance, and samples are healthy.
++
++No security concerns. No memory issues. No `-Wall` warnings.
++
++## Verdict
++
++**APPROVE.**
++
++All four functional requirements (R1–R4) are met with minimal, focused changes that respect every stated constraint. The implementation strategy (thin pass-through getters → accumulate in a loop → divide) is the obvious correct shape for this problem, and the end-to-end test in `run-tests.sh` empirically confirms the four metrics are populated with consistent, non-zero values.
++
++Non-blocking nits the author could optionally fix in a follow-up:
++1. Restore the trailing newline at the end of `src/BatchSimulation.cpp`.
++2. Match the surrounding single-space style in `Simulation.h:43-46` rather than column-aligned spacing.
++3. Add a one-line comment near `BatchSimulation.cpp:55` clarifying that `sum_samples` accumulates across all runs while the averages are over successful runs only.
