@@ -551,11 +551,10 @@
     "base_sha": "f83301b42e4d2675b83b6d10a121801bb3565469"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-18T15:50:55.592727402Z",
-  "last_event_at": "2026-05-18T15:50:55.592727402Z",
+  "status_updated_at": "2026-05-18T15:51:03.123205219Z",
+  "last_event_at": "2026-05-18T15:51:06.966682299Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -1537,9 +1536,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 342,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:51:03.123696464Z",
+        "timestamp": "2026-05-18T15:51:06.966333196Z",
         "current_node": "gate_pr",
         "completed_nodes": [
           "start",
@@ -1553,6 +1552,253 @@
         ],
         "node_retries": {},
         "context_values": {
+          "thread.reviewer.current_node": "review",
+          "internal.retry_count.test": 0,
+          "human.gate.gate_plan.answer": "A",
+          "last_stage": "review",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.node_visit_count": 1,
+          "internal.retry_count.review": 0,
+          "internal.fidelity": "compact",
+          "internal.retry_count.plan": 0,
+          "failure_class": "",
+          "response.implement": "The commit is recorded with real file changes across all 5 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll 5 checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Renamed `step_count` → `step_count_` (private member convention), added `getSampleCount() const` getter.\n\n2. **`src/DataLogger.cpp`** — Updated all 4 occurrences of `step_count` → `step_count_` (constructor initializer, reset in `open()`, increment in `logSample()`, print in `close()`).\n\n3. **`include/Simulation.h`** — Added three getter declarations: `getCompletionPercent()`, `getTotalDistance()`, and `getSampleCount()` (reusing existing `getCurrentStep()` for step count as noted in the plan).\n\n4. **`src/Simulation.cpp`** — Implemented the three new getters as thin delegating pass-throughs to `metrics`, `robot`, and `logger` respectively.\n\n5. **`src/BatchSimulation.cpp`** — Added four accumulator variables before the loop; accumulate inside `if (success)` block only; after the loop, populate `avg_completion_percent`, `avg_steps`, `avg_distance_cm` with division guarded by `successful_runs > 0`; assign `total_samples` unconditionally; removed the placeholder comment.",
+          "human.gate.gate_pr.label": "[M] Merge",
+          "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero.",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "internal.retry_count.gate_plan": 0,
+          "thread.impl.current_node": "implement",
+          "preferred_label": "[M] Merge",
+          "thread.review.current_node": "gate_pr",
+          "human.gate.selected": "M",
+          "response.review": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletionPercent`, `getCurrentStep` already existed, `getTotalDistance`, `getSampleCount`) — all `const`, no members made public.\n- **R2**: `runBatch()` accumulates per successful run and divides by `successful_runs` with a div-by-zero guard (`src/BatchSimulation.cpp:29-63`).\n- **R3**: `saveSummary()` writes the four populated fields (`src/BatchSimulation.cpp:89-92`); signature unchanged.\n- **R4**: The headless 5-run batch produced `Average completion: 1.0%`, `Average steps: 2089.0`, `Average distance: 293.3 cm`, `Total training samples: 10445` — all > 0.\n\n**Constraints all respected** (`BatchResults` struct intact, no `common/maze_explorer.c` change, `step_count` correctly renamed with `_` suffix).\n\n**Non-blocking nits noted**:\n1. `src/DataLogger.cpp` lost its trailing newline (`\\ No newline at end of file`).\n2. `step_count → step_count_` rename is a drive-by style fix outside the strict spec scope.\n3. The 1% completion is pre-existing wall-follower behaviour, not a regression.\n4. Test only asserts `> 0`, not magnitudes — adequate for catching the original bug but won't catch absurd values.",
+          "human.gate.label": "[M] Merge",
+          "internal.retry_count.test_gate": 0,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "thread.plan.current_node": "gate_plan",
+          "thread.implement.current_node": "test",
+          "current_node": "gate_pr",
+          "thread.planner.current_node": "plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.run_id": "01KRXW3VYWZPZPK1YMVRJY4XMC",
+          "thread.test.current_node": "test_gate",
+          "graph.rankdir": "LR",
+          "human.gate.gate_pr.question": "Approve PR",
+          "outcome": "succeeded",
+          "failure_signature": "",
+          "internal.retry_count.gate_pr": 0,
+          "human.gate.gate_pr.answer": "M",
+          "last_response": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletio",
+          "internal.thread_id": "review",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.retry_count.implement": 0,
+          "internal.retry_count.start": 0
+        },
+        "node_outcomes": {
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "review",
+              "last_response": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletio",
+              "response.review": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletionPercent`, `getCurrentStep` already existed, `getTotalDistance`, `getSampleCount`) — all `const`, no members made public.\n- **R2**: `runBatch()` accumulates per successful run and divides by `successful_runs` with a div-by-zero guard (`src/BatchSimulation.cpp:29-63`).\n- **R3**: `saveSummary()` writes the four populated fields (`src/BatchSimulation.cpp:89-92`); signature unchanged.\n- **R4**: The headless 5-run batch produced `Average completion: 1.0%`, `Average steps: 2089.0`, `Average distance: 293.3 cm`, `Total training samples: 10445` — all > 0.\n\n**Constraints all respected** (`BatchResults` struct intact, no `common/maze_explorer.c` change, `step_count` correctly renamed with `_` suffix).\n\n**Non-blocking nits noted**:\n1. `src/DataLogger.cpp` lost its trailing newline (`\\ No newline at end of file`).\n2. `step_count → step_count_` rename is a drive-by style fix outside the strict spec scope.\n3. The 1% completion is pre-existing wall-follower behaviour, not a regression.\n4. Test only asserts `> 0`, not magnitudes — adequate for catching the original bug but won't catch absurd values."
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 25417,
+                    "output_tokens": 7353,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 273598,
+                    "cache_write_tokens": 27043
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 27043,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 616727
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          },
+          "test": {
+            "status": "failed",
+            "failure": {
+              "message": "command log blob write failed",
+              "causes": [
+                "worker lost canonical run store during write run blob",
+                "request failed with status 413 Payload Too Large: Failed to buffer the request body: length limit exceeded"
+              ],
+              "category": "deterministic"
+            },
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.selected": "A"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "implement",
+              "last_response": "The commit is recorded with real file changes across all 5 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll 5 checklist items from `plan.md` were implemented:\n\n1. **`include/",
+              "response.implement": "The commit is recorded with real file changes across all 5 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll 5 checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Renamed `step_count` → `step_count_` (private member convention), added `getSampleCount() const` getter.\n\n2. **`src/DataLogger.cpp`** — Updated all 4 occurrences of `step_count` → `step_count_` (constructor initializer, reset in `open()`, increment in `logSample()`, print in `close()`).\n\n3. **`include/Simulation.h`** — Added three getter declarations: `getCompletionPercent()`, `getTotalDistance()`, and `getSampleCount()` (reusing existing `getCurrentStep()` for step count as noted in the plan).\n\n4. **`src/Simulation.cpp`** — Implemented the three new getters as thin delegating pass-throughs to `metrics`, `robot`, and `logger` respectively.\n\n5. **`src/BatchSimulation.cpp`** — Added four accumulator variables before the loop; accumulate inside `if (success)` block only; after the loop, populate `avg_completion_percent`, `avg_steps`, `avg_distance_cm` with division guarded by `successful_runs > 0`; assign `total_samples` unconditionally; removed the placeholder comment."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 27430,
+                    "output_tokens": 4309,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 388183,
+                    "cache_write_tokens": 30850
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 30850,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 379066
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/include/DataLogger.h",
+              "/workspace/dark-factory-01/target-repo/include/Simulation.h",
+              "/workspace/dark-factory-01/target-repo/src/BatchSimulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/DataLogger.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Simulation.cpp"
+            ]
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[M] Merge",
+            "suggested_next_ids": [
+              "push_pr"
+            ],
+            "context_updates": {
+              "human.gate.gate_pr.label": "[M] Merge",
+              "human.gate.label": "[M] Merge",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.answer": "M",
+              "human.gate.selected": "M"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core pro",
+              "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero."
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 28721,
+                    "output_tokens": 6287,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 312979,
+                    "cache_write_tokens": 32211
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 32211,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 395152
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "push_pr",
+        "git_commit_sha": "8528e5c469421ba680516b0d192da1a8ba32291a",
+        "loop_failure_signatures": {
+          "test|deterministic|command log blob write failed": 1
+        },
+        "node_visits": {
+          "implement": 1,
+          "test": 1,
+          "review": 1,
+          "start": 1,
+          "plan": 1,
+          "gate_pr": 1,
+          "test_gate": 1,
+          "gate_plan": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 4,
+          "additions": 246,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T15:51:08.355619213Z",
+        "current_node": "push_pr",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "push_pr"
+        ],
+        "node_retries": {},
+        "context_values": {
           "internal.retry_count.start": 0,
           "internal.retry_count.plan": 0,
           "internal.run_id": "01KRXW3VYWZPZPK1YMVRJY4XMC",
@@ -1560,7 +1806,7 @@
           "response.implement": "The commit is recorded with real file changes across all 5 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll 5 checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Renamed `step_count` → `step_count_` (private member convention), added `getSampleCount() const` getter.\n\n2. **`src/DataLogger.cpp`** — Updated all 4 occurrences of `step_count` → `step_count_` (constructor initializer, reset in `open()`, increment in `logSample()`, print in `close()`).\n\n3. **`include/Simulation.h`** — Added three getter declarations: `getCompletionPercent()`, `getTotalDistance()`, and `getSampleCount()` (reusing existing `getCurrentStep()` for step count as noted in the plan).\n\n4. **`src/Simulation.cpp`** — Implemented the three new getters as thin delegating pass-throughs to `metrics`, `robot`, and `logger` respectively.\n\n5. **`src/BatchSimulation.cpp`** — Added four accumulator variables before the loop; accumulate inside `if (success)` block only; after the loop, populate `avg_completion_percent`, `avg_steps`, `avg_distance_cm` with division guarded by `successful_runs > 0`; assign `total_samples` unconditionally; removed the placeholder comment.",
           "internal.retry_count.gate_plan": 0,
           "thread.test.current_node": "test_gate",
-          "internal.thread_id": "review",
+          "internal.thread_id": "gate_pr",
           "preferred_label": "[M] Merge",
           "internal.retry_count.test_gate": 0,
           "thread.implement.current_node": "test",
@@ -1568,14 +1814,16 @@
           "human.gate.gate_pr.label": "[M] Merge",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "thread.reviewer.current_node": "review",
+          "command.output": "blob://sha256/4dd897198aac7db3e7d5d5e5e38bf19b075c5187047fbc8b2c316dbc6e5dbb9e",
           "internal.fidelity": "compact",
           "human.gate.gate_pr.question": "Approve PR",
           "human.gate.gate_pr.answer": "M",
           "thread.plan.current_node": "gate_plan",
-          "failure_class": "",
+          "failure_class": "deterministic",
+          "internal.retry_count.push_pr": 0,
           "internal.work_dir": "/workspace/dark-factory-01",
-          "outcome": "succeeded",
-          "current_node": "gate_pr",
+          "outcome": "failed",
+          "current_node": "push_pr",
           "human.gate.gate_plan.label": "[A] Approve",
           "human.gate.label": "[M] Merge",
           "response.review": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletionPercent`, `getCurrentStep` already existed, `getTotalDistance`, `getSampleCount`) — all `const`, no members made public.\n- **R2**: `runBatch()` accumulates per successful run and divides by `successful_runs` with a div-by-zero guard (`src/BatchSimulation.cpp:29-63`).\n- **R3**: `saveSummary()` writes the four populated fields (`src/BatchSimulation.cpp:89-92`); signature unchanged.\n- **R4**: The headless 5-run batch produced `Average completion: 1.0%`, `Average steps: 2089.0`, `Average distance: 293.3 cm`, `Total training samples: 10445` — all > 0.\n\n**Constraints all respected** (`BatchResults` struct intact, no `common/maze_explorer.c` change, `step_count` correctly renamed with `_` suffix).\n\n**Non-blocking nits noted**:\n1. `src/DataLogger.cpp` lost its trailing newline (`\\ No newline at end of file`).\n2. `step_count → step_count_` rename is a drive-by style fix outside the strict spec scope.\n3. The 1% completion is pre-existing wall-follower behaviour, not a regression.\n4. Test only asserts `> 0`, not magnitudes — adequate for catching the original bug but won't catch absurd values.",
@@ -1589,10 +1837,11 @@
           "graph.rankdir": "LR",
           "internal.retry_count.gate_pr": 0,
           "internal.node_visit_count": 1,
-          "failure_signature": "",
+          "failure_signature": "push_pr|deterministic|script failed with exit code: <n> ## output [master <hex>] implementation plan: populate batch simulation statistics <n> file changed,<n> insertions(+) create mode <n> test_output/batch_summary.txt remote: remote: create a pull request for ",
           "human.gate.selected": "M",
           "thread.impl.current_node": "implement",
           "internal.retry_count.implement": 0,
+          "thread.gate_pr.current_node": "push_pr",
           "internal.retry_count.review": 0
         },
         "node_outcomes": {
@@ -1630,6 +1879,17 @@
             "files_touched": [
               "/workspace/dark-factory-01/review-report.md"
             ]
+          },
+          "push_pr": {
+            "status": "failed",
+            "context_updates": {
+              "command.output": "blob://sha256/4dd897198aac7db3e7d5d5e5e38bf19b075c5187047fbc8b2c316dbc6e5dbb9e"
+            },
+            "failure": {
+              "message": "Script failed with exit code: 127\n\n## output\n[master d6e9342] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nremote: \nremote: Create a pull request for 'factory/implementation-plan-populate-batch-simulation-stat' on GitHub by visiting:        \nremote:      https://github.com/volker-p/SimulationPathFinder/pull/new/factory/implementation-plan-populate-batch-simulation-stat        \nremote: \nTo https://github.com/volker-p/SimulationPathFinder.git\n * [new branch]      HEAD -> factory/implementation-plan-populate-batch-simulation-stat\n.fabro/workflows/implement-spec/scripts/push-pr.sh: line 24: gh: command not found\n",
+              "category": "deterministic"
+            },
+            "usage": null
           },
           "gate_plan": {
             "status": "succeeded",
@@ -1758,9 +2018,10 @@
             "usage": null
           }
         },
-        "next_node_id": "push_pr",
+        "next_node_id": "exit",
         "node_visits": {
           "test_gate": 1,
+          "push_pr": 1,
           "gate_pr": 1,
           "gate_plan": 1,
           "start": 1,
@@ -1791,29 +2052,7 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KRXWGZB8GZ661P77QYYP37M6": {
-      "question": {
-        "id": "01KRXWGZB8GZ661P77QYYP37M6",
-        "text": "Approve PR",
-        "stage": "gate_pr",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "M",
-            "label": "[M] Merge"
-          },
-          {
-            "key": "R",
-            "label": "[R] Rework"
-          }
-        ],
-        "allow_freeform": false,
-        "context_display": "I've written the review report to `review-report.md`. Summary of findings:\n\n**Verdict: APPROVE**\n\nAll four spec requirements (R1–R4) are met:\n- **R1**: Four `Simulation` getters added (`getCompletionPercent`, `getCurrentStep` already existed, `getTotalDistance`, `getSampleCount`) — all `const`, no members made public.\n- **R2**: `runBatch()` accumulates per successful run and divides by `successful_runs` with a div-by-zero guard (`src/BatchSimulation.cpp:29-63`).\n- **R3**: `saveSummary()` writes the four populated fields (`src/BatchSimulation.cpp:89-92`); signature unchanged.\n- **R4**: The headless 5-run batch produced `Average completion: 1.0%`, `Average steps: 2089.0`, `Average distance: 293.3 cm`, `Total training samples: 10445` — all > 0.\n\n**Constraints all respected** (`BatchResults` struct intact, no `common/maze_explorer.c` change, `step_count` correctly renamed with `_` suffix).\n\n**Non-blocking nits noted**:\n1. `src/DataLogger.cpp` lost its trailing newline (`\\ No newline at end of file`).\n2. `step_count → step_count_` rename is a drive-by style fix outside the strict spec scope.\n3. The 1% completion is pre-existing wall-follower behaviour, not a regression.\n4. Test only asserts `> 0`, not magnitudes — adequate for catching the original bug but won't catch absurd values."
-      },
-      "started_at": "2026-05-18T15:50:55.592706631Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
     "review@1": {
       "first_event_seq": 247,
@@ -1986,7 +2225,12 @@
       "first_event_seq": 333,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T15:51:03.123479730Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": null,
@@ -1995,6 +2239,34 @@
       "output": null,
       "started_at": "2026-05-18T15:50:55.592629246Z",
       "handler": "human",
+      "duration_ms": 7530,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "push_pr@1": {
+      "first_event_seq": 345,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/push-pr.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/push-pr.sh",
+        "language": "shell"
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T15:51:06.966636301Z",
+      "handler": "command",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
