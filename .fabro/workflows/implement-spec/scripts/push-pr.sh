@@ -4,7 +4,7 @@ set -euo pipefail
 # Derive PR title and branch slug from plan.md
 TITLE=$(grep '^# ' plan.md | head -1 | sed 's/^# //')
 SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/-\+/-/g;s/^-//;s/-$//' | cut -c1-50)
-BRANCH="factory/${SLUG}"
+BRANCH="factory/${SLUG}-$(date +%Y%m%d%H%M)"
 
 cd target-repo
 
