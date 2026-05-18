@@ -1,0 +1,139 @@
+# Implementation Plan: Populate Batch Simulation Statistics
+
+## Goal
+Expose final-run metrics from `Simulation` via getter methods, then use them in `BatchSimulation::runBatch()` to compute and store real averages in `BatchResults`.
+
+---
+
+## Files to Change
+
+| File | What changes and why |
+|---|---|
+| `include/Simulation.h` | Add three new public getter methods: `getCompletionPercent()`, `getTotalSteps()`, `getTotalDistance()`. Also add `getSampleCount()` to expose the `DataLogger`'s `step_count`. These give `BatchSimulation` read access after each run without making any member public. |
+| `include/DataLogger.h` | Add a public `getSampleCount() const` getter that returns the private `step_count` member so `Simulation` can forward it. |
+| `src/BatchSimulation.cpp` | After each `sim.run()` / `sim.runHeadless()` call, read the four new getters and accumulate running totals. After the loop, divide by the number of successful runs to produce averages; store them into `results`. Remove the stale comment about unexposed metrics. |
+
+No other files need to change. The `BatchResults` struct fields and `saveSummary()` signature are explicitly left untouched per the spec's constraints.
+
+---
+
+## Implementation Checklist
+
+1. **Add `getSampleCount()` to `DataLogger`**
+   - Open `include/DataLogger.h`.
+   - In the `// Close file` section (after the `close()` declaration), add:
+     ```cpp
+     int getSampleCount() const { return step_count; }
+     ```
+   - `step_count` is already incremented once per `logSample()` call, so this correctly counts training samples.
+
+2. **Add getter methods to `Simulation`**
+   - Open `include/Simulation.h`.
+   - Locate the existing `// Getters` block:
+     ```cpp
+     // Getters
+     int getCurrentStep() const { return current_step; }
+     bool isComplete() const { return is_complete; }
+     ```
+   - Append three new getters immediately after:
+     ```cpp
+     double getCompletionPercent() const { return metrics->getCompletionPercent(); }
+     int    getTotalSteps()        const { return current_step; }
+     double getTotalDistance()     const { return robot->getTotalDistance(); }
+     int    getSampleCount()       const { return logger->getSampleCount(); }
+     ```
+   - `metrics`, `robot`, and `logger` are already `unique_ptr` members that are initialized before `run()` returns, so dereferencing them here is safe for any call made after `run()` returns.
+
+3. **Accumulate and compute averages in `BatchSimulation::runBatch()`**
+   - Open `src/BatchSimulation.cpp`.
+   - Before the loop, add four accumulator variables (after the `results` initialisation line):
+     ```cpp
+     double sum_completion = 0.0;
+     double sum_steps      = 0.0;
+     double sum_distance   = 0.0;
+     int    sum_samples    = 0;
+     ```
+   - Inside the loop, replace the block that currently reads:
+     ```cpp
+     if (success) {
+         results.successful_runs++;
+     }
+
+     // Note: Would need to expose more metrics from Simulation to calculate averages
+     // For now, just count successful runs
+     ```
+     with:
+     ```cpp
+     if (success) {
+         results.successful_runs++;
+         sum_completion += sim.getCompletionPercent();
+         sum_steps      += sim.getTotalSteps();
+         sum_distance   += sim.getTotalDistance();
+     }
+     sum_samples += sim.getSampleCount();
+     ```
+     Note: `total_samples` accumulates across **all** runs (including failed ones) because every run writes CSV data regardless of success. The averages (`avg_completion_percent`, `avg_steps`, `avg_distance_cm`) are over successful runs only — a natural definition that avoids zeroes from failed runs inflating the denominator.
+
+   - After the loop (before the renderer cleanup), compute and store the averages:
+     ```cpp
+     if (results.successful_runs > 0) {
+         results.avg_completion_percent = sum_completion / results.successful_runs;
+         results.avg_steps              = sum_steps      / results.successful_runs;
+         results.avg_distance_cm        = sum_distance   / results.successful_runs;
+     }
+     results.total_samples = sum_samples;
+     ```
+
+4. **Verify `saveSummary()` already uses the populated fields**
+   - Re-read `BatchSimulation::saveSummary()`. It already writes `results.avg_completion_percent`, `results.avg_steps`, `results.avg_distance_cm`, and `results.total_samples` — no changes needed there.
+
+5. **Build clean with `-Wall`**
+   - Run `cmake -B cmake-build-debug -S . && cmake --build cmake-build-debug` and confirm zero warnings.
+   - The new inline getters in headers are `const`, return primitives or results of existing `const` methods, so no warning-generating patterns are introduced.
+
+---
+
+## Test Strategy
+
+### Functional test (manual / script)
+Run a small headless batch and inspect the summary:
+```bash
+./cmake-build-debug/SimulationPathFinder --headless --batch 5
+cat data/batch_summary.txt
+```
+Expected: all four averages are **non-zero**. With 5 runs and `max_steps = 10 000` the robot will always cover some distance, so `avg_distance_cm > 0`, `avg_steps > 0`, `avg_completion_percent > 0`, and `total_samples > 0`.
+
+### Existing test coverage
+- `test.sh` and `run_test.sh` both run `--batch 2 --headless` and rely on exit code 0. They will continue to pass unchanged.
+- `verify_fix.sh` (if present) should be reviewed to ensure it does not assert on the old zero values.
+
+### New assertions to add (to `test.sh` or a new `verify_batch_stats.sh`)
+```bash
+SUMMARY=data/batch_summary.txt
+avg_completion=$(grep "Average completion" "$SUMMARY" | grep -oP '[\d.]+')
+avg_steps=$(grep "Average steps"      "$SUMMARY" | grep -oP '[\d.]+')
+avg_distance=$(grep "Average distance" "$SUMMARY" | grep -oP '[\d.]+')
+total_samples=$(grep "Total training"  "$SUMMARY" | grep -oP '\d+')
+
+[ "$(echo "$avg_completion > 0" | bc -l)" -eq 1 ] || { echo "avg_completion_percent is 0"; exit 1; }
+[ "$(echo "$avg_steps > 0"      | bc -l)" -eq 1 ] || { echo "avg_steps is 0"; exit 1; }
+[ "$(echo "$avg_distance > 0"   | bc -l)" -eq 1 ] || { echo "avg_distance_cm is 0"; exit 1; }
+[ "$total_samples" -gt 0 ] || { echo "total_samples is 0"; exit 1; }
+echo "All batch statistics are non-zero — PASS"
+```
+
+### Regression
+All existing simulations continue to produce identical CSV data (no changes to the simulation loop, DataLogger output, or PerformanceMetrics calculation). The only observable change is the content of `batch_summary.txt`.
+
+---
+
+## Risks and Edge Cases
+
+| Risk | Mitigation |
+|---|---|
+| **All runs fail** (`successful_runs == 0`) | The averages guard `if (results.successful_runs > 0)` keeps the averages at zero rather than dividing by zero. `total_samples` is still populated from failed runs. |
+| **`metrics` or `robot` or `logger` are `nullptr` at getter call time** | They are initialised in `Simulation`'s constructor and `run()` does not reset them to null — safe after `run()` returns. |
+| **`DataLogger::close()` is called before `getSampleCount()`** | `close()` only closes the file stream; it does not reset `step_count`. The getter returns the correct value even after close. |
+| **`sim` goes out of scope before getters are called** | Getters are called in the same scope where `sim` is declared, immediately after `runHeadless()` / `run()` returns. No lifetime issue. |
+| **Headless vs. rendered first run** | The first run may use a renderer; both paths eventually call `Simulation::run()` so the same fields are populated either way. |
+| **Integer overflow for `total_samples`** | At `max_steps = 10 000` and up to a few hundred batch runs, `total_samples` fits comfortably in an `int` (max ~2 × 10⁶ << 2³¹). |
