@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "notes": null,
+  "failure_reason": "Script failed with exit code: 127\n\n## output\n[master d6e9342] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nremote: \nremote: Create a pull request for 'factory/implementation-plan-populate-batch-simulation-stat' on GitHub by visiting:        \nremote:      https://github.com/volker-p/SimulationPathFinder/pull/new/factory/implementation-plan-populate-batch-simulation-stat        \nremote: \nTo https://github.com/volker-p/SimulationPathFinder.git\n * [new branch]      HEAD -> factory/implementation-plan-populate-batch-simulation-stat\n.fabro/workflows/implement-spec/scripts/push-pr.sh: line 24: gh: command not found\n",
+  "timestamp": "2026-05-18T15:51:08.352552025Z"
+}
