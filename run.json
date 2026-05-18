@@ -551,11 +551,10 @@
     "base_sha": "6f90f9070fc8b173609ee478fbdc3fabff5bc293"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-18T16:01:15.546803157Z",
-  "last_event_at": "2026-05-18T16:01:15.546803157Z",
+  "status_updated_at": "2026-05-18T16:01:25.838367828Z",
+  "last_event_at": "2026-05-18T16:01:29.009834340Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -653,14 +652,97 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 88,
       "checkpoint": {
-        "timestamp": "2026-05-18T16:01:25.839223148Z",
+        "timestamp": "2026-05-18T16:01:28.725409763Z",
         "current_node": "gate_plan",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "human.gate.gate_plan.label": "[R] Revise",
+          "human.gate.selected": "R",
+          "graph.rankdir": "LR",
+          "internal.retry_count.plan": 0,
+          "failure_class": "",
+          "internal.node_visit_count": 1,
+          "thread.planner.current_node": "plan",
+          "internal.retry_count.start": 0,
+          "internal.thread_id": "plan",
+          "failure_signature": "",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.run_id": "01KRXX2C5AV2GWD5N21SBTQKJT",
+          "outcome": "succeeded",
+          "current_node": "gate_plan",
+          "internal.fidelity": "compact",
+          "preferred_label": "[R] Revise",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.answer": "R",
+          "human.gate.label": "[R] Revise",
+          "internal.retry_count.gate_plan": 0
+        },
+        "node_outcomes": {
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[R] Revise",
+            "suggested_next_ids": [
+              "plan"
+            ],
+            "context_updates": {
+              "human.gate.selected": "R",
+              "human.gate.gate_plan.answer": "R",
+              "human.gate.gate_plan.label": "[R] Revise",
+              "human.gate.label": "[R] Revise",
+              "human.gate.gate_plan.question": "Approve Plan"
+            },
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "failed",
+            "failure": {
+              "message": "LLM error: Rate limited by anthropic: This request would exceed your organization's rate limit of 30,000 input tokens per minute (org: 93d502b5-451a-4979-9a0a-25fc9c74fc58, model: claude-sonnet-4-6). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.",
+              "category": "transient_infra",
+              "signature": "api_transient|anthropic|rate_limited"
+            },
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "git_commit_sha": "c19c92b73095f478f168aa65d14448c17e32f7cb",
+        "node_visits": {
+          "plan": 1,
+          "gate_plan": 1,
+          "start": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 0,
+          "additions": 0,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T16:01:29.505644139Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "plan"
         ],
         "node_retries": {},
         "context_values": {
@@ -672,18 +754,18 @@
           "internal.retry_count.gate_plan": 0,
           "preferred_label": "[R] Revise",
           "internal.retry_count.plan": 0,
-          "outcome": "succeeded",
-          "internal.thread_id": "plan",
+          "outcome": "failed",
+          "internal.thread_id": "planner",
           "internal.retry_count.start": 0,
           "human.gate.gate_plan.label": "[R] Revise",
           "internal.run_id": "01KRXX2C5AV2GWD5N21SBTQKJT",
-          "internal.node_visit_count": 1,
-          "failure_class": "",
+          "internal.node_visit_count": 2,
+          "failure_class": "transient_infra",
           "human.gate.gate_plan.answer": "R",
           "human.gate.label": "[R] Revise",
-          "failure_signature": "",
+          "failure_signature": "plan|transient_infra|api_transient|anthropic|rate_limited",
           "human.gate.selected": "R",
-          "current_node": "gate_plan",
+          "current_node": "plan",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
           "internal.work_dir": "/workspace/dark-factory-01",
           "graph.rankdir": "LR"
@@ -718,10 +800,10 @@
             "usage": null
           }
         },
-        "next_node_id": "plan",
+        "next_node_id": "gate_plan",
         "node_visits": {
           "gate_plan": 1,
-          "plan": 1,
+          "plan": 2,
           "start": 1
         }
       },
@@ -746,28 +828,7 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KRXX3WRT5VEBW2ARQAQPBT47": {
-      "question": {
-        "id": "01KRXX3WRT5VEBW2ARQAQPBT47",
-        "text": "Approve Plan",
-        "stage": "gate_plan",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "A",
-            "label": "[A] Approve"
-          },
-          {
-            "key": "R",
-            "label": "[R] Revise"
-          }
-        ],
-        "allow_freeform": false
-      },
-      "started_at": "2026-05-18T16:01:15.546731730Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
     "start@1": {
       "first_event_seq": 15,
@@ -835,19 +896,23 @@
       },
       "state": "failed"
     },
-    "gate_plan@1": {
-      "first_event_seq": 79,
+    "plan@2": {
+      "first_event_seq": 91,
       "prompt": null,
       "response": null,
       "completion": null,
-      "provider_used": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
       "diff": null,
       "script_invocation": null,
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-18T16:01:15.546650909Z",
-      "handler": "human",
+      "started_at": "2026-05-18T16:01:28.725600529Z",
+      "handler": "agent",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -857,6 +922,35 @@
         "cache_write_tokens": 0
       },
       "state": "running"
+    },
+    "gate_plan@1": {
+      "first_event_seq": 79,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T16:01:25.838494238Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T16:01:15.546650909Z",
+      "handler": "human",
+      "duration_ms": 10291,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
     }
   }
 }
