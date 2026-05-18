@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "notes": null,
+  "failure_reason": "LLM error: Rate limited by anthropic: This request would exceed your organization's rate limit of 30,000 input tokens per minute (org: 93d502b5-451a-4979-9a0a-25fc9c74fc58, model: claude-sonnet-4-6). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.",
+  "timestamp": "2026-05-18T16:01:29.505519473Z"
+}
