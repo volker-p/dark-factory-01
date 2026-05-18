@@ -557,7 +557,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-18T15:37:27.839539990Z",
-  "last_event_at": "2026-05-18T15:38:32.211333169Z",
+  "last_event_at": "2026-05-18T15:38:34.756663235Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -2016,8 +2016,8 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:38:33.490573998Z",
-        "current_node": "test",
+        "timestamp": "2026-05-18T15:38:36.331092331Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
@@ -2028,12 +2028,13 @@
           "review",
           "gate_pr",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
           "human.gate.gate_plan.answer": "A",
-          "internal.thread_id": "implement",
+          "internal.thread_id": "test",
           "thread.reviewer.current_node": "review",
           "internal.retry_count.review": 0,
           "human.gate.gate_pr.label": "[R] Rework",
@@ -2051,14 +2052,14 @@
           "last_response": "All work is done. Here's a summary of what was done and why:\n\n---\n\n### What was implemented\n\n**All source-code changes (checklist items 1–6) were already committed** by the previous agent turn (`7b9",
           "internal.work_dir": "/workspace/dark-factory-01",
           "thread.plan.current_node": "gate_plan",
-          "failure_signature": "test|deterministic|command log blob write failed",
-          "outcome": "failed",
+          "failure_signature": "",
+          "outcome": "succeeded",
           "response.plan": "Both files are in place. Here's a summary of everything produced:\n\n---\n\n## What was done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` never reads post-run metrics from `Simulation`; all four average fields in `BatchResults` stay at 0.\n- **Constraint**: add getters to `Simulation` only — no public members, no struct/signature changes, no changes to the maze algorithm.\n\n### 2. Repository reading\nCloned the repo and read `CLAUDE.md`, all six affected source/header files (`Simulation.h/.cpp`, `DataLogger.h/.cpp`, `BatchSimulation.h/.cpp`, `PerformanceMetrics.h`), and the build/test scripts. This revealed:\n- `Simulation` already has `metrics` (→ `getCompletionPercent()`), `robot` (→ `getTotalDistance()`), `current_step`, and `logger` (→ `step_count` via `DataLogger`)\n- `DataLogger::step_count` is private with no getter yet\n- `BatchSimulation` has the comment flagging the exact gap to fix\n\n### 3. `plan.md` — 5 files to touch, 8 numbered steps, full risk table\n\n### 4. `run-tests.sh` — installs `cmake build-essential git libsdl2-dev`, initialises the `nlohmann/json` submodule, does a clean CMake configure + build, runs `--headless --batch 5`, then asserts all four summary fields are non-zero.",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "human.gate.gate_pr.answer": "R",
-          "failure_class": "deterministic",
+          "failure_class": "",
           "internal.fidelity": "compact",
-          "current_node": "test",
+          "current_node": "test_gate",
           "last_stage": "implement",
           "internal.retry_count.plan": 0,
           "human.gate.gate_plan.label": "[A] Approve",
@@ -2230,14 +2231,14 @@
             "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "implement": 2,
           "plan": 1,
           "gate_pr": 1,
           "start": 1,
           "test": 2,
-          "test_gate": 1,
+          "test_gate": 2,
           "review": 1,
           "gate_plan": 1
         }
@@ -2298,7 +2299,12 @@
       "first_event_seq": 352,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "command log blob write failed",
+        "timestamp": "2026-05-18T15:38:33.490325416Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -2311,6 +2317,7 @@
       "output": null,
       "started_at": "2026-05-18T15:38:32.211278407Z",
       "handler": "command",
+      "duration_ms": 1278,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -2319,7 +2326,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     },
     "gate_pr@1": {
       "first_event_seq": 252,
