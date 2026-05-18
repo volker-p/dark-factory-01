@@ -554,7 +554,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-18T16:26:34.559433230Z",
-  "last_event_at": "2026-05-18T16:27:31.223676247Z",
+  "last_event_at": "2026-05-18T16:28:20.472160519Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -1471,8 +1471,8 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-18T16:28:19.316571976Z",
-        "current_node": "test",
+        "timestamp": "2026-05-18T16:28:22.078994108Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
@@ -1484,19 +1484,21 @@
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
           "response.implement": "The commit is recorded successfully. Here's a summary of what was implemented:\n\n## Summary of Changes\n\nAll three checklist items from `plan.md` were implemented:\n\n### 1. `include/DataLogger.h`\nAdded `getSampleCount() const` getter that returns the private `step_count` member, correctly reflecting the number of training samples logged.\n\n### 2. `include/Simulation.h`\nAdded four new public getter methods to the `// Getters` block:\n- `getCompletionPercent()` — delegates to `metrics->getCompletionPercent()`\n- `getTotalSteps()` — returns `current_step`\n- `getTotalDistance()` — delegates to `robot->getTotalDistance()`\n- `getSampleCount()` — delegates to `logger->getSampleCount()`\n\n### 3. `src/BatchSimulation.cpp`\n- Added four accumulator variables (`sum_completion`, `sum_steps`, `sum_distance`, `sum_samples`) before the loop.\n- Inside the loop, replaced the stale comment block with calls to the new getters — successful runs accumulate the three averages, and all runs contribute to `sum_samples`.\n- After the loop, computes and stores averages guarded by `successful_runs > 0` to avoid division by zero, then assigns `total_samples`.\n\nThe `saveSummary()` function already writes all four populated fields — no changes needed there (checklist item 4 confirmed).",
+          "internal.retry_count.test_gate": 0,
           "internal.retry_count.plan": 0,
-          "internal.thread_id": "implement",
+          "internal.thread_id": "test",
           "internal.retry_count.test": 0,
           "thread.implement.current_node": "test",
-          "failure_class": "deterministic",
+          "failure_class": "",
           "human.gate.gate_plan.answer": "A",
           "thread.impl.current_node": "implement",
-          "failure_signature": "test|deterministic|command log blob write failed",
+          "failure_signature": "",
           "internal.retry_count.implement": 0,
           "thread.planner.current_node": "plan",
           "internal.fidelity": "compact",
@@ -1506,8 +1508,9 @@
           "thread.plan.current_node": "gate_plan",
           "preferred_label": "[A] Approve",
           "human.gate.gate_plan.question": "Approve Plan",
+          "thread.test.current_node": "test_gate",
           "internal.retry_count.gate_plan": 0,
-          "outcome": "failed",
+          "outcome": "succeeded",
           "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## What was written\n\n### `plan.md`\n\n**Goal:** Expose final-run metrics from `Simulation` via getter methods, then use them in `BatchSimulation::runBatch()` to compute and store real averages in `BatchResults`.\n\n**Files to change — only 3:**\n\n| File | Change |\n|---|---|\n| `include/DataLogger.h` | Add `getSampleCount() const` getter returning private `step_count` |\n| `include/Simulation.h` | Add 4 public getters: `getCompletionPercent()`, `getTotalSteps()`, `getTotalDistance()`, `getSampleCount()` — all delegating to already-owned members |\n| `src/BatchSimulation.cpp` | Add 4 accumulators before the loop, read all 4 getters after each run, compute averages after the loop, remove the stale comment |\n\n**Key design decisions captured in the plan:**\n- Averages are computed over **successful runs only** (natural, avoids zero-distortion)\n- `total_samples` accumulates across **all** runs (every run always writes CSV)\n- Guard against `successful_runs == 0` to avoid divide-by-zero\n- `DataLogger::close()` doesn't reset `step_count`, so getters are safe to call post-`run()`\n- `saveSummary()` already uses all four fields — no changes needed there\n\n### `run-tests.sh`\n\n- Installs `cmake`, `build-essential`, `libsdl2-dev` if missing (checks both cmake and libsdl2-dev separately)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds with CMake\n- Runs `--headless --batch 5`\n- Parses `batch_summary.txt` and asserts all four statistics are `> 0`",
           "last_stage": "implement",
           "internal.retry_count.start": 0,
@@ -1517,10 +1520,15 @@
           "human.gate.label": "[A] Approve",
           "human.gate.selected": "A",
           "last_response": "The commit is recorded successfully. Here's a summary of what was implemented:\n\n## Summary of Changes\n\nAll three checklist items from `plan.md` were implemented:\n\n### 1. `include/DataLogger.h`\nAdded `",
-          "current_node": "test",
+          "current_node": "test_gate",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        "
         },
         "node_outcomes": {
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
           "test": {
             "status": "failed",
             "failure": {
@@ -1626,13 +1634,14 @@
             "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "gate_plan": 4,
           "start": 1,
           "implement": 1,
           "test": 1,
-          "plan": 4
+          "plan": 4,
+          "test_gate": 1
         }
       },
       "diff": {}
@@ -1986,7 +1995,12 @@
       "first_event_seq": 333,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "command log blob write failed",
+        "timestamp": "2026-05-18T16:28:19.316359928Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1999,6 +2013,7 @@
       "output": null,
       "started_at": "2026-05-18T16:27:31.223501785Z",
       "handler": "command",
+      "duration_ms": 48092,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -2007,7 +2022,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     }
   }
 }
