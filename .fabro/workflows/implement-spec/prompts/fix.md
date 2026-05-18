@@ -10,9 +10,11 @@ The test suite failed. Fix the failures without breaking passing tests.
    - Do not add workarounds — fix the actual problem
    - Do not remove tests to make them pass
    - Do not weaken assertions
-5. After fixing, stage your changes:
+5. After fixing, commit your changes:
    ```bash
-   cd target-repo && git add -A
+   cd target-repo
+   git add -A
+   git commit -m "Fix: <one-line description of what was fixed>"
    ```
 
 The test suite will run again automatically after this step.

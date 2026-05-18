@@ -68,6 +68,13 @@ digraph ImplementSpec {
     // Human sees satisfaction report, approves or requests rework
     gate_pr [shape=hexagon, label="Approve PR"]
 
+    // Commit, push branch to target repo, open draft PR
+    push_pr [
+        label="Push PR"
+        shape=parallelogram
+        script="@scripts/push-pr.sh"
+    ]
+
     start    -> plan      -> gate_plan
     gate_plan -> implement [label="[A] Approve"]
     gate_plan -> plan      [label="[R] Revise"]
@@ -76,6 +83,7 @@ digraph ImplementSpec {
     test_gate -> fix       [label="Fix"]
     fix       -> test
     review    -> gate_pr
-    gate_pr   -> exit      [label="[M] Merge"]
+    gate_pr   -> push_pr   [label="[M] Merge"]
     gate_pr   -> implement [label="[R] Rework"]
+    push_pr   -> exit
 }

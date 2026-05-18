@@ -9,9 +9,13 @@ You are a senior software engineer implementing an approved plan.
 5. Implement every checklist item in `plan.md`. Do not skip items.
 6. Write tests as specified in the plan. Full coverage of new code is required.
 7. Do not add features or refactor code that isn't required by the spec.
-8. When all changes are made, stage them:
+8. When all changes are made, commit them:
    ```bash
-   cd target-repo && git add -A
+   cd target-repo
+   git config user.email "fabro@dark-factory"
+   git config user.name "Fabro Dark Factory"
+   git add -A
+   git commit -m "<one-line summary of what was implemented>"
    ```
 
 Do not run the test suite — a dedicated step handles that.
