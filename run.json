@@ -526,11 +526,10 @@
     "base_sha": "b64c66abd4ed4ad4c633c944578467746765c363"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-18T15:02:06.473797259Z",
-  "last_event_at": "2026-05-18T15:02:06.473797259Z",
+  "status_updated_at": "2026-05-18T15:04:43.894720123Z",
+  "last_event_at": "2026-05-18T15:05:45.154506680Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -659,9 +658,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 143,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:04:43.895140763Z",
+        "timestamp": "2026-05-18T15:04:46.740167728Z",
         "current_node": "gate_plan",
         "completed_nodes": [
           "start",
@@ -670,37 +669,190 @@
         ],
         "node_retries": {},
         "context_values": {
+          "internal.run_id": "01KRXSJZ1P92KRDKYM631EV24S",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "human.gate.selected": "A",
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/Simulati",
+          "last_stage": "plan",
+          "preferred_label": "[A] Approve",
+          "thread.plan.current_node": "gate_plan",
           "internal.thread_id": "plan",
+          "outcome": "succeeded",
+          "thread.planner.current_node": "plan",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output",
+          "human.gate.gate_plan.answer": "A",
+          "failure_class": "",
           "human.gate.label": "[A] Approve",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "current_node": "gate_plan",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "internal.retry_count.start": 0,
+          "failure_signature": "",
+          "graph.rankdir": "LR",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.node_visit_count": 1,
+          "internal.retry_count.gate_plan": 0,
+          "internal.fidelity": "compact",
+          "internal.retry_count.plan": 0
+        },
+        "node_outcomes": {
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/Simulati",
+              "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 28160,
+                    "output_tokens": 6967,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 441043,
+                    "cache_write_tokens": 31605
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 31605,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 439815
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "implement",
+        "git_commit_sha": "08b21c2e9cf4d748ff2c59399b48faf821a2f771",
+        "node_visits": {
+          "start": 1,
+          "gate_plan": 1,
+          "plan": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 3,
+          "additions": 208,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T15:05:45.237807964Z",
+        "current_node": "implement",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.thread_id": "impl",
+          "thread.impl.current_node": "implement",
           "internal.run_id": "01KRXSJZ1P92KRDKYM631EV24S",
           "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output",
-          "preferred_label": "[A] Approve",
           "failure_class": "",
-          "internal.work_dir": "/workspace/dark-factory-01",
-          "outcome": "succeeded",
-          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/Simulati",
-          "internal.retry_count.plan": 0,
           "human.gate.selected": "A",
+          "internal.retry_count.gate_plan": 0,
           "internal.retry_count.start": 0,
           "failure_signature": "",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
           "graph.rankdir": "LR",
-          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "internal.fidelity": "compact",
+          "internal.retry_count.implement": 0,
+          "current_node": "implement",
+          "last_stage": "implement",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "preferred_label": "[A] Approve",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded",
+          "internal.retry_count.plan": 0,
+          "last_response": "All changes are staged. Here's a summary of everything implemented:\n\n## Changes Made\n\n### `include/DataLogger.h`\n- Added `int getSampleCount() const { return step_count; }` inline getter in the `publi",
           "internal.node_visit_count": 1,
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.fidelity": "full",
           "human.gate.gate_plan.answer": "A",
-          "internal.retry_count.gate_plan": 0,
-          "current_node": "gate_plan",
+          "response.implement": "All changes are staged. Here's a summary of everything implemented:\n\n## Changes Made\n\n### `include/DataLogger.h`\n- Added `int getSampleCount() const { return step_count; }` inline getter in the `public:` section, exposing the private `step_count` field without making it public.\n\n### `include/Simulation.h`\n- Added four `const` inline getter methods in the `// Getters` section:\n  - `getFinalCompletionPercent()` → delegates to `metrics->getCompletionPercent()`\n  - `getFinalSteps()` → returns `current_step`\n  - `getFinalDistanceCm()` → delegates to `robot->getTotalDistance()`\n  - `getFinalSampleCount()` → delegates to `logger->getSampleCount()`\n\n### `src/BatchSimulation.cpp`\n- Declared four accumulator variables (`sum_completion`, `sum_steps`, `sum_distance`, `sum_samples`) before the simulation loop.\n- Inside the existing `if (success)` block, accumulate all four metrics via the new getters after each successful run.\n- After the loop, compute true averages guarded by `if (results.successful_runs > 0)` to prevent division by zero, and assign `results.total_samples = sum_samples` unconditionally.\n- Removed the `// Note: Would need to expose more metrics...` placeholder comment.",
           "thread.plan.current_node": "gate_plan",
-          "last_stage": "plan",
+          "human.gate.label": "[A] Approve",
           "thread.planner.current_node": "plan",
-          "human.gate.gate_plan.label": "[A] Approve",
-          "human.gate.gate_plan.question": "Approve Plan"
+          "human.gate.gate_plan.label": "[A] Approve"
         },
         "node_outcomes": {
           "start": {
             "status": "succeeded",
             "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All changes are staged. Here's a summary of everything implemented:\n\n## Changes Made\n\n### `include/DataLogger.h`\n- Added `int getSampleCount() const { return step_count; }` inline getter in the `publi",
+              "last_stage": "implement",
+              "response.implement": "All changes are staged. Here's a summary of everything implemented:\n\n## Changes Made\n\n### `include/DataLogger.h`\n- Added `int getSampleCount() const { return step_count; }` inline getter in the `public:` section, exposing the private `step_count` field without making it public.\n\n### `include/Simulation.h`\n- Added four `const` inline getter methods in the `// Getters` section:\n  - `getFinalCompletionPercent()` → delegates to `metrics->getCompletionPercent()`\n  - `getFinalSteps()` → returns `current_step`\n  - `getFinalDistanceCm()` → delegates to `robot->getTotalDistance()`\n  - `getFinalSampleCount()` → delegates to `logger->getSampleCount()`\n\n### `src/BatchSimulation.cpp`\n- Declared four accumulator variables (`sum_completion`, `sum_steps`, `sum_distance`, `sum_samples`) before the simulation loop.\n- Inside the existing `if (success)` block, accumulate all four metrics via the new getters after each successful run.\n- After the loop, compute true averages guarded by `if (results.successful_runs > 0)` to prevent division by zero, and assign `results.total_samples = sum_samples` unconditionally.\n- Removed the `// Note: Would need to expose more metrics...` placeholder comment."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 16972,
+                    "output_tokens": 3088,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 213113,
+                    "cache_write_tokens": 20543
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 20543,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 238205
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/include/DataLogger.h",
+              "/workspace/dark-factory-01/target-repo/include/Simulation.h",
+              "/workspace/dark-factory-01/target-repo/src/BatchSimulation.cpp"
+            ]
           },
           "plan": {
             "status": "succeeded",
@@ -754,11 +906,12 @@
             "usage": null
           }
         },
-        "next_node_id": "implement",
+        "next_node_id": "test",
         "node_visits": {
           "start": 1,
           "plan": 1,
-          "gate_plan": 1
+          "gate_plan": 1,
+          "implement": 1
         }
       },
       "diff": {}
@@ -782,35 +935,50 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KRXSQJW9Q32ZBYAXMFBYYKYN": {
-      "question": {
-        "id": "01KRXSQJW9Q32ZBYAXMFBYYKYN",
-        "text": "Approve Plan",
-        "stage": "gate_plan",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "A",
-            "label": "[A] Approve"
-          },
-          {
-            "key": "R",
-            "label": "[R] Revise"
-          }
-        ],
-        "allow_freeform": false,
-        "context_display": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **`target_repo`**: `volker-p/SimulationPathFinder`\n- **`type`**: `feature`\n- **Core problem**: `BatchSimulation::runBatch()` accumulates `successful_runs` but leaves `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` at zero. The comment in the code says \"would need to expose more metrics\" — which is exactly what we'll fix.\n\n### 2. Key findings from the codebase\n| Finding | Impact |\n|---|---|\n| `Simulation` already has `metrics`, `robot`, `logger` members with all needed data post-run | We only need getters — no algorithmic change |\n| `PerformanceMetrics::getCompletionPercent()` and `Robot::getTotalDistance()` exist and are `const` | Safe to call from `const` getters |\n| `DataLogger::step_count` is private with **no getter** | Need to add `getSampleCount()` to `DataLogger` too |\n| No automated unit-test framework exists | Integration test via headless batch run is the validation path |\n| Build flags include `-Wall` | All new code must be warning-clean |\n\n### 3. `plan.md` — 7-step checklist covering:\n- Adding `getSampleCount()` to `DataLogger`\n- Adding 4 getters to `Simulation`\n- Wiring accumulators + averages in `BatchSimulation::runBatch()`\n- Exact `0`-safe guard for division, naming conventions, and build verification\n\n### 4. `run-tests.sh` — script that:\n- Initialises git submodules\n- Installs `libsdl2-dev` if missing\n- Does a clean CMake configure + build with `-Wall -Werror`\n- Runs `--batch 5 --headless` and parses `batch_summary.txt`\n- Asserts all four averages are `> 0` with named PASS/FAIL output"
-      },
-      "started_at": "2026-05-18T15:02:06.473771881Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
+    "implement@1": {
+      "first_event_seq": 146,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T15:04:46.741109657Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 16972,
+        "output_tokens": 3088,
+        "total_tokens": 253716,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 213113,
+        "cache_write_tokens": 20543,
+        "total_usd_micros": 238205
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    },
     "gate_plan@1": {
       "first_event_seq": 134,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T15:04:43.894941925Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": null,
@@ -819,6 +987,7 @@
       "output": null,
       "started_at": "2026-05-18T15:02:06.473708606Z",
       "handler": "human",
+      "duration_ms": 157421,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -827,7 +996,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
