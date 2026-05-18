@@ -1,0 +1,227 @@
+{
+  "title": "Say hello and demonstrate a basic Fabro workflow",
+  "spec": {
+    "run_id": "01KRXPS8GVAKKEPFMAGKHDKRZ4",
+    "settings": {
+      "project": {
+        "name": null,
+        "description": null,
+        "metadata": {}
+      },
+      "workflow": {
+        "name": null,
+        "description": null,
+        "graph": "workflow.fabro",
+        "metadata": {}
+      },
+      "run": {
+        "goal": {
+          "type": "inline",
+          "value": "Say hello and demonstrate a basic Fabro workflow"
+        },
+        "working_dir": null,
+        "metadata": {},
+        "inputs": {},
+        "model": {
+          "provider": "anthropic",
+          "name": "claude-sonnet-4-6",
+          "fallbacks": [],
+          "controls": {
+            "reasoning_effort": null,
+            "speed": null
+          }
+        },
+        "git": {
+          "author": null
+        },
+        "prepare": {
+          "commands": [],
+          "timeout_ms": 300000
+        },
+        "execution": {
+          "mode": "normal",
+          "approval": "prompt"
+        },
+        "checkpoint": {
+          "exclude_globs": []
+        },
+        "clone": {
+          "enabled": true
+        },
+        "run_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "meta_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "sandbox": {
+          "provider": "docker",
+          "preserve": false,
+          "stop_on_terminal": true,
+          "devcontainer": false,
+          "env": {},
+          "docker": {
+            "image": "buildpack-deps:noble",
+            "network_mode": null,
+            "memory_limit": 4000000000,
+            "cpu_quota": 200000,
+            "env_vars": {}
+          },
+          "daytona": null
+        },
+        "notifications": {},
+        "interviews": {
+          "provider": null,
+          "slack": null
+        },
+        "agent": {
+          "permissions": null,
+          "mcps": {}
+        },
+        "hooks": [],
+        "scm": {
+          "provider": null,
+          "owner": null,
+          "repository": null,
+          "github": null
+        },
+        "pull_request": {
+          "enabled": true,
+          "draft": true,
+          "auto_merge": false,
+          "merge_strategy": "squash"
+        },
+        "artifacts": {
+          "include": []
+        },
+        "integrations": {
+          "github": {
+            "permissions": {}
+          }
+        }
+      }
+    },
+    "graph": {
+      "name": "Hello",
+      "nodes": {
+        "greet": {
+          "id": "greet",
+          "attrs": {
+            "prompt": {
+              "String": "Say hello! Introduce yourself and explain that this is a test of the Fabro workflow engine."
+            },
+            "label": {
+              "String": "Greet"
+            }
+          }
+        },
+        "exit": {
+          "id": "exit",
+          "attrs": {
+            "shape": {
+              "String": "Msquare"
+            },
+            "label": {
+              "String": "Exit"
+            }
+          }
+        },
+        "start": {
+          "id": "start",
+          "attrs": {
+            "shape": {
+              "String": "Mdiamond"
+            },
+            "label": {
+              "String": "Start"
+            }
+          }
+        }
+      },
+      "edges": [
+        {
+          "from": "start",
+          "to": "greet",
+          "attrs": {}
+        },
+        {
+          "from": "greet",
+          "to": "exit",
+          "attrs": {}
+        }
+      ],
+      "attrs": {
+        "goal": {
+          "String": "Say hello and demonstrate a basic Fabro workflow"
+        },
+        "rankdir": {
+          "String": "LR"
+        }
+      }
+    },
+    "graph_source": "digraph Hello {\n    graph [goal=\"Say hello and demonstrate a basic Fabro workflow\"]\n    rankdir=LR\n\n    start [shape=Mdiamond, label=\"Start\"]\n    exit  [shape=Msquare, label=\"Exit\"]\n\n    greet [label=\"Greet\", prompt=\"Say hello! Introduce yourself and explain that this is a test of the Fabro workflow engine.\"]\n\n    start -> greet -> exit\n}\n",
+    "workflow_slug": "hello",
+    "source_directory": "/home/fela/CLionProjects/dark-factory-01",
+    "provenance": {
+      "server": {
+        "version": "0.237.0-nightly.0"
+      },
+      "client": {
+        "user_agent": "fabro-cli/0.237.0-nightly.0",
+        "name": "fabro-cli",
+        "version": "0.237.0-nightly.0"
+      },
+      "subject": {
+        "kind": "user",
+        "identity": {
+          "issuer": "fabro:dev",
+          "subject": "dev"
+        },
+        "login": "dev",
+        "auth_method": "dev_token"
+      }
+    },
+    "manifest_blob": "9aa364fada3892bf1b150f3ad1a96fa56640d6ac9ff5c839821f66dbfb0db91b",
+    "definition_blob": "3fec7a16f29840019daf22af40b71b2d16df6ef083eb4aa232fb216a944ed9da",
+    "git": {
+      "origin_url": "https://github.com/volker-p/dark-factory-01",
+      "branch": "master",
+      "sha": "15100d45635c1732f8d47f28c7a305dfd1ffce93",
+      "dirty": "clean",
+      "push_outcome": {
+        "type": "not_attempted"
+      }
+    }
+  },
+  "web_url": "https://fabro.uawg.xyz/runs/01KRXPS8GVAKKEPFMAGKHDKRZ4",
+  "start": null,
+  "status": {
+    "kind": "starting"
+  },
+  "status_updated_at": "2026-05-18T14:10:35.898258790Z",
+  "last_event_at": "2026-05-18T14:10:51.205264833Z",
+  "pending_control": null,
+  "checkpoints": [],
+  "conclusion": null,
+  "sandbox": {
+    "provider": "docker",
+    "image": "buildpack-deps:noble",
+    "runtime": {
+      "id": "2fec2e8c0e6c6d59dcbd045c17577546d399ea7c4ad9296f9c14fc510de681c8",
+      "working_directory": "/workspace/dark-factory-01",
+      "repo_cloned": true,
+      "clone_origin_url": "https://github.com/volker-p/dark-factory-01",
+      "clone_branch": "master",
+      "workspace_root": "/workspace",
+      "repos_root": "/repos",
+      "primary_repo_path": "/repos/volker-p/dark-factory-01",
+      "primary_repo_link": "/workspace/dark-factory-01"
+    }
+  },
+  "pull_request": null,
+  "superseded_by": null,
+  "pending_interviews": {},
+  "stages": {}
+}
