@@ -1,0 +1,5 @@
+{
+  "script": "@scripts/push-pr.sh",
+  "command": "exec 2>&1\n@scripts/push-pr.sh",
+  "language": "shell"
+}
