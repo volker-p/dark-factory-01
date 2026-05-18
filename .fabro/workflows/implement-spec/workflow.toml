@@ -1,0 +1,18 @@
+_version = 1
+
+[workflow]
+graph = "workflow.fabro"
+
+[run.sandbox]
+provider = "docker"
+
+[run.inputs]
+spec_path = "specs/example.md"
+
+[run.pull_request]
+enabled = true
+draft = true
+
+[run.integrations.github.permissions]
+contents = "write"
+pull_requests = "write"
