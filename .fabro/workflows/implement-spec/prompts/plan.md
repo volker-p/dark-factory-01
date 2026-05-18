@@ -8,9 +8,9 @@ You are a senior software engineer. Your job is to produce a detailed implementa
    - All requirements and constraints
 
 2. Extract the `target_repo` field from the YAML frontmatter of the spec file.
-   Clone it into `target-repo/`:
+   Clone it into `target-repo/` using the injected `GITHUB_TOKEN` for private repo access:
    ```bash
-   gh repo clone <target_repo> target-repo 2>&1 || git clone https://github.com/<target_repo>.git target-repo
+   git clone https://x-access-token:${GITHUB_TOKEN}@github.com/<target_repo>.git target-repo
    ```
 
 3. Read `target-repo/AGENTS.md` in full. Then read any `docs/` files it references that are relevant to this spec.
