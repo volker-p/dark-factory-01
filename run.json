@@ -196,14 +196,130 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KRXPS8GVAKKEPFMAGKHDKRZ4",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-18T14:10:51.500176722Z",
+    "run_branch": "fabro/run/01KRXPS8GVAKKEPFMAGKHDKRZ4",
+    "base_sha": "15100d45635c1732f8d47f28c7a305dfd1ffce93"
   },
-  "status_updated_at": "2026-05-18T14:10:35.898258790Z",
-  "last_event_at": "2026-05-18T14:10:51.205264833Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-18T14:10:51.500212886Z",
+  "last_event_at": "2026-05-18T14:11:17.896136474Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 19,
+      "checkpoint": {
+        "timestamp": "2026-05-18T14:10:52.979592717Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "failure_class": "",
+          "internal.retry_count.start": 0,
+          "internal.thread_id": null,
+          "graph.rankdir": "LR",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "current_node": "start",
+          "internal.run_id": "01KRXPS8GVAKKEPFMAGKHDKRZ4",
+          "graph.goal": "Say hello and demonstrate a basic Fabro workflow",
+          "failure_signature": "",
+          "internal.fidelity": "compact",
+          "internal.work_dir": "/workspace/dark-factory-01"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "greet",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T14:11:17.942405581Z",
+        "current_node": "greet",
+        "completed_nodes": [
+          "start",
+          "greet"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.node_visit_count": 1,
+          "internal.run_id": "01KRXPS8GVAKKEPFMAGKHDKRZ4",
+          "internal.thread_id": "start",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "graph.rankdir": "LR",
+          "internal.retry_count.start": 0,
+          "internal.retry_count.greet": 0,
+          "last_response": "👋 **Hello! I'm Claude**, an AI coding assistant made by Anthropic.\n\n---\n\nThis is a test run of the **Fabro workflow engine** — a system designed to orchestrate AI agents through structured, autom",
+          "failure_signature": "",
+          "outcome": "succeeded",
+          "thread.start.current_node": "greet",
+          "internal.fidelity": "compact",
+          "response.greet": "👋 **Hello! I'm Claude**, an AI coding assistant made by Anthropic.\n\n---\n\nThis is a test run of the **Fabro workflow engine** — a system designed to orchestrate AI agents through structured, automated software engineering pipelines.\n\nHere's what's happening under the hood right now:\n\n- 📄 This repository (`dark-factory-01`) contains a `.fabro/` directory that defines a **Fabro project**\n- 🔀 The active workflow is `hello`, defined in `.fabro/workflows/hello/workflow.fabro`\n- 🧠 That workflow is a simple directed graph: **Start → Greet → Exit**\n- 🤖 **I am the agent** executing the `greet` node — my prompt was *\"Say hello! Introduce yourself and explain that this is a test of the Fabro workflow engine.\"*\n\nThe broader vision (described in `Dark-Factory.md`) is a **\"dark factory\"** for software development — a fully autonomous pipeline where:\n\n> Humans write specs and acceptance criteria. The system does the rest.\n\nThis `hello` workflow is the simplest possible proof of that concept: a spec (the workflow graph + prompt) drove an AI agent to produce this output — no human wrote a line of it.\n\n✅ **Greet node: complete.** The workflow will now proceed to `Exit`.",
+          "current_node": "greet",
+          "failure_class": "",
+          "graph.goal": "Say hello and demonstrate a basic Fabro workflow",
+          "last_stage": "greet"
+        },
+        "node_outcomes": {
+          "greet": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "👋 **Hello! I'm Claude**, an AI coding assistant made by Anthropic.\n\n---\n\nThis is a test run of the **Fabro workflow engine** — a system designed to orchestrate AI agents through structured, autom",
+              "last_stage": "greet",
+              "response.greet": "👋 **Hello! I'm Claude**, an AI coding assistant made by Anthropic.\n\n---\n\nThis is a test run of the **Fabro workflow engine** — a system designed to orchestrate AI agents through structured, automated software engineering pipelines.\n\nHere's what's happening under the hood right now:\n\n- 📄 This repository (`dark-factory-01`) contains a `.fabro/` directory that defines a **Fabro project**\n- 🔀 The active workflow is `hello`, defined in `.fabro/workflows/hello/workflow.fabro`\n- 🧠 That workflow is a simple directed graph: **Start → Greet → Exit**\n- 🤖 **I am the agent** executing the `greet` node — my prompt was *\"Say hello! Introduce yourself and explain that this is a test of the Fabro workflow engine.\"*\n\nThe broader vision (described in `Dark-Factory.md`) is a **\"dark factory\"** for software development — a fully autonomous pipeline where:\n\n> Humans write specs and acceptance criteria. The system does the rest.\n\nThis `hello` workflow is the simplest possible proof of that concept: a spec (the workflow graph + prompt) drove an AI agent to produce this output — no human wrote a line of it.\n\n✅ **Greet node: complete.** The workflow will now proceed to `Exit`."
+            },
+            "notes": "Stage completed: greet",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 2771,
+                    "output_tokens": 1041,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 19613,
+                    "cache_write_tokens": 4877
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 4877,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 48099
+            }
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "exit",
+        "node_visits": {
+          "start": 1,
+          "greet": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -223,5 +339,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "greet@1": {
+      "first_event_seq": 20,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T14:10:52.979970053Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 2771,
+        "output_tokens": 1041,
+        "total_tokens": 28302,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 19613,
+        "cache_write_tokens": 4877,
+        "total_usd_micros": 48099
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    },
+    "start@1": {
+      "first_event_seq": 16,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T14:10:52.979263766Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T14:10:52.979084297Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    }
+  }
 }
