@@ -56,10 +56,9 @@ digraph ImplementSpec {
         max_visits=3
     ]
 
-    // Independent model reviews implementation against spec
+    // Independent model reviews implementation against spec (agent, not prompt — needs tool access)
     review [
         label="Review"
-        shape=tab
         prompt="@prompts/review.md"
         class="reviewer"
         timeout="300s"
@@ -72,7 +71,7 @@ digraph ImplementSpec {
     push_pr [
         label="Push PR"
         shape=parallelogram
-        script="@scripts/push-pr.sh"
+        script="bash .fabro/workflows/implement-spec/scripts/push-pr.sh"
     ]
 
     start    -> plan      -> gate_plan
