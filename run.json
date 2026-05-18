@@ -551,10 +551,11 @@
     "base_sha": "f83301b42e4d2675b83b6d10a121801bb3565469"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-18T15:43:47.377523466Z",
-  "last_event_at": "2026-05-18T15:45:54.725660996Z",
+  "status_updated_at": "2026-05-18T15:45:57.706327816Z",
+  "last_event_at": "2026-05-18T15:45:57.706327816Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -595,9 +596,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 121,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:45:54.822283405Z",
+        "timestamp": "2026-05-18T15:45:57.705381661Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -605,24 +606,24 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.fidelity": "compact",
-          "internal.retry_count.start": 0,
-          "failure_class": "",
+          "internal.thread_id": "planner",
           "internal.retry_count.plan": 0,
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "internal.run_id": "01KRXW3VYWZPZPK1YMVRJY4XMC",
           "internal.work_dir": "/workspace/dark-factory-01",
-          "current_node": "plan",
-          "outcome": "succeeded",
-          "last_stage": "plan",
-          "internal.thread_id": "planner",
-          "last_response": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core pro",
-          "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero.",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
-          "graph.rankdir": "LR",
-          "thread.planner.current_node": "plan",
           "internal.node_visit_count": 1,
+          "thread.planner.current_node": "plan",
+          "last_response": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core pro",
           "failure_signature": "",
-          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        "
+          "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero.",
+          "outcome": "succeeded",
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.fidelity": "compact",
+          "current_node": "plan",
+          "internal.retry_count.start": 0,
+          "last_stage": "plan"
         },
         "node_outcomes": {
           "plan": {
@@ -667,7 +668,120 @@
           }
         },
         "next_node_id": "gate_plan",
+        "git_commit_sha": "689a53e4d017b49b9678c135cfddbcb6766fe8e6",
         "node_visits": {
+          "plan": 1,
+          "start": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/plan.md b/plan.md\nnew file mode 100644\nindex 0000000..e37661b\n--- /dev/null\n+++ b/plan.md\n@@ -0,0 +1,112 @@\n+# Implementation Plan: Populate Batch Simulation Statistics\n+\n+## Goal\n+\n+Add getter methods to `Simulation` that expose post-run metrics (completion %, steps, distance, samples logged), then wire `BatchSimulation::runBatch()` to accumulate those values and compute real averages in `BatchResults`.\n+\n+---\n+\n+## Files to Change\n+\n+| File | What changes and why |\n+|---|---|\n+| `include/Simulation.h` | Add four `const` getter declarations: `getCompletionPercent()`, `getStepCount()`, `getTotalDistance()`, and `getSampleCount()`. These expose `metrics_`, `current_step`, `robot_`, and `logger_` post-run data without making any member public. |\n+| `src/Simulation.cpp` | Implement the four getters (some are trivial pass-throughs; `getSampleCount()` delegates to `logger_->getStepCount()`). Also change the private member names if needed to follow the `_` suffix convention for private members (per spec constraints). |\n+| `include/DataLogger.h` | Add a `getSampleCount() const` getter declaration that exposes `step_count_`. Rename `step_count` → `step_count_` per naming convention (private members use `_` suffix). |\n+| `src/DataLogger.cpp` | Rename `step_count` → `step_count_` wherever it appears, and implement `getSampleCount()`. |\n+| `src/BatchSimulation.cpp` | After each `sim.run()` / `sim.runHeadless()` call, read the four getters and accumulate totals. After the loop, divide by `successful_runs` (guarding division by zero) to populate `results.avg_completion_percent`, `results.avg_steps`, `results.avg_distance_cm`, and `results.total_samples`. Remove the placeholder comment. |\n+\n+---\n+\n+## Implementation Checklist\n+\n+1. **`include/DataLogger.h`** — rename the private member `step_count` → `step_count_` (one occurrence in the declaration). Add the public getter:\n+   ```cpp\n+   int getSampleCount() const { return step_count_; }\n+   ```\n+\n+2. **`src/DataLogger.cpp`** — replace every use of `step_count` with `step_count_` (three occurrences: constructor initialiser, increment in `logSample()`, print in `close()`).\n+\n+3. **`include/Simulation.h`** — add four getter declarations to the `public:` section (after the existing `getCurrentStep()` and `isComplete()` getters):\n+   ```cpp\n+   double getCompletionPercent() const;\n+   double getTotalDistance() const;\n+   int    getSampleCount() const;\n+   ```\n+   Note: `getCurrentStep()` already exists and covers step count — it can be reused by `BatchSimulation`. No rename is required for the existing getter.\n+\n+4. **`src/Simulation.cpp`** — implement the three new getters (placed after the existing inline definitions or at the bottom of the file):\n+   ```cpp\n+   double Simulation::getCompletionPercent() const { return metrics->getCompletionPercent(); }\n+   double Simulation::getTotalDistance()     const { return robot->getTotalDistance(); }\n+   int    Simulation::getSampleCount()       const { return logger->getSampleCount(); }\n+   ```\n+   These are safe to call only after `run()` / `runHeadless()` returns because `metrics`, `robot`, and `logger` are all valid `unique_ptr` members that are initialised before the simulation loop runs.\n+\n+5. **`src/BatchSimulation.cpp`** — in `runBatch()`, declare accumulator variables before the loop:\n+   ```cpp\n+   double total_completion = 0.0;\n+   double total_steps      = 0.0;\n+   double total_distance   = 0.0;\n+   int    total_samples    = 0;\n+   ```\n+   After the `if (success) { results.successful_runs++; }` block, unconditionally (or only for successful runs — see Risks) add:\n+   ```cpp\n+   total_completion += sim.getCompletionPercent();\n+   total_steps      += sim.getCurrentStep();\n+   total_distance   += sim.getTotalDistance();\n+   total_samples    += sim.getSampleCount();\n+   ```\n+   After the loop, populate averages (guard against zero successful runs):\n+   ```cpp\n+   if (results.successful_runs > 0) {\n+       results.avg_completion_percent = total_completion / results.successful_runs;\n+       results.avg_steps              = total_steps      / results.successful_runs;\n+       results.avg_distance_cm        = total_distance   / results.successful_runs;\n+   }\n+   results.total_samples = total_samples;\n+   ```\n+   Remove the placeholder comment `// Note: Would need to expose more metrics...`.\n+\n+6. **Build check** — compile with `cmake --build cmake-build-debug` and confirm zero `-Wall` warnings.\n+\n+7. **Functional test** — run `./cmake-build-debug/SimulationPathFinder --headless --batch 5` and inspect the generated `batch_summary.txt`. Confirm all four average fields are non-zero.\n+\n+---\n+\n+## Test Strategy\n+\n+### New tests to add\n+There are no existing automated unit tests in the repository (no `tests/` directory, no test target in `CMakeLists.txt`). The project's test strategy is functional: run the executable and inspect output/files.\n+\n+**Functional test (manual / scripted):**\n+- Run `./cmake-build-debug/SimulationPathFinder --headless --batch 5 --output-dir ./test_output/`\n+- Assert exit code is `0`.\n+- Assert `test_output/batch_summary.txt` exists.\n+- Assert the summary file contains lines where the numeric values after `Average completion:`, `Average steps:`, `Average distance:`, and `Total training samples:` are all **> 0**.\n+\n+Example shell assertions:\n+```bash\n+grep -E \"Average completion: [1-9]\" test_output/batch_summary.txt\n+grep -E \"Average steps: [1-9]\"      test_output/batch_summary.txt\n+grep -E \"Average distance: [1-9]\"   test_output/batch_summary.txt\n+grep -E \"Total training samples: [1-9]\" test_output/batch_summary.txt\n+```\n+\n+### Existing behaviour not to break\n+- Single-run paths through `Simulation::run()` and `Simulation::runHeadless()` must still return `true` and write CSV files correctly.\n+- `DataLogger::close()` output line (logged sample count) must still print correctly — verified by renaming `step_count` → `step_count_` consistently.\n+- `BatchSimulation::saveSummary()` signature and output format are unchanged; only the values written will now be non-zero.\n+\n+---\n+\n+## Risks and Edge Cases\n+\n+| Risk | Mitigation |\n+|---|---|\n+| **All runs fail** (`successful_runs == 0`): division by zero when computing averages | Guard with `if (results.successful_runs > 0)` before dividing; averages remain `0.0` (which is correct — there are no successful runs to average). `total_samples` is accumulated regardless and will still reflect logged data. |\n+| **Accumulating metrics for failed runs**: spec says averages are \"for successful runs\"; a run always returns `true` in the current code, but future code might not. | Accumulate inside `if (success) { ... }` block so only successful-run data enters the averages. |\n+| **`logger` is closed before getters are called**: `logger->close()` is called at the end of `Simulation::run()`, which flushes the file. `step_count_` is an in-memory `int` that is NOT reset by `close()`, so `getSampleCount()` will still return the correct value after the run. Verify this is the case in `DataLogger.cpp`. | Confirmed: `close()` only calls `file.close()` and prints; it does not reset `step_count_`. |\n+| **`robot` and `metrics` are `nullptr` before `run()` is called**: if `BatchSimulation` somehow calls a getter before running a sim, it will crash. | Getters are only called inside `BatchSimulation::runBatch()` immediately after a `sim.run()` / `sim.runHeadless()` call — `run()` initialises both `robot` and `metrics` before the loop. Safe. |\n+| **`step_count` rename**: if `step_count` is referenced in any other `.cpp` file (e.g. via a friend or macro), the rename will break it. | `step_count` is only accessed inside `DataLogger.cpp`; it is private and has no friend declarations. Only three occurrences to update. |\n+| **Naming convention for existing `Simulation` members**: the spec requires `_` suffix for private members. `current_step`, `elapsed_time_ms`, and `is_complete` in `Simulation` don't follow this convention, but they are pre-existing. The spec says to *follow* conventions when *adding* new code — do not rename existing members (scope creep, risk of missing an occurrence, and it would expand the diff unnecessarily). |\ndiff --git a/run-tests.sh b/run-tests.sh\nnew file mode 100755\nindex 0000000..ff32c82\n--- /dev/null\n+++ b/run-tests.sh\n@@ -0,0 +1,53 @@\n+#!/bin/bash\n+set -euo pipefail\n+\n+# -- Sandbox dependencies -------------------------------------------------\n+# Detect and install any system packages required to build.\n+# CLAUDE.md \"Build System\" requires: cmake, build-essential, libsdl2-dev\n+# nlohmann/json is fetched via git submodule (no extra system package needed).\n+if ! command -v cmake &>/dev/null; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends \\\n+    cmake build-essential git libsdl2-dev\n+fi\n+\n+# libsdl2-dev may be absent even when cmake is present (separate package)\n+if ! dpkg -s libsdl2-dev &>/dev/null 2>&1; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends libsdl2-dev\n+fi\n+# -------------------------------------------------------------------------\n+\n+# Initialise submodules if present (fetches nlohmann/json)\n+cd target-repo\n+git submodule update --init --recursive\n+\n+# Build (from CLAUDE.md ## Build System)\n+cmake -B cmake-build-debug -S .\n+cmake --build cmake-build-debug\n+\n+# Test: headless batch run of 5 simulations (from CLAUDE.md running examples)\n+mkdir -p test_output\n+./cmake-build-debug/SimulationPathFinder --headless --batch 5 --output-dir ./test_output/\n+\n+# Verify the summary file was produced and contains non-trivial averages\n+SUMMARY=\"test_output/batch_summary.txt\"\n+\n+echo \"\"\n+echo \"=== batch_summary.txt ===\"\n+cat \"$SUMMARY\"\n+echo \"=========================\"\n+\n+# All four average fields must be > 0 for the feature to be working\n+grep -E \"Average completion: [1-9]\" \"$SUMMARY\" \\\n+  || { echo \"FAIL: avg_completion_percent is zero or missing\"; exit 1; }\n+\n+grep -E \"Average steps: [1-9]\" \"$SUMMARY\" \\\n+  || { echo \"FAIL: avg_steps is zero or missing\"; exit 1; }\n+\n+grep -E \"Average distance: [1-9]\" \"$SUMMARY\" \\\n+  || { echo \"FAIL: avg_distance_cm is zero or missing\"; exit 1; }\n+\n+grep -E \"Total training samples: [1-9]\" \"$SUMMARY\" \\\n+  || { echo \"FAIL: total_samples is zero or missing\"; exit 1; }\n+\n+echo \"\"\n+echo \"All checks passed — batch statistics are non-trivial.\"\ndiff --git a/target-repo b/target-repo\nnew file mode 160000\nindex 0000000..ea19542\n--- /dev/null\n+++ b/target-repo\n@@ -0,0 +1 @@\n+Subproject commit ea19542cf2521a344c3ae6b1d96040e8daf56fbb\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 166,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T15:46:07.415269001Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.fidelity": "compact",
+          "internal.retry_count.start": 0,
+          "thread.plan.current_node": "gate_plan",
+          "failure_class": "",
+          "internal.retry_count.plan": 0,
+          "internal.run_id": "01KRXW3VYWZPZPK1YMVRJY4XMC",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "gate_plan",
+          "outcome": "succeeded",
+          "human.gate.label": "[A] Approve",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "last_stage": "plan",
+          "internal.thread_id": "plan",
+          "last_response": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core pro",
+          "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero.",
+          "human.gate.gate_plan.answer": "A",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "graph.rankdir": "LR",
+          "thread.planner.current_node": "plan",
+          "internal.node_visit_count": 1,
+          "failure_signature": "",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "human.gate.selected": "A",
+          "internal.retry_count.gate_plan": 0,
+          "preferred_label": "[A] Approve"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core pro",
+              "response.plan": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero."
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 28721,
+                    "output_tokens": 6287,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 312979,
+                    "cache_write_tokens": 32211
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 32211,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 395152
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.selected": "A"
+            },
+            "usage": null
+          }
+        },
+        "next_node_id": "implement",
+        "node_visits": {
+          "gate_plan": 1,
           "start": 1,
           "plan": 1
         }
@@ -693,13 +807,63 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRXW7WEAT5A6YZBMM7T1B3ZJ": {
+      "question": {
+        "id": "01KRXW7WEAT5A6YZBMM7T1B3ZJ",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false,
+        "context_display": "Both files are ready. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read & analysed the spec\n- **Target repo**: `volker-p/SimulationPathFinder`\n- **Type**: feature\n- **Core problem**: `BatchSimulation::runBatch()` runs simulations but never reads any result metrics back from `Simulation`, leaving `BatchResults` full of zeros.\n\n### 2. Explored the target repository\nKey findings from reading all relevant source files:\n- `Simulation` already has `metrics` (`PerformanceMetrics`), `robot` (`Robot`), and `logger` (`DataLogger`) as private `unique_ptr` members — all fully populated after `run()` returns.\n- `DataLogger` tracks `step_count` (logged samples) but has no getter.\n- `Simulation` exposes only `getCurrentStep()` and `isComplete()` — no metrics, distance, or sample-count getters.\n- `BatchSimulation::runBatch()` has an explicit TODO comment: *\"Would need to expose more metrics from Simulation to calculate averages\"*.\n\n### 3. `plan.md` — Implementation plan\nFive files to change, in a clear dependency order:\n1. **`include/DataLogger.h`** — rename `step_count` → `step_count_`; add `getSampleCount()` getter.\n2. **`src/DataLogger.cpp`** — rename `step_count` → `step_count_` (3 occurrences).\n3. **`include/Simulation.h`** — declare `getCompletionPercent()`, `getTotalDistance()`, `getSampleCount()`.\n4. **`src/Simulation.cpp`** — implement those three getters as delegation to sub-objects.\n5. **`src/BatchSimulation.cpp`** — accumulate the four metrics per run, compute averages after the loop, populate `BatchResults`.\n\n### 4. `run-tests.sh` — Build & test script\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` if absent.\n- Fetches the `nlohmann/json` submodule.\n- Configures and builds with CMake.\n- Runs `--headless --batch 5` and asserts all four average fields in `batch_summary.txt` are non-zero."
+      },
+      "started_at": "2026-05-18T15:45:57.706285764Z"
+    }
+  },
   "stages": {
+    "gate_plan@1": {
+      "first_event_seq": 124,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T15:45:57.706157633Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
+    },
     "plan@1": {
       "first_event_seq": 19,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-18T15:45:54.822161612Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -712,6 +876,7 @@
       "output": null,
       "started_at": "2026-05-18T15:43:48.969006700Z",
       "handler": "agent",
+      "duration_ms": 125853,
       "usage": {
         "input_tokens": 28721,
         "output_tokens": 6287,
@@ -725,7 +890,7 @@
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
