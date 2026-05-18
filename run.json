@@ -551,10 +551,11 @@
     "base_sha": "6f90f9070fc8b173609ee478fbdc3fabff5bc293"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-18T16:01:43.441454340Z",
-  "last_event_at": "2026-05-18T16:01:46.517738750Z",
+  "status_updated_at": "2026-05-18T16:01:49.430100438Z",
+  "last_event_at": "2026-05-18T16:01:49.430100438Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -901,9 +902,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 130,
       "checkpoint": {
-        "timestamp": "2026-05-18T16:01:46.759683957Z",
+        "timestamp": "2026-05-18T16:01:49.428589047Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -915,6 +916,92 @@
         ],
         "node_retries": {},
         "context_values": {
+          "current_node": "plan",
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.node_visit_count": 3,
+          "graph.rankdir": "LR",
+          "internal.retry_count.gate_plan": 0,
+          "preferred_label": "[R] Revise",
+          "internal.fidelity": "compact",
+          "outcome": "failed",
+          "failure_signature": "plan|transient_infra|api_transient|anthropic|rate_limited",
+          "internal.retry_count.start": 0,
+          "failure_class": "transient_infra",
+          "human.gate.gate_plan.label": "[R] Revise",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.retry_count.plan": 0,
+          "internal.thread_id": "planner",
+          "thread.planner.current_node": "plan",
+          "human.gate.label": "[R] Revise",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "human.gate.gate_plan.answer": "R",
+          "human.gate.selected": "R",
+          "internal.run_id": "01KRXX2C5AV2GWD5N21SBTQKJT"
+        },
+        "node_outcomes": {
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[R] Revise",
+            "suggested_next_ids": [
+              "plan"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.label": "[R] Revise",
+              "human.gate.selected": "R",
+              "human.gate.label": "[R] Revise",
+              "human.gate.gate_plan.answer": "R"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "failed",
+            "failure": {
+              "message": "LLM error: Rate limited by anthropic: This request would exceed your organization's rate limit of 30,000 input tokens per minute (org: 93d502b5-451a-4979-9a0a-25fc9c74fc58, model: claude-sonnet-4-6). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.",
+              "category": "transient_infra",
+              "signature": "api_transient|anthropic|rate_limited"
+            },
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_plan",
+        "git_commit_sha": "377487175002f82bce3bf4cae1b3bffe41152998",
+        "node_visits": {
+          "gate_plan": 2,
+          "plan": 3,
+          "start": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 0,
+          "additions": 0,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-18T16:23:14.274506634Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "plan",
+          "gate_plan",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
           "internal.fidelity": "compact",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "thread.planner.current_node": "plan",
@@ -923,18 +1010,18 @@
           "internal.retry_count.gate_plan": 0,
           "preferred_label": "[R] Revise",
           "internal.retry_count.plan": 0,
-          "outcome": "failed",
-          "internal.thread_id": "planner",
+          "outcome": "succeeded",
+          "internal.thread_id": "plan",
           "internal.retry_count.start": 0,
           "human.gate.gate_plan.label": "[R] Revise",
           "internal.run_id": "01KRXX2C5AV2GWD5N21SBTQKJT",
           "internal.node_visit_count": 3,
-          "failure_class": "transient_infra",
+          "failure_class": "",
           "human.gate.gate_plan.answer": "R",
           "human.gate.label": "[R] Revise",
-          "failure_signature": "plan|transient_infra|api_transient|anthropic|rate_limited",
+          "failure_signature": "",
           "human.gate.selected": "R",
-          "current_node": "plan",
+          "current_node": "gate_plan",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
           "internal.work_dir": "/workspace/dark-factory-01",
           "graph.rankdir": "LR"
@@ -961,17 +1048,17 @@
             ],
             "context_updates": {
               "human.gate.gate_plan.question": "Approve Plan",
-              "human.gate.gate_plan.label": "[R] Revise",
+              "human.gate.gate_plan.answer": "R",
               "human.gate.selected": "R",
               "human.gate.label": "[R] Revise",
-              "human.gate.gate_plan.answer": "R"
+              "human.gate.gate_plan.label": "[R] Revise"
             },
             "usage": null
           }
         },
-        "next_node_id": "gate_plan",
+        "next_node_id": "plan",
         "node_visits": {
-          "gate_plan": 2,
+          "gate_plan": 3,
           "plan": 3,
           "start": 1
         }
@@ -997,13 +1084,39 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRXX4XVNHK2MZ8J6T6EYAP1T": {
+      "question": {
+        "id": "01KRXX4XVNHK2MZ8J6T6EYAP1T",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false
+      },
+      "started_at": "2026-05-18T16:01:49.429985385Z"
+    }
+  },
   "stages": {
     "plan@3": {
       "first_event_seq": 118,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "LLM error: Rate limited by anthropic: This request would exceed your organization's rate limit of 30,000 input tokens per minute (org: 93d502b5-451a-4979-9a0a-25fc9c74fc58, model: claude-sonnet-4-6). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.",
+        "timestamp": "2026-05-18T16:01:46.759541796Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -1016,6 +1129,7 @@
       "output": null,
       "started_at": "2026-05-18T16:01:46.234858222Z",
       "handler": "agent",
+      "duration_ms": 524,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1024,7 +1138,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     },
     "start@1": {
       "first_event_seq": 15,
@@ -1091,6 +1205,29 @@
         "model_id": "claude-sonnet-4-6"
       },
       "state": "failed"
+    },
+    "gate_plan@3": {
+      "first_event_seq": 133,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T16:01:49.428987573Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     },
     "gate_plan@2": {
       "first_event_seq": 106,
