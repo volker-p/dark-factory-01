@@ -554,7 +554,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-18T15:59:24.709526346Z",
-  "last_event_at": "2026-05-18T15:59:27.632992242Z",
+  "last_event_at": "2026-05-18T15:59:30.988883009Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -1777,9 +1777,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 324,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:59:28.201306600Z",
+        "timestamp": "2026-05-18T15:59:30.987437318Z",
         "current_node": "push_pr",
         "completed_nodes": [
           "start",
@@ -1794,52 +1794,79 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.retry_count.test": 0,
-          "internal.retry_count.implement": 0,
-          "response.review": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercent`, `getTotalSteps`, `getTotalDistance`, `getTotalSamples`) expose the data without making members public. A `getSampleCount()` accessor was added to `DataLogger`.\n- **R2** — `runBatch()` accumulates sums only over successful runs and divides by `successful_runs` with a divide-by-zero guard.\n- **R3** — `saveSummary()` signature unchanged; the existing writes now produce real numbers instead of zeros.\n- **R4** — `test_output/batch_summary.txt` confirms all averages > 0 on a 5-run headless batch (steps 2311, distance 320 cm, samples 11557).\n\nNon-blocking issues flagged for future cleanup:\n1. **Stream precision bug** in `saveSummary` (pre-existing but now newly relevant): `std::fixed << std::setprecision(1)` for the success rate sticks and truncates the averages — that's why the summary reads `Average completion: 1.0%` even though the field has more precision.\n2. **Test is weak** — asserts only `> 0`; doesn't exercise the \"skip failed runs\" branch since 5/5 succeed.\n3. **Build/test stage was recorded as failed** even though artifacts exist — worth understanding before merge to confirm `-Wall` cleanliness.\n4. **`sum_samples` is `int`** — fine for current scale, would overflow at ~1e9 samples.\n\nOne repo-specific note: the spec quotes a `_`-suffix-for-private-members convention, but `target-repo` does not actually follow that rule anywhere — all existing private members are plain snake_case. The diff matches existing repo style.",
-          "internal.work_dir": "/workspace/dark-factory-01",
-          "current_node": "push_pr",
-          "outcome": "failed",
-          "thread.test.current_node": "test_gate",
-          "internal.thread_id": "gate_pr",
-          "internal.run_id": "01KRXWN0S3HZT61XDZ9AX42PET",
-          "human.gate.gate_pr.answer": "M",
-          "graph.rankdir": "LR",
-          "human.gate.gate_plan.answer": "A",
-          "thread.implement.current_node": "test",
-          "command.output": "blob://sha256/dc1f61c55f045379cb5c247b7ae916f055ff628f1f07e5baaf4cd85ca7b8892b",
-          "internal.retry_count.review": 0,
-          "response.implement": "The commit is clean with real file changes across all 4 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll four checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Added `int getSampleCount() const { return step_count; }` inline getter after `getFilepath()`. Exposes the existing `step_count` counter that `DataLogger` already tracks internally.\n\n2. **`include/Simulation.h`** — Added four public getter declarations in the `public:` section:\n   - `getCompletionPercent()` — declared only (defined in .cpp to avoid header coupling)\n   - `getTotalSteps()` — inline, reads `current_step` directly\n   - `getTotalDistance()` — declared only (defined in .cpp)\n   - `getTotalSamples()` — declared only (defined in .cpp)\n\n3. **`src/Simulation.cpp`** — Added three out-of-line getter definitions at the bottom, delegating to `metrics->getCompletionPercent()`, `robot->getTotalDistance()`, and `logger->getSampleCount()`.\n\n4. **`src/BatchSimulation.cpp`** — Replaced the stub loop body with:\n   - Four accumulator variables declared before the loop (`sum_completion`, `sum_steps`, `sum_distance`, `sum_samples`)\n   - Accumulators updated inside the `if (success)` block only (to keep averages meaningful for successful runs)\n   - Post-loop averaging with divide-by-zero guard using `results.successful_runs`\n   - Removed the old \"Would need to expose more metrics...\" comment",
-          "internal.retry_count.push_pr": 0,
-          "thread.reviewer.current_node": "review",
-          "internal.retry_count.start": 0,
-          "internal.fidelity": "compact",
-          "human.gate.gate_plan.question": "Approve Plan",
           "thread.planner.current_node": "plan",
-          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **Target repo:** `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type:** feature\n- **Core problem:** `BatchSimulation::runBatch()` tracks successful run count but throws away all per-run metrics — the `BatchResults` struct fields `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` are always zero.\n\n### 2. Code archaeology findings\n- `Simulation` holds `metrics` (`PerformanceMetrics*`), `robot` (`Robot*`), and `logger` (`DataLogger*`) as private `unique_ptr` members — all populated after each run\n- `PerformanceMetrics` already has `getCompletionPercent()`; `Robot` already has `getTotalDistance()` and `current_step` is exposed via `getCurrentStep()`\n- `DataLogger` tracks `step_count` but **never exposes it** — the only missing piece\n- `BatchSimulation` discards the `Simulation` object after each run without reading anything from it\n\n### 3. `plan.md` — 5 targeted changes across 4 files\n| File | Change |\n|---|---|\n| `include/DataLogger.h` | Add `getSampleCount()` getter |\n| `include/Simulation.h` | Add 4 getter declarations |\n| `src/Simulation.cpp` | Implement 3 non-inline getters |\n| `src/BatchSimulation.cpp` | Accumulate metrics in loop, compute averages after |\n\n### 4. `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, and `libsdl2-dev` if missing\n- Initialises git submodules (`nlohmann/json`)\n- Configures and builds via CMake\n- Runs a 5-run headless batch and uses a Python snippet to assert all four averages in `batch_summary.txt` are `> 0`",
-          "thread.review.current_node": "gate_pr",
-          "human.gate.gate_pr.question": "Approve PR",
-          "human.gate.selected": "M",
-          "failure_class": "deterministic",
-          "thread.gate_pr.current_node": "push_pr",
-          "internal.retry_count.plan": 0,
-          "thread.impl.current_node": "implement",
-          "human.gate.gate_plan.label": "[A] Approve",
+          "thread.implement.current_node": "test",
           "last_stage": "review",
-          "thread.plan.current_node": "gate_plan",
-          "human.gate.label": "[M] Merge",
-          "internal.retry_count.gate_plan": 0,
+          "thread.review.current_node": "gate_pr",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
-          "internal.node_visit_count": 1,
-          "internal.retry_count.test_gate": 0,
-          "human.gate.gate_pr.label": "[M] Merge",
+          "human.gate.gate_pr.question": "Approve PR",
+          "internal.retry_count.gate_plan": 0,
+          "thread.test.current_node": "test_gate",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.retry_count.review": 0,
+          "internal.retry_count.start": 0,
           "last_response": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercen",
-          "failure_signature": "push_pr|deterministic|script failed with exit code: <n> ## output [master <hex>] implementation plan: populate batch simulation statistics <n> file changed,<n> insertions(+) create mode <n> test_output/batch_summary.txt to https://github.com/volker-p/simulationp",
+          "internal.run_id": "01KRXWN0S3HZT61XDZ9AX42PET",
+          "human.gate.gate_pr.label": "[M] Merge",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.fidelity": "compact",
+          "internal.retry_count.plan": 0,
+          "human.gate.selected": "M",
+          "internal.retry_count.gate_pr": 0,
+          "internal.retry_count.test_gate": 0,
+          "command.output": "blob://sha256/dc1f61c55f045379cb5c247b7ae916f055ff628f1f07e5baaf4cd85ca7b8892b",
+          "internal.retry_count.push_pr": 0,
           "preferred_label": "[M] Merge",
-          "internal.retry_count.gate_pr": 0
+          "thread.impl.current_node": "implement",
+          "thread.plan.current_node": "gate_plan",
+          "failure_class": "deterministic",
+          "failure_signature": "push_pr|deterministic|script failed with exit code: <n> ## output [master <hex>] implementation plan: populate batch simulation statistics <n> file changed,<n> insertions(+) create mode <n> test_output/batch_summary.txt to https://github.com/volker-p/simulationp",
+          "human.gate.gate_pr.answer": "M",
+          "outcome": "failed",
+          "human.gate.gate_plan.answer": "A",
+          "response.implement": "The commit is clean with real file changes across all 4 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll four checklist items from `plan.md` were implemented:\n\n1. **`include/DataLogger.h`** — Added `int getSampleCount() const { return step_count; }` inline getter after `getFilepath()`. Exposes the existing `step_count` counter that `DataLogger` already tracks internally.\n\n2. **`include/Simulation.h`** — Added four public getter declarations in the `public:` section:\n   - `getCompletionPercent()` — declared only (defined in .cpp to avoid header coupling)\n   - `getTotalSteps()` — inline, reads `current_step` directly\n   - `getTotalDistance()` — declared only (defined in .cpp)\n   - `getTotalSamples()` — declared only (defined in .cpp)\n\n3. **`src/Simulation.cpp`** — Added three out-of-line getter definitions at the bottom, delegating to `metrics->getCompletionPercent()`, `robot->getTotalDistance()`, and `logger->getSampleCount()`.\n\n4. **`src/BatchSimulation.cpp`** — Replaced the stub loop body with:\n   - Four accumulator variables declared before the loop (`sum_completion`, `sum_steps`, `sum_distance`, `sum_samples`)\n   - Accumulators updated inside the `if (success)` block only (to keep averages meaningful for successful runs)\n   - Post-loop averaging with divide-by-zero guard using `results.successful_runs`\n   - Removed the old \"Would need to expose more metrics...\" comment",
+          "internal.retry_count.implement": 0,
+          "thread.gate_pr.current_node": "push_pr",
+          "thread.reviewer.current_node": "review",
+          "human.gate.label": "[M] Merge",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
+          "internal.retry_count.test": 0,
+          "current_node": "push_pr",
+          "internal.node_visit_count": 1,
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **Target repo:** `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type:** feature\n- **Core problem:** `BatchSimulation::runBatch()` tracks successful run count but throws away all per-run metrics — the `BatchResults` struct fields `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` are always zero.\n\n### 2. Code archaeology findings\n- `Simulation` holds `metrics` (`PerformanceMetrics*`), `robot` (`Robot*`), and `logger` (`DataLogger*`) as private `unique_ptr` members — all populated after each run\n- `PerformanceMetrics` already has `getCompletionPercent()`; `Robot` already has `getTotalDistance()` and `current_step` is exposed via `getCurrentStep()`\n- `DataLogger` tracks `step_count` but **never exposes it** — the only missing piece\n- `BatchSimulation` discards the `Simulation` object after each run without reading anything from it\n\n### 3. `plan.md` — 5 targeted changes across 4 files\n| File | Change |\n|---|---|\n| `include/DataLogger.h` | Add `getSampleCount()` getter |\n| `include/Simulation.h` | Add 4 getter declarations |\n| `src/Simulation.cpp` | Implement 3 non-inline getters |\n| `src/BatchSimulation.cpp` | Accumulate metrics in loop, compute averages after |\n\n### 4. `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, and `libsdl2-dev` if missing\n- Initialises git submodules (`nlohmann/json`)\n- Configures and builds via CMake\n- Runs a 5-run headless batch and uses a Python snippet to assert all four averages in `batch_summary.txt` are `> 0`",
+          "graph.rankdir": "LR",
+          "internal.thread_id": "gate_pr",
+          "response.review": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercent`, `getTotalSteps`, `getTotalDistance`, `getTotalSamples`) expose the data without making members public. A `getSampleCount()` accessor was added to `DataLogger`.\n- **R2** — `runBatch()` accumulates sums only over successful runs and divides by `successful_runs` with a divide-by-zero guard.\n- **R3** — `saveSummary()` signature unchanged; the existing writes now produce real numbers instead of zeros.\n- **R4** — `test_output/batch_summary.txt` confirms all averages > 0 on a 5-run headless batch (steps 2311, distance 320 cm, samples 11557).\n\nNon-blocking issues flagged for future cleanup:\n1. **Stream precision bug** in `saveSummary` (pre-existing but now newly relevant): `std::fixed << std::setprecision(1)` for the success rate sticks and truncates the averages — that's why the summary reads `Average completion: 1.0%` even though the field has more precision.\n2. **Test is weak** — asserts only `> 0`; doesn't exercise the \"skip failed runs\" branch since 5/5 succeed.\n3. **Build/test stage was recorded as failed** even though artifacts exist — worth understanding before merge to confirm `-Wall` cleanliness.\n4. **`sum_samples` is `int`** — fine for current scale, would overflow at ~1e9 samples.\n\nOne repo-specific note: the spec quotes a `_`-suffix-for-private-members convention, but `target-repo` does not actually follow that rule anywhere — all existing private members are plain snake_case. The diff matches existing repo style."
         },
         "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "test": {
+            "status": "failed",
+            "failure": {
+              "message": "command log blob write failed",
+              "causes": [
+                "worker lost canonical run store during write run blob",
+                "request failed with status 413 Payload Too Large: Failed to buffer the request body: length limit exceeded"
+              ],
+              "category": "deterministic"
+            },
+            "usage": null
+          },
+          "push_pr": {
+            "status": "failed",
+            "context_updates": {
+              "command.output": "blob://sha256/dc1f61c55f045379cb5c247b7ae916f055ff628f1f07e5baaf4cd85ca7b8892b"
+            },
+            "failure": {
+              "message": "Script failed with exit code: 1\n\n## output\n[master 2e0dba1] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nTo https://github.com/volker-p/SimulationPathFinder.git\n ! [rejected]        HEAD -> factory/implementation-plan-populate-batch-simulation-stat (non-fast-forward)\nerror: failed to push some refs to 'https://github.com/volker-p/SimulationPathFinder.git'\nhint: Updates were rejected because a pushed branch tip is behind its remote\nhint: counterpart. If you want to integrate the remote changes, use 'git pull'\nhint: before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
+              "category": "deterministic"
+            },
+            "usage": null
+          },
           "test_gate": {
             "status": "succeeded",
             "notes": "Conditional node evaluated: test_gate",
@@ -1860,9 +1887,40 @@
             },
             "usage": null
           },
-          "start": {
+          "review": {
             "status": "succeeded",
-            "usage": null
+            "context_updates": {
+              "response.review": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercent`, `getTotalSteps`, `getTotalDistance`, `getTotalSamples`) expose the data without making members public. A `getSampleCount()` accessor was added to `DataLogger`.\n- **R2** — `runBatch()` accumulates sums only over successful runs and divides by `successful_runs` with a divide-by-zero guard.\n- **R3** — `saveSummary()` signature unchanged; the existing writes now produce real numbers instead of zeros.\n- **R4** — `test_output/batch_summary.txt` confirms all averages > 0 on a 5-run headless batch (steps 2311, distance 320 cm, samples 11557).\n\nNon-blocking issues flagged for future cleanup:\n1. **Stream precision bug** in `saveSummary` (pre-existing but now newly relevant): `std::fixed << std::setprecision(1)` for the success rate sticks and truncates the averages — that's why the summary reads `Average completion: 1.0%` even though the field has more precision.\n2. **Test is weak** — asserts only `> 0`; doesn't exercise the \"skip failed runs\" branch since 5/5 succeed.\n3. **Build/test stage was recorded as failed** even though artifacts exist — worth understanding before merge to confirm `-Wall` cleanliness.\n4. **`sum_samples` is `int`** — fine for current scale, would overflow at ~1e9 samples.\n\nOne repo-specific note: the spec quotes a `_`-suffix-for-private-members convention, but `target-repo` does not actually follow that rule anywhere — all existing private members are plain snake_case. The diff matches existing repo style.",
+              "last_stage": "review",
+              "last_response": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercen"
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 24935,
+                    "output_tokens": 7855,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 210785,
+                    "cache_write_tokens": 26135
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 26135,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 589785
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
           },
           "gate_plan": {
             "status": "succeeded",
@@ -1952,83 +2010,112 @@
               "/workspace/dark-factory-01/plan.md",
               "/workspace/dark-factory-01/run-tests.sh"
             ]
-          },
-          "test": {
-            "status": "failed",
-            "failure": {
-              "message": "command log blob write failed",
-              "causes": [
-                "worker lost canonical run store during write run blob",
-                "request failed with status 413 Payload Too Large: Failed to buffer the request body: length limit exceeded"
-              ],
-              "category": "deterministic"
-            },
-            "usage": null
-          },
-          "push_pr": {
-            "status": "failed",
-            "context_updates": {
-              "command.output": "blob://sha256/dc1f61c55f045379cb5c247b7ae916f055ff628f1f07e5baaf4cd85ca7b8892b"
-            },
-            "failure": {
-              "message": "Script failed with exit code: 1\n\n## output\n[master 2e0dba1] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nTo https://github.com/volker-p/SimulationPathFinder.git\n ! [rejected]        HEAD -> factory/implementation-plan-populate-batch-simulation-stat (non-fast-forward)\nerror: failed to push some refs to 'https://github.com/volker-p/SimulationPathFinder.git'\nhint: Updates were rejected because a pushed branch tip is behind its remote\nhint: counterpart. If you want to integrate the remote changes, use 'git pull'\nhint: before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
-              "category": "deterministic"
-            },
-            "usage": null
-          },
-          "review": {
-            "status": "succeeded",
-            "context_updates": {
-              "response.review": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercent`, `getTotalSteps`, `getTotalDistance`, `getTotalSamples`) expose the data without making members public. A `getSampleCount()` accessor was added to `DataLogger`.\n- **R2** — `runBatch()` accumulates sums only over successful runs and divides by `successful_runs` with a divide-by-zero guard.\n- **R3** — `saveSummary()` signature unchanged; the existing writes now produce real numbers instead of zeros.\n- **R4** — `test_output/batch_summary.txt` confirms all averages > 0 on a 5-run headless batch (steps 2311, distance 320 cm, samples 11557).\n\nNon-blocking issues flagged for future cleanup:\n1. **Stream precision bug** in `saveSummary` (pre-existing but now newly relevant): `std::fixed << std::setprecision(1)` for the success rate sticks and truncates the averages — that's why the summary reads `Average completion: 1.0%` even though the field has more precision.\n2. **Test is weak** — asserts only `> 0`; doesn't exercise the \"skip failed runs\" branch since 5/5 succeed.\n3. **Build/test stage was recorded as failed** even though artifacts exist — worth understanding before merge to confirm `-Wall` cleanliness.\n4. **`sum_samples` is `int`** — fine for current scale, would overflow at ~1e9 samples.\n\nOne repo-specific note: the spec quotes a `_`-suffix-for-private-members convention, but `target-repo` does not actually follow that rule anywhere — all existing private members are plain snake_case. The diff matches existing repo style.",
-              "last_stage": "review",
-              "last_response": "Review complete. Summary of findings written to `review-report.md`:\n\n**Verdict: APPROVE**\n\nAll four spec requirements are met:\n- **R1** — Four new const getters on `Simulation` (`getCompletionPercen"
-            },
-            "notes": "Stage completed: review",
-            "usage": {
-              "input": {
-                "usage": {
-                  "model": {
-                    "provider": "anthropic",
-                    "model_id": "claude-opus-4-7"
-                  },
-                  "tokens": {
-                    "input_tokens": 24935,
-                    "output_tokens": 7855,
-                    "reasoning_tokens": 0,
-                    "cache_read_tokens": 210785,
-                    "cache_write_tokens": 26135
-                  }
-                },
-                "facts": {
-                  "algorithm": "anthropic",
-                  "cache_write_5m_tokens": 26135,
-                  "cache_write_1h_tokens": 0
-                }
-              },
-              "total_usd_micros": 589785
-            },
-            "files_touched": [
-              "/workspace/dark-factory-01/review-report.md"
-            ]
           }
         },
         "next_node_id": "exit",
+        "git_commit_sha": "7a17e3f7e3b3bfdc682b2773b0926b497f447ddf",
+        "loop_failure_signatures": {
+          "push_pr|deterministic|script failed with exit code: <n> ## output [master <hex>] implementation plan: populate batch simulation statistics <n> file changed,<n> insertions(+) create mode <n> test_output/batch_summary.txt to https://github.com/volker-p/simulationp": 1,
+          "test|deterministic|command log blob write failed": 1
+        },
         "node_visits": {
-          "implement": 1,
           "test_gate": 1,
-          "test": 1,
+          "implement": 1,
           "gate_pr": 1,
+          "push_pr": 1,
           "gate_plan": 1,
           "plan": 1,
-          "push_pr": 1,
-          "start": 1,
-          "review": 1
+          "review": 1,
+          "test": 1,
+          "start": 1
         }
       },
-      "diff": {}
+      "diff": {
+        "patch": "diff --git a/target-repo b/target-repo\nindex 348459b..2e0dba1 160000\n--- a/target-repo\n+++ b/target-repo\n@@ -1 +1 @@\n-Subproject commit 348459bf49808c42003e9612340248f1328dbe27\n+Subproject commit 2e0dba1a652a77730e8ee769518af1d45e266fed\n",
+        "summary": {
+          "files_changed": 4,
+          "additions": 288,
+          "deletions": 0
+        }
+      }
     }
   ],
-  "conclusion": null,
+  "conclusion": {
+    "timestamp": "2026-05-18T15:59:31.040611464Z",
+    "status": "succeeded",
+    "duration_ms": 381348,
+    "final_git_commit_sha": "7a17e3f7e3b3bfdc682b2773b0926b497f447ddf",
+    "stages": [
+      {
+        "stage_id": "start",
+        "stage_label": "start",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "plan",
+        "stage_label": "plan",
+        "duration_ms": 107676,
+        "billing_usd_micros": 346748,
+        "retries": 0
+      },
+      {
+        "stage_id": "gate_plan",
+        "stage_label": "gate_plan",
+        "duration_ms": 4004,
+        "retries": 0
+      },
+      {
+        "stage_id": "implement",
+        "stage_label": "implement",
+        "duration_ms": 62323,
+        "billing_usd_micros": 320134,
+        "retries": 0
+      },
+      {
+        "stage_id": "test",
+        "stage_label": "test",
+        "duration_ms": 46947,
+        "retries": 0
+      },
+      {
+        "stage_id": "test_gate",
+        "stage_label": "test_gate",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "review",
+        "stage_label": "review",
+        "duration_ms": 128970,
+        "billing_usd_micros": 589785,
+        "retries": 0
+      },
+      {
+        "stage_id": "gate_pr",
+        "stage_label": "gate_pr",
+        "duration_ms": 6195,
+        "retries": 0
+      },
+      {
+        "stage_id": "push_pr",
+        "stage_label": "push_pr",
+        "duration_ms": 566,
+        "retries": 0
+      }
+    ],
+    "billing": {
+      "input_tokens": 75207,
+      "output_tokens": 17218,
+      "total_tokens": 921390,
+      "reasoning_tokens": 0,
+      "cache_read_tokens": 745436,
+      "cache_write_tokens": 83529,
+      "total_usd_micros": 1256667
+    },
+    "total_retries": 0,
+    "diff": {}
+  },
   "sandbox": {
     "provider": "docker",
     "image": "buildpack-deps:noble",
@@ -2048,6 +2135,35 @@
   "superseded_by": null,
   "pending_interviews": {},
   "stages": {
+    "exit@1": {
+      "first_event_seq": 327,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-18T15:59:30.988794056Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-18T15:59:30.987873360Z",
+      "handler": "exit",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
     "start@1": {
       "first_event_seq": 15,
       "prompt": null,
@@ -2215,7 +2331,12 @@
       "first_event_seq": 317,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "Script failed with exit code: 1\n\n## output\n[master 2e0dba1] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nTo https://github.com/volker-p/SimulationPathFinder.git\n ! [rejected]        HEAD -> factory/implementation-plan-populate-batch-simulation-stat (non-fast-forward)\nerror: failed to push some refs to 'https://github.com/volker-p/SimulationPathFinder.git'\nhint: Updates were rejected because a pushed branch tip is behind its remote\nhint: counterpart. If you want to integrate the remote changes, use 'git pull'\nhint: before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
+        "timestamp": "2026-05-18T15:59:28.199325405Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -2223,11 +2344,22 @@
         "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/push-pr.sh",
         "language": "shell"
       },
-      "script_timing": null,
+      "script_timing": {
+        "output": "blob://sha256/dc1f61c55f045379cb5c247b7ae916f055ff628f1f07e5baaf4cd85ca7b8892b",
+        "exit_code": 1,
+        "duration_ms": 562,
+        "termination": "exited",
+        "output_bytes": 671,
+        "live_streaming": true
+      },
       "parallel_results": null,
       "output": null,
+      "output_bytes": 671,
+      "live_streaming": true,
+      "termination": "exited",
       "started_at": "2026-05-18T15:59:27.632942808Z",
       "handler": "command",
+      "duration_ms": 566,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -2236,7 +2368,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     },
     "review@1": {
       "first_event_seq": 219,

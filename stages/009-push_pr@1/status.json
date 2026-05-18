@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "notes": null,
+  "failure_reason": "Script failed with exit code: 1\n\n## output\n[master 2e0dba1] Implementation Plan: Populate Batch Simulation Statistics\n 1 file changed, 11 insertions(+)\n create mode 100644 test_output/batch_summary.txt\nTo https://github.com/volker-p/SimulationPathFinder.git\n ! [rejected]        HEAD -> factory/implementation-plan-populate-batch-simulation-stat (non-fast-forward)\nerror: failed to push some refs to 'https://github.com/volker-p/SimulationPathFinder.git'\nhint: Updates were rejected because a pushed branch tip is behind its remote\nhint: counterpart. If you want to integrate the remote changes, use 'git pull'\nhint: before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
+  "timestamp": "2026-05-18T15:59:28.199325405Z"
+}
