@@ -554,7 +554,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-18T15:55:05.563382399Z",
-  "last_event_at": "2026-05-18T15:56:13.458368569Z",
+  "last_event_at": "2026-05-18T15:57:01.587036574Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -953,23 +953,25 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-18T15:57:00.407456672Z",
-        "current_node": "test",
+        "timestamp": "2026-05-18T15:57:03.548596028Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
           "internal.retry_count.test": 0,
           "internal.retry_count.implement": 0,
           "internal.work_dir": "/workspace/dark-factory-01",
-          "current_node": "test",
-          "outcome": "failed",
-          "internal.thread_id": "implement",
+          "current_node": "test_gate",
+          "outcome": "succeeded",
+          "thread.test.current_node": "test_gate",
+          "internal.thread_id": "test",
           "internal.run_id": "01KRXWN0S3HZT61XDZ9AX42PET",
           "graph.rankdir": "LR",
           "human.gate.gate_plan.answer": "A",
@@ -981,7 +983,7 @@
           "thread.planner.current_node": "plan",
           "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What Was Done\n\n### 1. Spec analysis (`specs/simulation-path-finder/batch-statistics.md`)\n- **Target repo:** `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type:** feature\n- **Core problem:** `BatchSimulation::runBatch()` tracks successful run count but throws away all per-run metrics — the `BatchResults` struct fields `avg_completion_percent`, `avg_steps`, `avg_distance_cm`, and `total_samples` are always zero.\n\n### 2. Code archaeology findings\n- `Simulation` holds `metrics` (`PerformanceMetrics*`), `robot` (`Robot*`), and `logger` (`DataLogger*`) as private `unique_ptr` members — all populated after each run\n- `PerformanceMetrics` already has `getCompletionPercent()`; `Robot` already has `getTotalDistance()` and `current_step` is exposed via `getCurrentStep()`\n- `DataLogger` tracks `step_count` but **never exposes it** — the only missing piece\n- `BatchSimulation` discards the `Simulation` object after each run without reading anything from it\n\n### 3. `plan.md` — 5 targeted changes across 4 files\n| File | Change |\n|---|---|\n| `include/DataLogger.h` | Add `getSampleCount()` getter |\n| `include/Simulation.h` | Add 4 getter declarations |\n| `src/Simulation.cpp` | Implement 3 non-inline getters |\n| `src/BatchSimulation.cpp` | Accumulate metrics in loop, compute averages after |\n\n### 4. `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, and `libsdl2-dev` if missing\n- Initialises git submodules (`nlohmann/json`)\n- Configures and builds via CMake\n- Runs a 5-run headless batch and uses a Python snippet to assert all four averages in `batch_summary.txt` are `> 0`",
           "human.gate.selected": "A",
-          "failure_class": "deterministic",
+          "failure_class": "",
           "internal.retry_count.plan": 0,
           "thread.impl.current_node": "implement",
           "human.gate.gate_plan.label": "[A] Approve",
@@ -992,8 +994,9 @@
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/batch-statistics.md in the target repository and open a pull request",
           "internal.node_visit_count": 1,
+          "internal.retry_count.test_gate": 0,
           "last_response": "The commit is clean with real file changes across all 4 expected files. Here's a summary of what was implemented:\n\n## Summary\n\nAll four checklist items from `plan.md` were implemented:\n\n1. **`include/",
-          "failure_signature": "test|deterministic|command log blob write failed",
+          "failure_signature": "",
           "preferred_label": "[A] Approve"
         },
         "node_outcomes": {
@@ -1050,6 +1053,11 @@
               "/workspace/dark-factory-01/target-repo/src/Simulation.cpp"
             ]
           },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
           "plan": {
             "status": "succeeded",
             "context_updates": {
@@ -1103,11 +1111,12 @@
             "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "implement": 1,
           "start": 1,
           "test": 1,
+          "test_gate": 1,
           "gate_plan": 1,
           "plan": 1
         }
@@ -1273,7 +1282,12 @@
       "first_event_seq": 202,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "command log blob write failed",
+        "timestamp": "2026-05-18T15:57:00.407293388Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1286,6 +1300,7 @@
       "output": null,
       "started_at": "2026-05-18T15:56:13.458191315Z",
       "handler": "command",
+      "duration_ms": 46947,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1294,7 +1309,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     }
   }
 }
