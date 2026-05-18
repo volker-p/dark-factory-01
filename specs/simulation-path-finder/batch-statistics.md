@@ -1,8 +1,7 @@
 ---
-target_repo: https://git.schloss-glarisegg.ch/plesk-git/SimulationPathFinder.git
+target_repo: volker-p/SimulationPathFinder
 target_branch: master
 type: feature
-vcs: git
 ---
 # Populate batch simulation statistics
 
@@ -38,8 +37,3 @@ and `DataLogger`, but exposes none of it after a run completes.
   `_` suffix for private members).
 - Build must be clean with zero `-Wall` warnings.
 
-## VCS note
-This repository is on a self-hosted Gitea server — `gh` CLI does not work.
-Use plain `git clone <target_repo>` to clone. Credentials may be required;
-check fabro secrets for `GITEA_TOKEN` or use SSH if a key is configured.
-Branch from `master`, push a feature branch, open a PR via the Gitea web UI.
