@@ -1,0 +1,61 @@
+diff --git a/test-output.txt b/test-output.txt
+index d86c6e4..f9eb030 100644
+--- a/test-output.txt
++++ b/test-output.txt
+@@ -1,42 +1,20 @@
+ -- Configuring done (0.0s)
+ -- Generating done (0.0s)
+ -- Build files have been written to: /repos/volker-p/dark-factory-01/target-repo/build
+-[  7%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Maze.cpp.o
+-In file included from /repos/volker-p/dark-factory-01/target-repo/src/Maze.cpp:1:
+-/repos/volker-p/dark-factory-01/target-repo/include/Maze.h: In constructor 'Maze::Maze(int, int, double, bool)':
+-/repos/volker-p/dark-factory-01/target-repo/include/Maze.h:36:12: warning: 'Maze::cell_size_cm' will be initialized after [-Wreorder]
+-   36 |     double cell_size_cm;
+-      |            ^~~~~~~~~~~~
+-/repos/volker-p/dark-factory-01/target-repo/include/Maze.h:34:9: warning:   'int Maze::width_cells' [-Wreorder]
+-   34 |     int width_cells;
+-      |         ^~~~~~~~~~~
+-/repos/volker-p/dark-factory-01/target-repo/src/Maze.cpp:87:1: warning:   when initialized here [-Wreorder]
+-   87 | Maze::Maze(int w, int h, double cell_size, bool /*tag*/)
+-      | ^~~~
+-[ 14%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Robot.cpp.o
+-[ 21%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Pathfinder.cpp.o
+-/repos/volker-p/dark-factory-01/target-repo/src/Pathfinder.cpp: In static member function 'static double Pathfinder::calculateOptimalPath(const Maze&, double, double, double, double)':
+-/repos/volker-p/dark-factory-01/target-repo/src/Pathfinder.cpp:41:10: warning: variable 'found' set but not used [-Wunused-but-set-variable]
+-   41 |     bool found = false;
+-      |          ^~~~~
+-[ 28%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/PerformanceMetrics.cpp.o
+-In file included from /repos/volker-p/dark-factory-01/target-repo/src/PerformanceMetrics.cpp:1:
+-/repos/volker-p/dark-factory-01/target-repo/include/PerformanceMetrics.h: In constructor 'PerformanceMetrics::PerformanceMetrics(double, int)':
+-/repos/volker-p/dark-factory-01/target-repo/include/PerformanceMetrics.h:16:9: warning: 'PerformanceMetrics::stuck_step_count' will be initialized after [-Wreorder]
+-   16 |     int stuck_step_count;
+-      |         ^~~~~~~~~~~~~~~~
+-/repos/volker-p/dark-factory-01/target-repo/include/PerformanceMetrics.h:12:12: warning:   'double PerformanceMetrics::optimal_path_length_cm' [-Wreorder]
+-   12 |     double optimal_path_length_cm;
+-      |            ^~~~~~~~~~~~~~~~~~~~~~
+-/repos/volker-p/dark-factory-01/target-repo/src/PerformanceMetrics.cpp:6:1: warning:   when initialized here [-Wreorder]
+-    6 | PerformanceMetrics::PerformanceMetrics(double stuck_threshold, int stuck_steps)
+-      | ^~~~~~~~~~~~~~~~~~
+-[ 35%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Renderer.cpp.o
+-[ 42%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Simulation.cpp.o
+-[ 50%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/BatchSimulation.cpp.o
+-[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/ScenarioSimulation.cpp.o
+-[ 64%] Building CXX object CMakeFiles/SimulationPathFinder.dir/main.cpp.o
+-[ 71%] Linking CXX executable SimulationPathFinder
++[  7%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Config.cpp.o
++[ 14%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Maze.cpp.o
++[ 21%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Robot.cpp.o
++[ 28%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/SensorNoise.cpp.o
++[ 35%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/WallFollower.cpp.o
++[ 42%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Pathfinder.cpp.o
++[ 50%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/PerformanceMetrics.cpp.o
++[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/DataLogger.cpp.o
++[ 64%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Renderer.cpp.o
++[ 71%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Simulation.cpp.o
++[ 78%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/BatchSimulation.cpp.o
++[ 85%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/ScenarioSimulation.cpp.o
++[ 92%] Building CXX object CMakeFiles/SimulationPathFinder.dir/main.cpp.o
++[100%] Linking CXX executable SimulationPathFinder
+ [100%] Built target SimulationPathFinder
+ --- BUILD SUCCEEDED ---
+ PASS: --scenario straight_tunnel produces clean tabular output
