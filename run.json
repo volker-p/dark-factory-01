@@ -579,10 +579,11 @@
     "base_sha": "639271fb4a486d1a42850a5dc5577989bd73f3cc"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-19T09:36:07.728669765Z",
-  "last_event_at": "2026-05-19T09:39:33.376864402Z",
+  "status_updated_at": "2026-05-19T09:39:36.404443830Z",
+  "last_event_at": "2026-05-19T09:39:36.404443830Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -2444,9 +2445,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 608,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:39:33.472596146Z",
+        "timestamp": "2026-05-19T09:39:36.399220928Z",
         "current_node": "review",
         "completed_nodes": [
           "start",
@@ -2464,6 +2465,222 @@
         ],
         "node_retries": {},
         "context_values": {
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "thread.planner.current_node": "plan",
+          "human.gate.label": "[R] Rework",
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.review": 0,
+          "human.gate.gate_plan.answer": "A",
+          "human.gate.selected": "R",
+          "internal.retry_count.start": 0,
+          "internal.retry_count.test": 0,
+          "internal.thread_id": "reviewer",
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "failure_class": "",
+          "internal.fidelity": "compact",
+          "response.implement": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot.radius_cm` from `15` → `10`, added `\"minimum_distance_to_wall\": 10`.\n\n2. **`include/Config.h`** — Added `double minimum_distance_to_wall_cm` field (robot config section) and `bool debug = false` runtime flag.\n\n3. **`src/Config.cpp`** — Added loader for `config.minimum_distance_to_wall_cm = j[\"robot\"][\"minimum_distance_to_wall\"]`.\n\n4. **`include/WallFollower.h`** — Changed `debug_ = true` → `false`, added public `void setDebug(bool d)` method, added `double robot_radius_cm_ = 15.0` private member.\n\n5. **`main.cpp`** — Added `bool debug_flag = false`, `--debug` branch in argument parser, `if (debug_flag) config.debug = true` after config load, updated `printUsage()`, and added `--debug` to preliminary pass.\n\n6. **`src/WallFollower.cpp`** — Removed `#include \"Config.h\"` and `extern Config config;`, replaced `config.robot_radius_cm` with `robot_radius_cm_`, replaced the wasteful `right_mean` alias with direct `right_side` usage, and converted all ~20 `std::cout` debug calls to `std::cerr`.\n\n7. **`src/Simulation.cpp`** — Added `controller->setDebug(config.debug)` after construction, gated the step-logging block behind `config.debug && should_log`, gated `initializeRobot()` debug prints behind `config.debug`.\n\n8. **`src/ScenarioSimulation.cpp`** — Added `controller.setDebug(config.debug)` after construction.\n\n9. **`include/Maze.h`** — Removed the two unimplemented declarations `hasWall` and `isWallBetween` (no callers confirmed).",
+          "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428",
+          "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n**What works (R2, R3, R4):**\n- `--debug` CLI flag correctly threaded through `Config` to `WallFollower` in both `Simulation` and `ScenarioSimulation`. Default off, on with `--debug`.\n- `WallFollower`: `debug_=false` default, `setDebug()` setter, all ~25 prints moved `cout`→`cerr`, dead `right_mean` duplicate removed.\n- `Maze::hasWall` / `Maze::isWallBetween` declarations removed (no callers existed) — clean build, allowed by spec.\n\n**Blocking problems (R1):**\n1. **Hard-coded `15.0` in `WallFollower.h:56`** when actual `radius_cm` is now `10`. The diff replaced `extern Config config; … config.robot_radius_cm` with a member literal — fixing a latent extern bug but introducing a value-disagreement regression.\n2. **`minimum_distance_to_wall_cm` is loaded but never consumed.** The spec explicitly requires \"WallFollower, collision detection, Simulation\" to read it. The `+ 10.0` and `+ 5.0` magic offsets in `WallFollower.cpp:164,167` are exactly its intended consumers.\n\n**Quality nits:** three files lost trailing newlines; an empty `--debug` no-op branch in the preliminary parse pass in `main.cpp`; three pre-existing `-Wall` warnings (Maze.h/PerformanceMetrics.h reorder, Pathfinder.cpp:41 unused `found`) that violate the spec's \"zero `-Wall` warnings\" constraint and the PR did not fix.\n\nThe functional test suite passes, but it cannot detect either of the blocking issues — it asserts output shape and exit codes, not config↔code consistency.",
+          "thread.reviewer.current_node": "review",
+          "failure_signature": "",
+          "internal.retry_count.gate_pr": 0,
+          "thread.impl.current_node": "implement",
+          "current_node": "review",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "internal.retry_count.test_gate": 0,
+          "thread.implement.current_node": "test",
+          "internal.node_visit_count": 2,
+          "internal.retry_count.implement": 0,
+          "preferred_label": "[R] Rework",
+          "thread.review.current_node": "gate_pr",
+          "human.gate.gate_pr.label": "[R] Rework",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "graph.rankdir": "LR",
+          "human.gate.gate_pr.question": "Approve PR",
+          "last_stage": "review",
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n*",
+          "human.gate.gate_pr.answer": "R",
+          "thread.test.current_node": "test_gate",
+          "internal.retry_count.gate_plan": 0,
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "outcome": "succeeded",
+          "human.gate.gate_plan.question": "Approve Plan"
+        },
+        "node_outcomes": {
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "usage": null
+          },
+          "implement": {
+            "status": "failed",
+            "failure": {
+              "message": "LLM error: Rate limited by anthropic: This request would exceed your organization's rate limit of 30,000 input tokens per minute (org: 93d502b5-451a-4979-9a0a-25fc9c74fc58, model: claude-sonnet-4-6). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Please reduce the prompt length or the maximum tokens requested, or try again later. You may also contact sales at https://claude.com/contact-sales to discuss your options for a rate limit increase.",
+              "category": "transient_infra",
+              "signature": "api_transient|anthropic|rate_limited"
+            },
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "review",
+              "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n*",
+              "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n**What works (R2, R3, R4):**\n- `--debug` CLI flag correctly threaded through `Config` to `WallFollower` in both `Simulation` and `ScenarioSimulation`. Default off, on with `--debug`.\n- `WallFollower`: `debug_=false` default, `setDebug()` setter, all ~25 prints moved `cout`→`cerr`, dead `right_mean` duplicate removed.\n- `Maze::hasWall` / `Maze::isWallBetween` declarations removed (no callers existed) — clean build, allowed by spec.\n\n**Blocking problems (R1):**\n1. **Hard-coded `15.0` in `WallFollower.h:56`** when actual `radius_cm` is now `10`. The diff replaced `extern Config config; … config.robot_radius_cm` with a member literal — fixing a latent extern bug but introducing a value-disagreement regression.\n2. **`minimum_distance_to_wall_cm` is loaded but never consumed.** The spec explicitly requires \"WallFollower, collision detection, Simulation\" to read it. The `+ 10.0` and `+ 5.0` magic offsets in `WallFollower.cpp:164,167` are exactly its intended consumers.\n\n**Quality nits:** three files lost trailing newlines; an empty `--debug` no-op branch in the preliminary parse pass in `main.cpp`; three pre-existing `-Wall` warnings (Maze.h/PerformanceMetrics.h reorder, Pathfinder.cpp:41 unused `found`) that violate the spec's \"zero `-Wall` warnings\" constraint and the PR did not fix.\n\nThe functional test suite passes, but it cannot detect either of the blocking issues — it asserts output shape and exit codes, not config↔code consistency."
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 37392,
+                    "output_tokens": 12629,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 256333,
+                    "cache_write_tokens": 43045
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 43045,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 899882
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[R] Rework",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_pr.label": "[R] Rework",
+              "human.gate.label": "[R] Rework",
+              "human.gate.selected": "R",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.answer": "R"
+            },
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_pr",
+        "git_commit_sha": "f1d1a0f0a169a52dac3a83ebf60d60fd8dcd0ad8",
+        "node_visits": {
+          "review": 2,
+          "start": 1,
+          "gate_pr": 1,
+          "test_gate": 2,
+          "plan": 1,
+          "gate_plan": 1,
+          "test": 2,
+          "implement": 2
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/review-report.md b/review-report.md\nindex 26797f1..41abc3a 100644\n--- a/review-report.md\n+++ b/review-report.md\n@@ -4,14 +4,36 @@ Spec: `specs/simulation-path-finder/config-and-debug.md`\n Target: `volker-p/SimulationPathFinder` @ branch `master`\n Diff: `git diff origin/master..HEAD` — 9 files, +70 / −62\n \n+PR diff summary (`git diff origin/master..HEAD --stat`):\n+\n+```\n+ config.json                |  4 +--\n+ include/Config.h           |  7 +++--\n+ include/Maze.h             |  4 ---\n+ include/WallFollower.h     |  4 ++-\n+ main.cpp                   |  9 ++++++\n+ src/Config.cpp             |  2 +-\n+ src/ScenarioSimulation.cpp |  3 +-\n+ src/Simulation.cpp         | 23 +++++++-------\n+ src/WallFollower.cpp       | 76 ++++++++++++++++++++++------------------------\n+ 9 files changed, 70 insertions(+), 62 deletions(-)\n+```\n+\n ---\n \n ## Test Results\n \n-The test suite (`bash run-tests.sh`) **passed**. Final summary from `test-output.txt`:\n+The functional test suite **passes** (`run-tests.sh` ends with `--- TESTS PASSED ---`).\n+\n+Final summary lines from `test-output.txt`:\n \n ```\n-[100%] Linking CXX executable SimulationPathFinder\n+[ 35%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Renderer.cpp.o\n+[ 42%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Simulation.cpp.o\n+[ 50%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/BatchSimulation.cpp.o\n+[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/ScenarioSimulation.cpp.o\n+[ 64%] Building CXX object CMakeFiles/SimulationPathFinder.dir/main.cpp.o\n+[ 71%] Linking CXX executable SimulationPathFinder\n [100%] Built target SimulationPathFinder\n --- BUILD SUCCEEDED ---\n PASS: --scenario straight_tunnel produces clean tabular output\n@@ -21,107 +43,82 @@ PASS: --headless --batch 5 completes successfully\n --- TESTS PASSED ---\n ```\n \n-### Warnings observed\n+### Build warnings\n \n-The build is not warning-clean. The spec constraint says *\"Build must produce zero `-Wall` warnings.\"* The build currently emits:\n+The spec constraint says **\"Build must produce zero `-Wall` warnings.\"** The build is **not warning-free**. Warnings present in `test-output.txt`:\n \n-- `-Wreorder` in `include/Maze.h` (lines 34/36) — pre-existing in a file this PR did not modify in the affected lines.\n-- `-Wreorder` in `include/SensorNoise.h` (lines 9/10) — pre-existing, not touched.\n-- `-Wreorder` in `include/PerformanceMetrics.h` (lines 12/16) — pre-existing, not touched.\n-- `-Wunused-but-set-variable` in `src/Pathfinder.cpp:41` (`bool found = false;`) — pre-existing, not touched.\n+1. `include/Maze.h:36` — `-Wreorder` in `Maze::Maze` constructor (`cell_size_cm` initialized after `width_cells`).\n+2. `include/PerformanceMetrics.h:16` — `-Wreorder` in `PerformanceMetrics::PerformanceMetrics` (`stuck_step_count` initialized after `optimal_path_length_cm`).\n+3. `src/Pathfinder.cpp:41` — `-Wunused-but-set-variable` (`bool found = false;`).\n \n-These warnings exist on `origin/master` as well; this PR neither introduced nor removed any of them. The spec constraint is therefore not fully satisfied, but the warnings are pre-existing technical debt rather than regressions from this change.\n+These warnings are all **pre-existing on `origin/master`** (verified — `Pathfinder.cpp:41` already contains `bool found = false;` on master, and the affected headers are not touched by this PR). However the spec lists \"zero `-Wall` warnings\" as a hard constraint, and the PR took no action to satisfy it. The fixes are trivial (reorder two member-init lists, remove one unused variable).\n \n ---\n \n ## Requirements\n \n-### R1 — Unified physical configuration — ⚠️ Partial\n-\n-| Sub-requirement | Status | Evidence |\n-|---|---|---|\n-| `config.json` sets `cell_size_cm: 50` | ✅ | `config.json:5` |\n-| `config.json` sets `robot_radius_cm: 10` | ✅ | `config.json:10` (`radius_cm: 10`) |\n-| `config.json` sets `minimum_distance_to_wall: 10` | ✅ | `config.json:11` |\n-| `Config.h` has `minimum_distance_to_wall` field | ✅ | `include/Config.h:17` (`minimum_distance_to_wall_cm`) |\n-| Loaded from JSON | ✅ | `src/Config.cpp:28` |\n-| `ScenarioSimulation` reads `cell_size_cm` from Config | ✅ | `src/ScenarioSimulation.cpp:11, 37, 38, 82, 86, 87` — no literals |\n-| **All components that use this concept read `minimum_distance_to_wall` from Config** | ❌ | **`minimum_distance_to_wall_cm` is loaded but never read anywhere.** `grep -rn minimum_distance_to_wall_cm src/ include/` returns only the load site (`Config.cpp:28`) and the declaration (`Config.h:17`). It is *not* threaded into `WallFollower`, `Simulation`, or any collision-detection code, contradicting the spec text: *\"All components that currently use this concept (WallFollower, collision detection, Simulation) must read it from the loaded `Config` object.\"* |\n-| `WallFollower` reads `robot_radius_cm` from Config | ❌ | `include/WallFollower.h:56` hard-codes `double robot_radius_cm_ = 15.0;` — out of sync with `config.json`'s new value of 10. It is used at `src/WallFollower.cpp:164, 167` in safe-distance computations, so this is a live mis-configuration: the controller still believes the robot is 15 cm radius while the loaded config says 10 cm. This contradicts R1's intent that `config.json` be the single source of truth. |\n-\n-### R2 — `--debug` CLI flag — ✅ Met\n+### R1 — Unified physical configuration: ⚠️ Partial (regression)\n \n-- Flag declared in usage text: `main.cpp:60`.\n-- Parsed: `main.cpp:106-107`.\n-- Default off: `main.cpp:73` (`bool debug_flag = false;`).\n-- Stored on `Config`: `include/Config.h:45` (`bool debug = false;`), set at `main.cpp:129`.\n-- Threaded into `Simulation`: `src/Simulation.cpp:18` (`controller->setDebug(config.debug);`) and gates direct stdout traces at `src/Simulation.cpp:73, 176`.\n-- Threaded into `ScenarioSimulation`: `src/ScenarioSimulation.cpp:45`.\n+- ✅ `config.json` updated: `cell_size_cm: 50`, `radius_cm: 10`, `minimum_distance_to_wall: 10` (config.json:5,10,11).\n+- ✅ `Config.h` adds `double minimum_distance_to_wall_cm` (include/Config.h:17).\n+- ✅ `Config.cpp` reads the new field (src/Config.cpp:28).\n+- ✅ `ScenarioSimulation::runScenario` now passes `config.cell_size_cm` to `Maze::createScenario` and uses it for start position math (src/ScenarioSimulation.cpp:11, 37–38, 82, 86–87). No hard-coded `20` literal remains.\n+- ❌ **`minimum_distance_to_wall_cm` is loaded but never read by any component.** The spec is explicit: *\"All components that currently use this concept (WallFollower, collision detection, Simulation) must read it from the loaded `Config` object.\"* `grep` confirms only the load site references it; nothing consumes it.\n+- ❌ **Hard-coded physical constant introduced in `WallFollower`.** `include/WallFollower.h:56` declares `double robot_radius_cm_ = 15.0;` and `src/WallFollower.cpp:164,167` use `robot_radius_cm_ + 10.0` and `robot_radius_cm_ + 5.0` as \"safe distance\" thresholds. The previous code (now removed) at least referenced `config.robot_radius_cm` via an `extern Config config` (which was itself a latent bug — no such global is defined anywhere in the repo per `grep`). The fix replaces a broken reference with a **hard-coded literal that is now wrong**: the actual configured `robot_radius_cm` is **10**, not 15. This directly contradicts R1 (\"config.json is the single source of truth\"). The `+10.0` and `+5.0` offsets are exactly the kind of \"minimum distance to wall\" margins the new config field is meant to centralise.\n \n-Minor nit: the preliminary-pass branch at `main.cpp:87-88` is a dead else-if that does nothing (`// handled in main parse loop`). Harmless but odd.\n+This is the most serious issue in the PR. The diff acquired a debug-routing fix and simultaneously lost the (broken) link to the config, ending up with a regression in the consolidation goal.\n \n-### R3 — WallFollower improvements — ⚠️ Partial\n+### R2 — `--debug` CLI flag: ✅ Met\n \n-| Sub-requirement | Status | Evidence |\n-|---|---|---|\n-| `debug_` default changed `true` → `false` | ✅ | `include/WallFollower.h:46` |\n-| Public `setDebug(bool)` added | ✅ | `include/WallFollower.h:43` |\n-| All debug output routed `cout` → `cerr` | ✅ | All ~20 trace sites in `src/WallFollower.cpp` use `std::cerr`. Verified via `git diff`. |\n-| Obviously wasteful patterns fixed | ⚠️ | The diff shows one substantive fix: replacing `right_mean` (a recomputed average) with `right_side` (the cached value already in scope) at `WallFollower.cpp:275, 341`. That is a legitimate micro-improvement. The header still contains the hard-coded `robot_radius_cm_ = 15.0` (a worse smell than what was removed — see R1). |\n+- `main.cpp:73,86–87,106–107,128–129`: flag parsed, default off, mapped onto `config.debug`.\n+- `Config.h:45`: `bool debug = false` field added.\n+- `Simulation.cpp:17`: `controller->setDebug(config.debug)` propagates the flag to `WallFollower`.\n+- `ScenarioSimulation.cpp:45`: same propagation in scenario mode.\n+- `Simulation.cpp:73–80, 176`: the eager \"Robot initialized at …\" / per-step logging now gated on `config.debug`.\n+- Test `PASS: --debug enables WallFollower trace on stderr` confirms the wiring end-to-end.\n \n-### R4 — Complete or clean Maze interface — ✅ Met\n+Minor: the preliminary-pass branch for `--debug` in `main.cpp:86–87` is a no-op with a stale comment (\"handled in main parse loop\"); it should simply be omitted from the preliminary pass. Cosmetic.\n \n-- Declarations of `hasWall` and `isWallBetween` removed from `include/Maze.h` (formerly lines 49-52).\n-- `grep -rn 'hasWall\\|isWallBetween' target-repo/` returns no hits — no callers existed.\n-- Build links cleanly (no link errors).\n+### R3 — WallFollower improvements: ✅ Met (with caveat)\n \n-This is the cleaner of the two options the spec offered.\n+1. ✅ `include/WallFollower.h:48` — `debug_ = false` default.\n+2. ✅ `include/WallFollower.h:43` — `void setDebug(bool d) { debug_ = d; }` added.\n+3. ✅ All ~25 debug prints in `src/WallFollower.cpp` switched from `std::cout` to `std::cerr` (verified by full diff).\n+4. ✅ Removed wasteful duplicate `double right_mean = right_side;` and every downstream `right_mean` use was rewritten as `right_side` directly. No behaviour change.\n+5. ✅ Removed the dead `extern Config config;` and `#include \"Config.h\"` from `WallFollower.cpp`.\n \n-### Constraint: `BatchResults` / `saveSummary()` unchanged — ✅\n-Not in diff.\n+Caveat: the substitution that replaced `config.robot_radius_cm` with a hard-coded `robot_radius_cm_ = 15.0` member produces \"no observable behaviour change vs. the old (broken) extern symbol\", but it is a step in the wrong direction — see R1.\n \n-### Constraint: maze-generation algorithm unchanged — ✅\n-`src/Maze.cpp` is not in the diff except via the removed declarations (header only).\n+### R4 — Complete or clean `Maze` interface: ✅ Met\n \n-### Constraint: existing `--headless --batch N` and `--scenario*` work — ✅\n-Verified by the four PASS lines in `test-output.txt`.\n-\n-### Constraint: zero `-Wall` warnings — ⚠️ Partial\n-See \"Warnings observed\" above — pre-existing, not regressed by this PR, but the constraint is literally not met.\n+- `include/Maze.h:46–48` — declarations of `hasWall` and `isWallBetween` are removed. No callers existed in the tree (`grep -r 'hasWall\\|isWallBetween'` returns no hits). Build links cleanly; the spec explicitly allows removal as a valid option.\n \n ---\n \n ## Test Coverage\n \n-The test harness (`run-tests.sh`) covers the four verification steps from the spec:\n-\n-1. ✅ `--scenario straight_tunnel` runs and produces tabular output.\n-2. ✅ `--scenario-suite` runs and prints all expected columns.\n-3. ✅ `--debug --scenario straight_tunnel 2>/tmp/dbg.txt` produces wall-trace text on stderr.\n-4. ✅ `--headless --batch 5` completes.\n-\n-**Gaps:**\n-\n-- Nothing tests that `minimum_distance_to_wall` is actually *used* — because it isn't used at all (see R1). A test that asserts the loaded value influences robot behaviour would have caught the threading omission.\n-- Nothing tests the absence of debug spam by default. A negative assertion (e.g. \"running without `--debug` produces no `wall` / `RECOVERY` lines on stderr\") would have been a useful complement to test 3.\n-- Spec verification step 3 says collision counts should be low because \"robot fits corridors\" — the test only checks columns exist, not that collisions are actually low. The PR ships a config where `robot_radius_cm=10` and `cell_size_cm=50`, which should produce low collisions, but a sanity-bound assertion would be more meaningful than a presence-of-columns check.\n+- The four shell-level tests in `run-tests.sh` cover the four functional verification steps from the spec (scenario, scenario-suite, --debug on stderr, batch). All pass.\n+- ⚠️ There is **no test asserting that `minimum_distance_to_wall_cm` is actually consumed**. Given the field is loaded but unused, the test suite cannot catch that regression. A test that toggles the value and observes a behavioural difference would have surfaced this; even a static assertion on usage would help.\n+- ⚠️ The `--debug` test only `grep`s for `\"wall\"` in stderr; it does not verify that **stdout is clean** when `--debug` is *not* passed. R3 promises debug-free stdout, so an absence-of-noise assertion on the no-flag path would be stronger. The \"clean tabular output\" scenario test does cover this indirectly.\n+- The robot-radius regression (10 in config vs 15 in code) is also invisible to the current tests, which only assert tabular output shape and exit codes, not collision counts or trajectory metrics.\n \n ---\n \n ## Code Quality\n \n-- **No `AGENTS.md` exists in `target-repo/`** — no project-specific conventions to verify against.\n-- **Hard-coded `robot_radius_cm_ = 15.0` in `include/WallFollower.h:56`** is the most significant code-quality issue and is in direct tension with R1. With `config.json` now setting `radius_cm: 10`, the WallFollower's safety margin calculations (`safe_left_distance = robot_radius_cm_ + 10.0` at `WallFollower.cpp:164`) use 25 cm instead of the configured 20 cm. Behaviour is currently \"safe-side wrong\" (over-conservative), but it is still a correctness issue and should be fed from `Config`.\n-- **`minimum_distance_to_wall_cm` is dead** — loaded from JSON, exposed on the `Config` struct, and read by nothing. Either wire it into `WallFollower` / collision logic (preferred per spec) or do not add it. Dead config fields are a maintenance trap.\n-- **Missing newline at EOF** in three modified files: `include/Config.h`, `src/ScenarioSimulation.cpp`, `src/Simulation.cpp` (visible in the diff as `\\ No newline at end of file`). Minor, but easily fixed.\n-- **Dead branch** at `main.cpp:87-88` in the preliminary-pass loop — `--debug` is parsed only in the main pass, so the preliminary branch is a no-op comment. Either remove it or actually handle the flag there.\n-- **`Config.debug` is a non-const public member** with an in-class default initialiser, while every other field in `Config.h` is default-constructed via the loader. Style is consistent enough but inconsistent with the rest of the struct.\n-- Trace routing to `stderr` is implemented thoroughly across all state-machine branches in `WallFollower.cpp`. No `std::cout` debug remains in that file.\n+- **Hard-coded `15.0` in `WallFollower.h`** (line 56) — see R1. Central correctness concern.\n+- **Magic numbers `+ 10.0` and `+ 5.0` in `WallFollower.cpp:164,167`** — these are precisely the `minimum_distance_to_wall` values the new config field is meant to represent. They should be wired through.\n+- **Newline-at-EOF stripped from three files**:\n+  - `include/Config.h` (`\\ No newline at end of file`)\n+  - `src/Simulation.cpp`\n+  - `src/ScenarioSimulation.cpp`\n+  - And `config.json` lost a trailing blank line (cosmetic).\n+  Inconsistent with the rest of the tree; a stray editor save, easy to fix.\n+- **Preliminary-pass `--debug` branch is dead code** in `main.cpp:86–87` — the comment says \"handled in main parse loop\", so the branch should be deleted rather than kept as an empty `else if`.\n+- **No `AGENTS.md` in `target-repo/`** (`glob` confirms absence). So no project-specific conventions to check against beyond the spec's own constraints — I have not fabricated any.\n+- **Pre-existing `-Wall` warnings left untouched** — see Test Results. The spec lists \"zero -Wall warnings\" as a constraint; even though the warnings predate this PR, the constraint is currently violated and the PR is the natural place to clean them up (three trivial fixes).\n \n-### Potentially surprising for a human reviewer\n-\n-- `Simulation::run` at line 326-329 still has a non-gated `std::cout` that prints \"robot finished\" / distance traveled at the end of every run, unconditionally. The spec's intent (\"debug output off by default\") might or might not include this — it is arguably a normal completion message, not debug — but worth a glance.\n-- The behaviour change of dropping `radius_cm` from 15→10 changes physics for all existing batch runs. If downstream data analysis depends on prior radius, that is a soft breaking change that this PR does not call out.\n+No security concerns; no algorithmic changes to maze generation or wall-following state machine; `BatchResults` and `saveSummary()` signatures are untouched (verified by diff stat — no `BatchSimulation.cpp` change).\n \n ---\n \n@@ -129,14 +126,18 @@ The test harness (`run-tests.sh`) covers the four verification steps from the sp\n \n **REQUEST CHANGES**\n \n-Blocking items:\n+Blocking items (must fix before merge):\n+\n+1. **R1 regression — remove the hard-coded `15.0` robot-radius constant in `WallFollower`.**\n+   `include/WallFollower.h:56` defines `double robot_radius_cm_ = 15.0;` while `config.json` sets `radius_cm: 10`. The wall-following safe-distance logic at `src/WallFollower.cpp:164,167` therefore uses a value that disagrees with config. Fix: either pass the relevant config values (`robot_radius_cm`, `minimum_distance_to_wall_cm`) into `WallFollower` via a `setConfig(const Config&)` / constructor / `setRobotRadius()` setter, or pass them as resolved thresholds into `computeVelocity` alongside the existing `front_clearance_threshold` / `side_wall_threshold` parameters.\n+\n+2. **R1 — `minimum_distance_to_wall_cm` must actually be consumed.**\n+   Today the field is loaded by `src/Config.cpp:28` and read nowhere. The natural consumers are the `+ 10.0` / `+ 5.0` margins in `WallFollower.cpp:164,167` and the `config.robot_radius_cm + 2.0` near-miss check in `ScenarioSimulation.cpp:54`. The spec explicitly enumerates \"WallFollower, collision detection, Simulation\" as components that must read this value. If the team decides the field is not needed, remove it from `config.json` and `Config.h` rather than leaving dead config — but the spec wording strongly suggests it should be used.\n \n-1. **R1 incomplete — `minimum_distance_to_wall_cm` is loaded but never consumed.** Wire it into `WallFollower` (and any collision-checking path in `Simulation`) per the explicit spec text: *\"All components that currently use this concept (WallFollower, collision detection, Simulation) must read it from the loaded `Config` object.\"* Alternatively, justify why no component uses it — but the spec says it must be threaded.\n-2. **R1 incomplete — `WallFollower::robot_radius_cm_` is hard-coded to 15.0** in `include/WallFollower.h:56` while `config.json` sets the robot radius to 10. The controller's safety-distance calculations (`WallFollower.cpp:164, 167`) silently use the wrong value. Source the robot radius from `Config` (e.g. a `setGeometry(double radius, double min_dist)` method called alongside `setDebug`).\n+Non-blocking but should be addressed before merge or in a follow-up:\n \n-Non-blocking but recommended:\n+3. Restore trailing newlines on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`.\n+4. Delete the empty `--debug` preliminary-pass branch in `main.cpp:86–87`.\n+5. Resolve the three pre-existing `-Wall` warnings (`Maze.h` and `PerformanceMetrics.h` member-init reorder, `Pathfinder.cpp:41` unused `found`) so the spec's \"zero `-Wall` warnings\" constraint actually holds. If out-of-scope is the team's preference, the spec wording should be softened; but as written, the build does not satisfy the constraint.\n \n-- Remove dead `else if` for `--debug` in the preliminary parse pass (`main.cpp:87-88`).\n-- Restore trailing newlines on the three modified files flagged above.\n-- Consider gating the end-of-run \"robot finished\" stdout line in `Simulation.cpp:326-329` on `config.debug` for consistency.\n-- The pre-existing `-Wall` warnings remain — out of scope for this spec strictly, but the spec constraint says zero. A follow-up to reorder the three offending member-init lists and remove the unused `found` in `Pathfinder.cpp` would close that gap cheaply.\n+R2, R3, R4 are otherwise in good shape and the four functional tests confirm the behavioural acceptance criteria from §Verification of the spec.\n",
+        "summary": {
+          "files_changed": 5,
+          "additions": 503,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:41:48.775206237Z",
+        "current_node": "gate_pr",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr"
+        ],
+        "node_retries": {},
+        "context_values": {
           "internal.retry_count.plan": 0,
           "thread.reviewer.current_node": "review",
           "thread.impl.current_node": "implement",
@@ -2475,12 +2692,12 @@
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_pr.label": "[R] Rework",
           "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "review",
+          "current_node": "gate_pr",
           "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428",
           "thread.planner.current_node": "plan",
           "internal.retry_count.test": 0,
           "human.gate.label": "[R] Rework",
-          "internal.thread_id": "reviewer",
+          "internal.thread_id": "review",
           "human.gate.selected": "R",
           "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n*",
           "human.gate.gate_pr.question": "Approve PR",
@@ -2591,10 +2808,10 @@
               "implement"
             ],
             "context_updates": {
-              "human.gate.gate_pr.label": "[R] Rework",
-              "human.gate.label": "[R] Rework",
-              "human.gate.selected": "R",
               "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.label": "[R] Rework",
+              "human.gate.selected": "R",
+              "human.gate.label": "[R] Rework",
               "human.gate.gate_pr.answer": "R"
             },
             "usage": null
@@ -2636,7 +2853,7 @@
             ]
           }
         },
-        "next_node_id": "gate_pr",
+        "next_node_id": "implement",
         "node_visits": {
           "gate_plan": 1,
           "implement": 2,
@@ -2645,7 +2862,7 @@
           "review": 2,
           "start": 1,
           "test_gate": 2,
-          "gate_pr": 1
+          "gate_pr": 2
         }
       },
       "diff": {}
@@ -2669,7 +2886,29 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRZSNSAMEZPZ77XANVAKXWBX": {
+      "question": {
+        "id": "01KRZSNSAMEZPZ77XANVAKXWBX",
+        "text": "Approve PR",
+        "stage": "gate_pr",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "M",
+            "label": "[M] Merge"
+          },
+          {
+            "key": "R",
+            "label": "[R] Rework"
+          }
+        ],
+        "allow_freeform": false,
+        "context_display": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n**What works (R2, R3, R4):**\n- `--debug` CLI flag correctly threaded through `Config` to `WallFollower` in both `Simulation` and `ScenarioSimulation`. Default off, on with `--debug`.\n- `WallFollower`: `debug_=false` default, `setDebug()` setter, all ~25 prints moved `cout`→`cerr`, dead `right_mean` duplicate removed.\n- `Maze::hasWall` / `Maze::isWallBetween` declarations removed (no callers existed) — clean build, allowed by spec.\n\n**Blocking problems (R1):**\n1. **Hard-coded `15.0` in `WallFollower.h:56`** when actual `radius_cm` is now `10`. The diff replaced `extern Config config; … config.robot_radius_cm` with a member literal — fixing a latent extern bug but introducing a value-disagreement regression.\n2. **`minimum_distance_to_wall_cm` is loaded but never consumed.** The spec explicitly requires \"WallFollower, collision detection, Simulation\" to read it. The `+ 10.0` and `+ 5.0` magic offsets in `WallFollower.cpp:164,167` are exactly its intended consumers.\n\n**Quality nits:** three files lost trailing newlines; an empty `--debug` no-op branch in the preliminary parse pass in `main.cpp`; three pre-existing `-Wall` warnings (Maze.h/PerformanceMetrics.h reorder, Pathfinder.cpp:41 unused `found`) that violate the spec's \"zero `-Wall` warnings\" constraint and the PR did not fix.\n\nThe functional test suite passes, but it cannot detect either of the blocking issues — it asserts output shape and exit codes, not config↔code consistency."
+      },
+      "started_at": "2026-05-19T09:39:36.404397411Z"
+    }
+  },
   "stages": {
     "start@1": {
       "first_event_seq": 15,
@@ -2704,7 +2943,12 @@
       "first_event_seq": 542,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: review",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:39:33.470507603Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -2717,6 +2961,7 @@
       "output": null,
       "started_at": "2026-05-19T09:36:36.076880908Z",
       "handler": "agent",
+      "duration_ms": 177393,
       "usage": {
         "input_tokens": 37392,
         "output_tokens": 12629,
@@ -2730,7 +2975,7 @@
         "provider": "anthropic",
         "model_id": "claude-opus-4-7"
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "plan@1": {
       "first_event_seq": 19,
@@ -2988,6 +3233,29 @@
         "model_id": "claude-sonnet-4-6"
       },
       "state": "failed"
+    },
+    "gate_pr@2": {
+      "first_event_seq": 611,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:39:36.403203034Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     },
     "gate_plan@1": {
       "first_event_seq": 125,
