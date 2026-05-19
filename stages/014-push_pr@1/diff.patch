@@ -1,0 +1,16 @@
+diff --git a/pr-metadata.txt b/pr-metadata.txt
+new file mode 100644
+index 0000000..cf9244a
+--- /dev/null
++++ b/pr-metadata.txt
+@@ -0,0 +1,3 @@
++REPO=volker-p/SimulationPathFinder
++PR_NUMBER=2
++BRANCH=factory/implementation-plan-deterministic-scenario-testing-202605190654
+diff --git a/target-repo b/target-repo
+index 81ee94f..c298daf 160000
+--- a/target-repo
++++ b/target-repo
+@@ -1 +1 @@
+-Subproject commit 81ee94ffb988fde10a81a458724f1b6f02a7d06a
++Subproject commit c298daf937e467a07a1859f1ffb440a2856a810a
