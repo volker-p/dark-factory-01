@@ -1,0 +1,29 @@
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /repos/volker-p/dark-factory-01/target-repo/cmake-build-debug
+--- CMAKE CONFIGURE SUCCEEDED ---
+[ 14%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/WallFollower.cpp.o
+[ 21%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Renderer.cpp.o
+[  7%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Config.cpp.o
+[ 28%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/DataLogger.cpp.o
+[ 35%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Simulation.cpp.o
+[ 42%] Building CXX object CMakeFiles/SimulationPathFinder.dir/main.cpp.o
+[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/ScenarioSimulation.cpp.o
+[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/BatchSimulation.cpp.o
+[ 64%] Linking CXX executable SimulationPathFinder
+[100%] Built target SimulationPathFinder
+--- BUILD SUCCEEDED ---
+--- Checking for banned symbols in WallFollower.cpp ---
+PASS: no relative-turn flags found
+--- Checking Config.h for required fields ---
+PASS: all three config fields present in Config.h
+--- Running scenario: straight_tunnel ---
+Configuration loaded from config.json
+Scenario: STRAIGHT_TUNNEL
+  Traversal success : NO
+  Steps taken       : 10000
+  Distance (cm)     : 22.1
+  Min clearance (cm): 9.0
+  Near misses       : 9959
+  Collisions        : 9954
+ASSERTION FAILED: straight_tunnel did not report Traversal success: YES

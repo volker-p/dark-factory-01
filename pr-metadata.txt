@@ -1,0 +1,3 @@
+REPO=volker-p/SimulationPathFinder
+PR_NUMBER=4
+BRANCH=factory/implementation-plan-completely-rewrite-wall-follow-202605191226
