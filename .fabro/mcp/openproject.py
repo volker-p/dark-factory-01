@@ -12,7 +12,9 @@ OPENPROJECT_URL = os.environ.get("OPENPROJECT_URL", "https://op.uawg.xyz").rstri
 OPENPROJECT_API_KEY = os.environ.get("OPENPROJECT_API_KEY", "")
 DEFAULT_PROJECT_ID = os.environ.get("OPENPROJECT_PROJECT_ID", "7")
 
-mcp = FastMCP("openproject")
+_host = os.environ.get("MCP_HOST", "127.0.0.1")
+_port = int(os.environ.get("MCP_PORT", "8090"))
+mcp = FastMCP("openproject", host=_host, port=_port, streamable_http_path="/mcp")
 
 
 def _auth_header() -> dict:
@@ -104,9 +106,4 @@ def update_work_package(work_package_id: int, subject: str | None = None,
 
 if __name__ == "__main__":
     transport = os.environ.get("MCP_TRANSPORT", "stdio")
-    if transport == "http":
-        host = os.environ.get("MCP_HOST", "0.0.0.0")
-        port = int(os.environ.get("MCP_PORT", "8090"))
-        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
-    else:
-        mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http" if transport == "http" else "stdio")
