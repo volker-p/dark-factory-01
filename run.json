@@ -579,10 +579,11 @@
     "base_sha": "cae33b2720126a1bb180c628f67f823cfe60fd4c"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-19T08:25:16.121422704Z",
-  "last_event_at": "2026-05-19T08:28:35.320950456Z",
+  "status_updated_at": "2026-05-19T08:28:38.273897136Z",
+  "last_event_at": "2026-05-19T08:28:38.273897136Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -623,9 +624,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 111,
       "checkpoint": {
-        "timestamp": "2026-05-19T08:28:35.409713493Z",
+        "timestamp": "2026-05-19T08:28:38.272325505Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -633,24 +634,24 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.retry_count.start": 0,
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
-          "internal.node_visit_count": 1,
-          "graph.rankdir": "LR",
-          "outcome": "succeeded",
-          "current_node": "plan",
-          "thread.planner.current_node": "plan",
-          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers",
-          "last_stage": "plan",
-          "internal.retry_count.plan": 0,
           "failure_class": "",
-          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "failure_signature": "",
-          "internal.thread_id": "planner",
+          "last_stage": "plan",
           "internal.run_id": "01KRZNDKY3SXGRWWX73SQPZW1T",
-          "internal.fidelity": "compact",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers",
+          "graph.rankdir": "LR",
+          "thread.planner.current_node": "plan",
+          "internal.retry_count.plan": 0,
+          "current_node": "plan",
+          "failure_signature": "",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
           "internal.work_dir": "/workspace/dark-factory-01",
-          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/"
+          "internal.thread_id": "planner",
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/",
+          "internal.retry_count.start": 0,
+          "internal.fidelity": "compact"
         },
         "node_outcomes": {
           "start": {
@@ -695,8 +696,121 @@
           }
         },
         "next_node_id": "gate_plan",
+        "git_commit_sha": "a69d5eac2e5bdd670bdb1c41f0d8fee4e3c61e14",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/plan.md b/plan.md\nnew file mode 100644\nindex 0000000..e85feab\n--- /dev/null\n+++ b/plan.md\n@@ -0,0 +1,177 @@\n+# Implementation Plan: Physical Configuration Consolidation & Debug Control\n+\n+## Goal\n+\n+Eliminate hard-coded physical constants, make `config.json` the single source of truth for all physical parameters, add a `--debug` CLI flag to control debug output, apply straightforward improvements to `WallFollower`, and resolve the incomplete `Maze` interface.\n+\n+---\n+\n+## Files to Change\n+\n+| File | What Changes and Why |\n+|---|---|\n+| `config.json` | Update `robot.radius_cm` to 10; add `minimum_distance_to_wall: 10`; `cell_size_cm` is already 50 (confirm). These are the authoritative physical values. |\n+| `include/Config.h` | Add `double minimum_distance_to_wall` field so all components can read it from the loaded config object. |\n+| `src/Config.cpp` | Load `minimum_distance_to_wall` from the new JSON field and store it in the struct. |\n+| `include/WallFollower.h` | Change `debug_` default to `false`; add public `void setDebug(bool d)` method; remove stale Python comments (large commented-out block). |\n+| `src/WallFollower.cpp` | Route all `std::cout` debug/trace output to `std::cerr`; replace hard-coded `inner_radius` (18.0) with `config.minimum_distance_to_wall`; fix unnecessary copies/redundant checks (see checklist). |\n+| `src/Simulation.cpp` | After constructing `WallFollower`, call `controller->setDebug(debug_flag)` if debug mode is active; move the always-on verbose step-logging block behind the debug flag (currently it floods stdout unconditionally at every 5 steps). |\n+| `include/Simulation.h` | Store `bool debug_` member; update constructor to accept `bool debug = false`. |\n+| `src/ScenarioSimulation.cpp` | No code change needed — `runScenario` already reads `config.cell_size_cm` (the hard-coded literal `20` is gone, already uses `config.cell_size_cm`). Pass `config.minimum_distance_to_wall` as `inner_radius` to `WallFollower` if needed — but WallFollower reads from the global `config` object directly. Verify no other literals remain. |\n+| `main.cpp` | Parse `--debug` flag; set a `bool debug_mode` variable; pass it to `Simulation` and `ScenarioSimulation` objects; add `--debug` to `printUsage()`. |\n+| `include/ScenarioSimulation.h` | No struct/signature changes (constraint: `BatchResults` / `saveSummary` untouched). Optionally add `bool debug_` member if needed to propagate flag. |\n+| `src/Maze.cpp` | No changes needed for `hasWall`/`isWallBetween` (declarations are in header only). |\n+| `include/Maze.h` | Remove the two dead declarations `hasWall` and `isWallBetween` — they have no implementation and no callers; leaving them causes a link error if anyone eventually links them. |\n+\n+---\n+\n+## Implementation Checklist\n+\n+### Step 1 — Update `config.json`\n+1. Confirm `\"cell_size_cm\": 50` is already set (it is — no change needed).\n+2. Change `\"radius_cm\"` under `\"robot\"` from `15` to `10`.\n+3. Add `\"minimum_distance_to_wall\": 10` to the `\"robot\"` object (or create a new top-level `\"physics\"` object — but the `\"robot\"` section is the natural home).\n+\n+### Step 2 — Add `minimum_distance_to_wall` to `Config.h` and `Config.cpp`\n+1. In `include/Config.h`, add `double minimum_distance_to_wall;` after `robot_radius_cm`.\n+2. In `src/Config.cpp`, inside `Config::loadFromFile`, add:\n+   ```cpp\n+   config.minimum_distance_to_wall = j[\"robot\"][\"minimum_distance_to_wall\"];\n+   ```\n+   immediately after the `robot_radius_cm` line.\n+\n+### Step 3 — Remove dead `Maze` interface methods\n+1. In `include/Maze.h`, delete the two lines:\n+   ```cpp\n+   bool hasWall(double x_cm, double y_cm, int direction) const;\n+   bool isWallBetween(double x1_cm, double y1_cm, double x2_cm, double y2_cm) const;\n+   ```\n+2. No changes to `src/Maze.cpp` are required (no implementations existed).\n+\n+### Step 4 — Fix `WallFollower.h`\n+1. Change the default initializer of `debug_` from `true` to `false`:\n+   ```cpp\n+   bool debug_ = false;\n+   ```\n+2. Add a public `setDebug` method in the public section of the class:\n+   ```cpp\n+   void setDebug(bool d) { debug_ = d; }\n+   ```\n+3. Remove the large block of commented-out Python code (lines ~390–488 in `WallFollower.cpp`) — dead weight; place in `.cpp` not header. This is in `.cpp`, not `.h`; see Step 5.\n+\n+### Step 5 — Fix `WallFollower.cpp`\n+1. Change every `std::cout` used for debug/trace output to `std::cerr`. Specifically, all the state-transition messages (`\"FOUND wall → FOLLOW_WALL\"`, `\"Obstacle ahead! → AVOID_COLLISION\"`, `\"Timeout detected → RECOVERY\"`, etc.) and the stuck/close warnings.\n+2. Replace the hard-coded `inner_radius = 18.0` with `config.minimum_distance_to_wall`:\n+   ```cpp\n+   double inner_radius = config.minimum_distance_to_wall;\n+   ```\n+   This also fixes the safe-left-distance formula which already reads `config.robot_radius_cm`.\n+3. Remove the large commented-out Python code block (lines ~390–488) — it is dead code and clutters the file.\n+4. In `updatePosition`, the two `std::cout` debug lines should also become `std::cerr`.\n+5. **Wasteful pattern**: `double right_mean = right_side;` on line 88 is a needless alias — but since it is used throughout the function as `right_mean`, simply leave it or inline it. The more impactful fix is the `inner_radius` from config.\n+\n+### Step 6 — Update `Simulation.cpp` and `Simulation.h` to support `--debug`\n+1. In `include/Simulation.h`, add a `bool debug_` private member and change the constructor signature to:\n+   ```cpp\n+   Simulation(const Config& cfg, bool debug = false);\n+   ```\n+2. In `src/Simulation.cpp`, update the constructor to accept and store `debug`:\n+   ```cpp\n+   Simulation::Simulation(const Config& cfg, bool debug)\n+       : config(cfg), debug_(debug), ... {\n+       controller = std::make_unique<WallFollower>();\n+       controller->setDebug(debug_);\n+       ...\n+   }\n+   ```\n+3. In `Simulation::run()`, gate the verbose step-by-step logging block (the large `if (should_log)` block and the `initializeRobot` `std::cout` lines) behind `if (debug_)`. The non-debug completion messages (`\"Maze completion threshold reached!\"`, `\"Robot stuck\"`, `\"Simulation complete\"`) can remain on stdout.\n+4. Also gate `initializeRobot()`'s two `std::cout` lines behind the debug flag (either add `debug_` member accessible there, or move the output behind a parameter).\n+\n+### Step 7 — Update `ScenarioSimulation` to support `--debug`\n+1. In `include/ScenarioSimulation.h`, add `bool debug_` private member; update constructor:\n+   ```cpp\n+   explicit ScenarioSimulation(const Config& cfg, bool debug = false);\n+   ```\n+2. In `src/ScenarioSimulation.cpp`, update the constructor to store `debug_` and call `setDebug` on the `WallFollower` after construction:\n+   ```cpp\n+   WallFollower controller;\n+   controller.setDebug(debug_);\n+   ```\n+\n+### Step 8 — Add `--debug` to `main.cpp`\n+1. Add `bool debug_mode = false;` alongside the other flags at the top of `main`.\n+2. In the preliminary pass loop (and in the main parse loop), detect `--debug`:\n+   ```cpp\n+   } else if (strcmp(argv[i], \"--debug\") == 0) {\n+       debug_mode = true;\n+   }\n+   ```\n+3. Update `printUsage()` to include:\n+   ```\n+   --debug               Enable debug/trace output from all components\n+   ```\n+4. When constructing `ScenarioSimulation`, pass `debug_mode`:\n+   ```cpp\n+   ScenarioSimulation sim(config, debug_mode);\n+   ```\n+5. When constructing `BatchSimulation`, thread `debug_mode` through. Read `BatchSimulation.h` to see if it constructs `Simulation` internally — if so, the `debug_mode` needs to be stored in `BatchSimulation` and passed to each `Simulation` it creates.\n+\n+### Step 9 — Verify no other hard-coded physical literals remain\n+1. Search `main.cpp`, `Simulation.cpp`, `BatchSimulation.cpp`, `ScenarioSimulation.cpp` for any numeric literals that represent physical dimensions (`20`, `15`, `25`, etc.) that should come from config. Key known issue was `ScenarioSimulation` — already reads `config.cell_size_cm` (confirmed in current code). The `front_threshold = config.robot_radius_cm + 20.0` in `Simulation.cpp` is a composite formula, not a raw physical constant; this is acceptable.\n+\n+### Step 10 — Zero-warning build check\n+1. After all changes, build with `-Wall` (already set in `CMakeLists.txt`).\n+2. Fix any warnings introduced: unused variable from removed code, sign-compare issues, etc.\n+\n+---\n+\n+## Test Strategy\n+\n+### Tests to run\n+The repository has no dedicated unit-test framework. Verification is done by running the binary. Use the commands from the spec's **Verification** section as the test suite:\n+\n+1. **Clean build** — confirms no warnings:\n+   ```bash\n+   cmake -B build && cmake --build build 2>&1 | grep -E \"warning:|error:\"\n+   ```\n+2. **Scenario run (no debug)** — confirms no debug flood on stdout:\n+   ```bash\n+   ./build/SimulationPathFinder --scenario straight_tunnel 2>/dev/null\n+   # output must be clean tabular metrics, no state-transition messages\n+   ```\n+3. **Full scenario suite** — confirms low collision counts with 10cm robot in 50cm corridors:\n+   ```bash\n+   ./build/SimulationPathFinder --scenario-suite 2>/dev/null\n+   ```\n+4. **Debug flag** — confirms WallFollower trace appears on stderr when `--debug` is passed:\n+   ```bash\n+   ./build/SimulationPathFinder --debug --scenario straight_tunnel 2>/tmp/dbg.txt\n+   grep -q \"wall\\|FOLLOW\\|RECOVERY\" /tmp/dbg.txt\n+   ```\n+5. **Batch mode** — confirms existing batch functionality is unbroken:\n+   ```bash\n+   ./build/SimulationPathFinder --headless --batch 5\n+   ```\n+\n+### Existing tests that may be affected\n+- `run_test.sh` and `test.sh` in the repo root — read these before running to ensure they still pass.\n+- The `test_output/` directory may contain golden outputs; re-run and compare if needed.\n+\n+### Regression risks\n+- Config loading: adding `minimum_distance_to_wall` will throw `nlohmann::json` exception if the field is missing from JSON. Always add the field to `config.json` before changing `Config.cpp`.\n+- `ScenarioSimulation` already reads `config.cell_size_cm` — confirmed no regression there.\n+- `BatchSimulation` constructs `Simulation` objects — ensure the `debug` flag threads through correctly.\n+\n+---\n+\n+## Risks and Edge Cases\n+\n+| Risk | Mitigation |\n+|---|---|\n+| `nlohmann::json` throws if `minimum_distance_to_wall` key is absent | Add key to `config.json` **before** adding the load line in `Config.cpp`. |\n+| Changing `robot_radius_cm` from 15 to 10 affects `WallFollower.cpp` safe-left-distance formula (`config.robot_radius_cm + 10.0`) — threshold drops from 25cm to 20cm | This is intentional (smaller robot needs less clearance). Verify via scenario suite that collision counts do not increase. |\n+| Moving verbose step-logging in `Simulation.cpp` behind `debug_` flag may hide information during debugging | That is the spec intent; trace goes to stderr via WallFollower, which is still available with `--debug`. |\n+| `BatchSimulation` may not have a path to propagate `debug_mode` | Read `include/BatchSimulation.h` and `src/BatchSimulation.cpp` before Step 8; add `bool debug_` member and constructor parameter if needed. |\n+| Removing commented-out Python block from `WallFollower.cpp` is safe but must be done carefully | The block is entirely within `/* ... */` comment delimiters — verify the delimiters before deletion to avoid accidentally removing live code. |\n+| `Simulation.h` constructor signature change may break `BatchSimulation.cpp` if it calls `Simulation(cfg)` directly | Update `BatchSimulation.cpp` call site to `Simulation(cfg, debug_)`. |\n+| `-Wall` may surface sign-compare warnings from `sensor_readings.size()` comparisons in `Simulation.cpp` | These pre-exist; fix by casting to `int` or using `static_cast<size_t>`. Only fix if newly introduced. |\ndiff --git a/run-tests.sh b/run-tests.sh\nnew file mode 100755\nindex 0000000..1437ff1\n--- /dev/null\n+++ b/run-tests.sh\n@@ -0,0 +1,44 @@\n+#!/bin/bash\n+set -euo pipefail\n+\n+# -- Sandbox dependencies -------------------------------------------------\n+# Detect and install any system packages required to build.\n+# SimulationPathFinder requires: cmake, build-essential, git, libsdl2-dev\n+if ! command -v cmake &>/dev/null; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends cmake build-essential git libsdl2-dev\n+fi\n+# SDL2 may be absent even when cmake is present (different sandbox image)\n+if ! dpkg -l libsdl2-dev &>/dev/null 2>&1; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends libsdl2-dev\n+fi\n+# -------------------------------------------------------------------------\n+\n+# Initialise submodules if present (nlohmann/json is a submodule)\n+cd target-repo\n+git submodule update --init --recursive\n+\n+# Build (from CLAUDE.md ## Build System)\n+# Use an out-of-source build directory named \"build\" (not cmake-build-debug which\n+# requires CLion/ninja). cmake --build with the default generator (make) works here.\n+# IMPORTANT: never pipe build commands — piping swallows the exit code.\n+cmake -B build -DCMAKE_BUILD_TYPE=Debug\n+cmake --build build\n+echo \"--- BUILD SUCCEEDED ---\"\n+\n+# Tests (from spec ## Verification section)\n+# Run all five acceptance checks. Each must succeed for the suite to pass.\n+\n+# 1. Scenario run — no debug flood on stdout (debug goes to stderr, suppressed)\n+./build/SimulationPathFinder --scenario straight_tunnel 2>/dev/null\n+\n+# 2. Full scenario suite\n+./build/SimulationPathFinder --scenario-suite 2>/dev/null\n+\n+# 3. Debug flag enables WallFollower trace on stderr\n+./build/SimulationPathFinder --debug --scenario straight_tunnel 2>/tmp/dbg.txt\n+grep -q -i \"wall\\|FOLLOW\\|RECOVERY\" /tmp/dbg.txt\n+\n+# 4. Existing batch mode unbroken\n+./build/SimulationPathFinder --headless --batch 5 2>/dev/null\n+\n+echo \"--- TESTS PASSED ---\"\ndiff --git a/target-repo b/target-repo\nnew file mode 160000\nindex 0000000..4c9dc47\n--- /dev/null\n+++ b/target-repo\n@@ -0,0 +1 @@\n+Subproject commit 4c9dc47ffdbd419b4989e0302342bc96f731c415\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 222,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T08:29:54.465464120Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.retry_count.start": 0,
+          "human.gate.label": "[A] Approve",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "internal.node_visit_count": 1,
+          "graph.rankdir": "LR",
+          "outcome": "succeeded",
+          "preferred_label": "[A] Approve",
+          "human.gate.gate_plan.answer": "A",
+          "current_node": "gate_plan",
+          "thread.planner.current_node": "plan",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers",
+          "last_stage": "plan",
+          "internal.retry_count.plan": 0,
+          "failure_class": "",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "human.gate.selected": "A",
+          "failure_signature": "",
+          "internal.thread_id": "plan",
+          "internal.retry_count.gate_plan": 0,
+          "internal.run_id": "01KRZNDKY3SXGRWWX73SQPZW1T",
+          "internal.fidelity": "compact",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/",
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "human.gate.gate_plan.question": "Approve Plan"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.question": "Approve Plan"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/",
+              "last_stage": "plan",
+              "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 43573,
+                    "output_tokens": 6861,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 439292,
+                    "cache_write_tokens": 47278
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 47278,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 542713
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "implement",
         "node_visits": {
           "plan": 1,
+          "gate_plan": 1,
           "start": 1
         }
       },
@@ -721,8 +835,53 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRZNKV01D2MRVY2V87XXPE17": {
+      "question": {
+        "id": "01KRZNKV01D2MRVY2V87XXPE17",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false,
+        "context_display": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers"
+      },
+      "started_at": "2026-05-19T08:28:38.273874342Z"
+    }
+  },
   "stages": {
+    "gate_plan@1": {
+      "first_event_seq": 114,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T08:28:38.273818578Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
+    },
     "start@1": {
       "first_event_seq": 15,
       "prompt": null,
@@ -756,7 +915,12 @@
       "first_event_seq": 19,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T08:28:35.409609488Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -769,6 +933,7 @@
       "output": null,
       "started_at": "2026-05-19T08:25:17.526224813Z",
       "handler": "agent",
+      "duration_ms": 197883,
       "usage": {
         "input_tokens": 43573,
         "output_tokens": 6861,
@@ -782,7 +947,7 @@
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
       },
-      "state": "running"
+      "state": "succeeded"
     }
   }
 }
