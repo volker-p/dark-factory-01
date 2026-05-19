@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T09:21:17.913399535Z",
-  "last_event_at": "2026-05-19T09:28:05.511054875Z",
+  "last_event_at": "2026-05-19T09:28:08.493102686Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -823,15 +823,177 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 404,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:28:05.605065603Z",
+        "timestamp": "2026-05-19T09:28:08.492732874Z",
         "current_node": "implement",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "human.gate.gate_plan.answer": "A",
+          "preferred_label": "[A] Approve",
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "response.implement": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot.radius_cm` from `15` → `10`, added `\"minimum_distance_to_wall\": 10`.\n\n2. **`include/Config.h`** — Added `double minimum_distance_to_wall_cm` field (robot config section) and `bool debug = false` runtime flag.\n\n3. **`src/Config.cpp`** — Added loader for `config.minimum_distance_to_wall_cm = j[\"robot\"][\"minimum_distance_to_wall\"]`.\n\n4. **`include/WallFollower.h`** — Changed `debug_ = true` → `false`, added public `void setDebug(bool d)` method, added `double robot_radius_cm_ = 15.0` private member.\n\n5. **`main.cpp`** — Added `bool debug_flag = false`, `--debug` branch in argument parser, `if (debug_flag) config.debug = true` after config load, updated `printUsage()`, and added `--debug` to preliminary pass.\n\n6. **`src/WallFollower.cpp`** — Removed `#include \"Config.h\"` and `extern Config config;`, replaced `config.robot_radius_cm` with `robot_radius_cm_`, replaced the wasteful `right_mean` alias with direct `right_side` usage, and converted all ~20 `std::cout` debug calls to `std::cerr`.\n\n7. **`src/Simulation.cpp`** — Added `controller->setDebug(config.debug)` after construction, gated the step-logging block behind `config.debug && should_log`, gated `initializeRobot()` debug prints behind `config.debug`.\n\n8. **`src/ScenarioSimulation.cpp`** — Added `controller.setDebug(config.debug)` after construction.\n\n9. **`include/Maze.h`** — Removed the two unimplemented declarations `hasWall` and `isWallBetween` (no callers confirmed).",
+          "last_stage": "implement",
+          "human.gate.label": "[A] Approve",
+          "thread.impl.current_node": "implement",
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "thread.planner.current_node": "plan",
+          "internal.fidelity": "full",
+          "current_node": "implement",
+          "graph.rankdir": "LR",
+          "failure_signature": "",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.retry_count.gate_plan": 0,
+          "human.gate.selected": "A",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.retry_count.start": 0,
+          "failure_class": "",
+          "last_response": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "internal.retry_count.implement": 0,
+          "internal.node_visit_count": 1,
+          "internal.retry_count.plan": 0,
+          "internal.thread_id": "impl",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot",
+              "response.implement": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot.radius_cm` from `15` → `10`, added `\"minimum_distance_to_wall\": 10`.\n\n2. **`include/Config.h`** — Added `double minimum_distance_to_wall_cm` field (robot config section) and `bool debug = false` runtime flag.\n\n3. **`src/Config.cpp`** — Added loader for `config.minimum_distance_to_wall_cm = j[\"robot\"][\"minimum_distance_to_wall\"]`.\n\n4. **`include/WallFollower.h`** — Changed `debug_ = true` → `false`, added public `void setDebug(bool d)` method, added `double robot_radius_cm_ = 15.0` private member.\n\n5. **`main.cpp`** — Added `bool debug_flag = false`, `--debug` branch in argument parser, `if (debug_flag) config.debug = true` after config load, updated `printUsage()`, and added `--debug` to preliminary pass.\n\n6. **`src/WallFollower.cpp`** — Removed `#include \"Config.h\"` and `extern Config config;`, replaced `config.robot_radius_cm` with `robot_radius_cm_`, replaced the wasteful `right_mean` alias with direct `right_side` usage, and converted all ~20 `std::cout` debug calls to `std::cerr`.\n\n7. **`src/Simulation.cpp`** — Added `controller->setDebug(config.debug)` after construction, gated the step-logging block behind `config.debug && should_log`, gated `initializeRobot()` debug prints behind `config.debug`.\n\n8. **`src/ScenarioSimulation.cpp`** — Added `controller.setDebug(config.debug)` after construction.\n\n9. **`include/Maze.h`** — Removed the two unimplemented declarations `hasWall` and `isWallBetween` (no callers confirmed).",
+              "last_stage": "implement"
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 58194,
+                    "output_tokens": 16664,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 3454240,
+                    "cache_write_tokens": 62434
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 62434,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1694941
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/config.json",
+              "/workspace/dark-factory-01/target-repo/include/Config.h",
+              "/workspace/dark-factory-01/target-repo/include/Maze.h",
+              "/workspace/dark-factory-01/target-repo/include/WallFollower.h",
+              "/workspace/dark-factory-01/target-repo/main.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Config.cpp",
+              "/workspace/dark-factory-01/target-repo/src/ScenarioSimulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Simulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/WallFollower.cpp"
+            ]
+          }
+        },
+        "next_node_id": "test",
+        "git_commit_sha": "763d7d4534d2079e6af0972af1f3b02b34c9293c",
+        "node_visits": {
+          "gate_plan": 1,
+          "start": 1,
+          "implement": 1,
+          "plan": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/target-repo b/target-repo\nindex 4c9dc47..d36b238 160000\n--- a/target-repo\n+++ b/target-repo\n@@ -1 +1 @@\n-Subproject commit 4c9dc47ffdbd419b4989e0302342bc96f731c415\n+Subproject commit d36b238c474eba80648477755d8ac580a448d3c8\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 314,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:28:27.206660633Z",
+        "current_node": "test",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test"
         ],
         "node_retries": {},
         "context_values": {
@@ -842,10 +1004,12 @@
           "internal.retry_count.implement": 0,
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "implement",
+          "current_node": "test",
+          "command.output": "blob://sha256/623eb36d8da1d9501515208b4739c546e7a1495d245821a0e24672290a82f25a",
           "thread.planner.current_node": "plan",
+          "internal.retry_count.test": 0,
           "human.gate.label": "[A] Approve",
-          "internal.thread_id": "impl",
+          "internal.thread_id": "implement",
           "human.gate.selected": "A",
           "last_response": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot",
           "internal.node_visit_count": 1,
@@ -858,14 +1022,23 @@
           "graph.rankdir": "LR",
           "human.gate.gate_plan.question": "Approve Plan",
           "preferred_label": "[A] Approve",
+          "thread.implement.current_node": "test",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
           "outcome": "succeeded",
           "human.gate.gate_plan.answer": "A",
           "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
-          "internal.fidelity": "full"
+          "internal.fidelity": "compact"
         },
         "node_outcomes": {
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/623eb36d8da1d9501515208b4739c546e7a1495d245821a0e24672290a82f25a"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "usage": null
+          },
           "gate_plan": {
             "status": "succeeded",
             "preferred_label": "[A] Approve",
@@ -965,10 +1138,11 @@
             ]
           }
         },
-        "next_node_id": "test",
+        "next_node_id": "test_gate",
         "node_visits": {
           "gate_plan": 1,
           "implement": 1,
+          "test": 1,
           "plan": 1,
           "start": 1
         }
@@ -1000,7 +1174,12 @@
       "first_event_seq": 137,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: implement",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:28:05.604882138Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -1013,6 +1192,7 @@
       "output": null,
       "started_at": "2026-05-19T09:21:21.090046550Z",
       "handler": "agent",
+      "duration_ms": 404514,
       "usage": {
         "input_tokens": 58194,
         "output_tokens": 16664,
@@ -1026,7 +1206,7 @@
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "plan@1": {
       "first_event_seq": 19,
@@ -1094,6 +1274,33 @@
         "cache_write_tokens": 0
       },
       "state": "succeeded"
+    },
+    "test@1": {
+      "first_event_seq": 407,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "language": "shell"
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:28:08.493037810Z",
+      "handler": "command",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     },
     "start@1": {
       "first_event_seq": 15,
