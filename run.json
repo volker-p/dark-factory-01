@@ -573,14 +573,136 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KRZQRMQ7VZZRASFH5D0RRECB",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-19T09:06:14.092995991Z",
+    "run_branch": "fabro/run/01KRZQRMQ7VZZRASFH5D0RRECB",
+    "base_sha": "639271fb4a486d1a42850a5dc5577989bd73f3cc"
   },
-  "status_updated_at": "2026-05-19T09:06:12.925850543Z",
-  "last_event_at": "2026-05-19T09:06:13.856689873Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-19T09:06:14.093037814Z",
+  "last_event_at": "2026-05-19T09:09:51.155766606Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 18,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:06:15.564863232Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.retry_count.start": 0,
+          "graph.rankdir": "LR",
+          "failure_class": "",
+          "current_node": "start",
+          "failure_signature": "",
+          "internal.fidelity": "compact",
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "internal.thread_id": null,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:09:51.253224756Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.thread_id": "planner",
+          "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "internal.node_visit_count": 1,
+          "last_stage": "plan",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_signature": "",
+          "failure_class": "",
+          "internal.retry_count.start": 0,
+          "graph.rankdir": "LR",
+          "current_node": "plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "thread.planner.current_node": "plan",
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "outcome": "succeeded",
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "internal.fidelity": "compact",
+          "internal.retry_count.plan": 0
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "plan": 1,
+          "start": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -600,5 +722,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:06:15.564963503Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 48522,
+        "output_tokens": 7506,
+        "total_tokens": 648472,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 540865,
+        "cache_write_tokens": 51579,
+        "total_usd_micros": 613836
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    },
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:06:15.564708381Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:06:15.564594660Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    }
+  }
 }
