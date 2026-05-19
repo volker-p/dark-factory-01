@@ -573,14 +573,136 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KRZKH70HG2QH0BFJM7V8SH0H",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-19T07:52:16.884259109Z",
+    "run_branch": "fabro/run/01KRZKH70HG2QH0BFJM7V8SH0H",
+    "base_sha": "cccb02f3fa37a847f947822d8c0c96e6338731d3"
   },
-  "status_updated_at": "2026-05-19T07:52:15.206360560Z",
-  "last_event_at": "2026-05-19T07:52:16.618480947Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-19T07:52:16.884315364Z",
+  "last_event_at": "2026-05-19T07:55:32.172044303Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 18,
+      "checkpoint": {
+        "timestamp": "2026-05-19T07:52:18.232798807Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "current_node": "start",
+          "internal.fidelity": "compact",
+          "failure_class": "",
+          "internal.retry_count.start": 0,
+          "failure_signature": "",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "graph.rankdir": "LR",
+          "internal.run_id": "01KRZKH70HG2QH0BFJM7V8SH0H",
+          "internal.thread_id": null,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T07:55:32.261448450Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag ",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.run_id": "01KRZKH70HG2QH0BFJM7V8SH0H",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.node_visit_count": 1,
+          "internal.fidelity": "compact",
+          "current_node": "plan",
+          "failure_class": "",
+          "internal.retry_count.start": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "last_stage": "plan",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
+          "internal.retry_count.plan": 0,
+          "thread.planner.current_node": "plan",
+          "failure_signature": "",
+          "outcome": "succeeded",
+          "graph.rankdir": "LR",
+          "internal.thread_id": "planner"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
+              "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag "
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 43700,
+                    "output_tokens": 6566,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 349018,
+                    "cache_write_tokens": 47412
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 47412,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 512090
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -600,5 +722,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T07:52:18.232629343Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T07:52:18.232558437Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T07:52:18.232906518Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 43700,
+        "output_tokens": 6566,
+        "total_tokens": 446696,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 349018,
+        "cache_write_tokens": 47412,
+        "total_usd_micros": 512090
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    }
+  }
 }
