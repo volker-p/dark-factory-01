@@ -579,10 +579,11 @@
     "base_sha": "cccb02f3fa37a847f947822d8c0c96e6338731d3"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-19T07:52:16.884315364Z",
-  "last_event_at": "2026-05-19T07:55:32.172044303Z",
+  "status_updated_at": "2026-05-19T07:55:35.106523793Z",
+  "last_event_at": "2026-05-19T07:55:35.106523793Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -623,9 +624,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 105,
       "checkpoint": {
-        "timestamp": "2026-05-19T07:55:32.261448450Z",
+        "timestamp": "2026-05-19T07:55:35.105171371Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -633,23 +634,23 @@
         ],
         "node_retries": {},
         "context_values": {
-          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag ",
-          "internal.work_dir": "/workspace/dark-factory-01",
-          "internal.run_id": "01KRZKH70HG2QH0BFJM7V8SH0H",
-          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "internal.node_visit_count": 1,
-          "internal.fidelity": "compact",
-          "current_node": "plan",
-          "failure_class": "",
-          "internal.retry_count.start": 0,
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
-          "last_stage": "plan",
-          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
-          "internal.retry_count.plan": 0,
-          "thread.planner.current_node": "plan",
-          "failure_signature": "",
           "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "thread.planner.current_node": "plan",
+          "internal.fidelity": "compact",
+          "internal.run_id": "01KRZKH70HG2QH0BFJM7V8SH0H",
+          "internal.retry_count.start": 0,
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag ",
+          "failure_signature": "",
+          "current_node": "plan",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
           "graph.rankdir": "LR",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "internal.retry_count.plan": 0,
+          "last_stage": "plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "failure_class": "",
           "internal.thread_id": "planner"
         },
         "node_outcomes": {
@@ -695,7 +696,120 @@
           }
         },
         "next_node_id": "gate_plan",
+        "git_commit_sha": "789a53988e364dd42f5fbad5c5334b1acc355333",
         "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/plan.md b/plan.md\nnew file mode 100644\nindex 0000000..821d557\n--- /dev/null\n+++ b/plan.md\n@@ -0,0 +1,181 @@\n+# Implementation Plan — Physical Configuration Consolidation & Debug Control\n+\n+## Goal\n+\n+Eliminate hard-coded physical constants by making `config.json` the single source of truth, add a `--debug` CLI flag that globally controls debug output (defaulting to off), apply focused improvements to `WallFollower`, and resolve the incomplete `Maze` interface by removing the two unimplemented declarations.\n+\n+---\n+\n+## Files to Change\n+\n+| File | What changes and why |\n+|---|---|\n+| `config.json` | Update `robot.radius_cm` to 10, add `\"minimum_distance_to_wall\": 10` under `robot`, keep `cell_size_cm` at 50 (already correct) |\n+| `include/Config.h` | Add `double minimum_distance_to_wall` field to the Config struct |\n+| `src/Config.cpp` | Load `minimum_distance_to_wall` from the `robot` JSON object |\n+| `include/WallFollower.h` | Change `debug_` default from `true` to `false`; add public `void setDebug(bool d)` method |\n+| `src/WallFollower.cpp` | Replace all `std::cout` debug prints with `std::cerr`; replace hard-coded `config.robot_radius_cm + 10.0` and `config.robot_radius_cm + 5.0` safe-distance literals with `config.minimum_distance_to_wall`-based expressions; fix minor wasteful patterns (unnecessary `right_mean` alias) |\n+| `src/Simulation.cpp` | After constructing `WallFollower`, call `controller->setDebug(debug_flag)` where `debug_flag` is passed in from `Config`; move the verbose `std::cout` step-logging block to be gated on a `debug` member or the same flag; silence the two `initializeRobot()` `std::cout` lines when debug is off |\n+| `include/Simulation.h` | No signature changes required; debug flag flows through `Config` |\n+| `main.cpp` | Parse `--debug` flag; store it in a `bool debug` local; after loading config pass it via `config.debug = debug` (or set it before calling `ScenarioSimulation`/`BatchSimulation`); add `--debug` to `printUsage()` |\n+| `include/Config.h` | Add `bool debug` field (defaulting to `false`) so the flag can be threaded through to all components that receive a `Config` reference |\n+| `src/Config.cpp` | Default `config.debug = false` (not loaded from JSON; set programmatically from CLI) |\n+| `src/ScenarioSimulation.cpp` | Pass `config.debug` to `WallFollower` via `controller.setDebug(config.debug)` |\n+| `src/Maze.cpp` | No change needed (no `hasWall`/`isWallBetween` implementation required) |\n+| `include/Maze.h` | Remove the two unused declarations `hasWall` and `isWallBetween` (no callers exist; removing cleans up the interface and eliminates latent link errors) |\n+\n+---\n+\n+## Implementation Checklist\n+\n+### Step 1 — Update `config.json`\n+1. Change `\"radius_cm\"` under `robot` from `15` to `10`.\n+2. Add a new key `\"minimum_distance_to_wall\": 10` under the `robot` object.\n+3. Confirm `maze.cell_size_cm` is already `50` (it is; no change needed).\n+\n+### Step 2 — Add `minimum_distance_to_wall` and `debug` to `Config.h`\n+1. In the **Robot configuration** section of `Config.h`, add:\n+   ```cpp\n+   double minimum_distance_to_wall;\n+   ```\n+2. In the **Simulation/top-level section** (or add a new section), add:\n+   ```cpp\n+   bool debug;\n+   ```\n+   This field is set by `main.cpp` from the `--debug` CLI flag, not loaded from JSON.\n+\n+### Step 3 — Load `minimum_distance_to_wall` in `Config.cpp`\n+1. After the line that loads `robot_radius_cm`, add:\n+   ```cpp\n+   config.minimum_distance_to_wall = j[\"robot\"][\"minimum_distance_to_wall\"];\n+   ```\n+2. After the existing defaults block (just before the `validate()` call), initialise:\n+   ```cpp\n+   config.debug = false;\n+   ```\n+   (The field is set by `main.cpp` after loading; initialising it here prevents any uninitialized-read in tests that construct `Config` directly.)\n+\n+### Step 4 — Fix `WallFollower.h`\n+1. Change the in-class initialiser from `bool debug_ = true;` to `bool debug_ = false;`.\n+2. Add a new public method after `forceRecovery()`:\n+   ```cpp\n+   void setDebug(bool d) { debug_ = d; }\n+   ```\n+\n+### Step 5 — Fix `WallFollower.cpp`\n+1. Replace every occurrence of `std::cout` in debug-guarded branches with `std::cerr`. This covers:\n+   - The timeout detection block (`\"Timeout detected → RECOVERY\"`)\n+   - All state-transition prints in `FIND_WALL`, `FOLLOW_WALL`, `AVOID_COLLISION`, `TURN_CORNER`, `RECOVERY`\n+   - The `updatePosition()` stuck-detection prints\n+2. Replace the two hard-coded safe-distance calculations that reference `config.robot_radius_cm + 10.0` and `config.robot_radius_cm + 5.0` with expressions using `config.minimum_distance_to_wall`:\n+   ```cpp\n+   // Before:\n+   double safe_left_distance = config.robot_radius_cm + 10.0;\n+   if (left_side < config.robot_radius_cm + 5.0) { ...\n+   // After:\n+   double safe_left_distance = config.robot_radius_cm + config.minimum_distance_to_wall;\n+   if (left_side < config.robot_radius_cm + config.minimum_distance_to_wall * 0.5) { ...\n+   ```\n+   *(This maintains the same proportional relationship while reading from config.)*\n+3. Remove the redundant local variable `right_mean` that is set to `right_side` and never diverges:\n+   ```cpp\n+   // Before:\n+   double right_side = sensors[2];\n+   double right_mean = right_side;   // pointless alias\n+   // After:\n+   double right_mean = sensors[2];\n+   ```\n+   Also remove the now-unused `double left_side = sensors[3];` and replace its sole use (`left_side`) by inlining `sensors[3]`. *(Keep `left_side` as a named local if it improves readability — the key fix is removing `right_mean` alias.)*\n+\n+### Step 6 — Fix `Simulation.cpp`\n+1. After `controller = std::make_unique<WallFollower>();` in the constructor, add:\n+   ```cpp\n+   controller->setDebug(config.debug);\n+   ```\n+2. Gate the verbose step-logging block (lines ~173–258) behind `if (config.debug)` instead of the existing `if (should_log)` condition that always fires. Replace the outer check:\n+   ```cpp\n+   if (should_log) { ... }\n+   ```\n+   with:\n+   ```cpp\n+   if (config.debug && should_log) { ... }\n+   ```\n+3. Gate the two `initializeRobot()` `std::cout` lines (robot position + cell walls) behind `if (config.debug)`.\n+4. Leave the non-debug `std::cout` lines (maze completion threshold, robot stuck, simulation complete) unchanged — they are user-facing status messages, not debug noise.\n+\n+### Step 7 — Fix `main.cpp`\n+1. Add `bool debug = false;` near the top of `main()` alongside the other local flags.\n+2. In the argument-parsing loop, add:\n+   ```cpp\n+   } else if (strcmp(argv[i], \"--debug\") == 0) {\n+       debug = true;\n+   }\n+   ```\n+3. After `config = Config::loadFromFile(config_file);`, set:\n+   ```cpp\n+   config.debug = debug;\n+   ```\n+4. Add `--debug` to `printUsage()`:\n+   ```cpp\n+   std::cout << \"  --debug               Enable debug/trace output on stderr\\n\";\n+   ```\n+5. In the preliminary pass (the first `for` loop), also detect `--debug` so it does not fall through to the \"Unknown option\" error:\n+   ```cpp\n+   } else if (strcmp(argv[i], \"--debug\") == 0) {\n+       // consumed in main parse loop\n+   }\n+   ```\n+   — **or** simply remove the preliminary pass restriction and handle it solely in the main loop (both approaches work; matching the existing two-pass style is safest).\n+\n+### Step 8 — Fix `ScenarioSimulation.cpp`\n+1. After `WallFollower controller;` is declared, add:\n+   ```cpp\n+   controller.setDebug(config.debug);\n+   ```\n+\n+### Step 9 — Remove `hasWall` and `isWallBetween` from `Maze.h`\n+1. Delete the two declaration lines:\n+   ```cpp\n+   bool hasWall(double x_cm, double y_cm, int direction) const;\n+   bool isWallBetween(double x1_cm, double y1_cm, double x2_cm, double y2_cm) const;\n+   ```\n+   Rationale: a `grep` of all `.cpp` and `.h` files confirms zero callers. Removing the declarations eliminates the link error that would occur if the symbols were ever referenced, and leaves the interface clean.\n+\n+### Step 10 — Final build verification\n+1. Run `cmake -B build && cmake --build build -- -Wall` and confirm zero warnings and zero errors.\n+2. Run `./build/SimulationPathFinder --scenario straight_tunnel` and confirm no debug flood on stdout.\n+3. Run `./build/SimulationPathFinder --debug --scenario straight_tunnel 2>/tmp/dbg.txt && grep -q \"wall\" /tmp/dbg.txt` to confirm debug output goes to stderr.\n+4. Run `./build/SimulationPathFinder --headless --batch 5` to confirm batch mode is unaffected.\n+\n+---\n+\n+## Test Strategy\n+\n+### New tests to add\n+The project has no automated unit-test framework wired into CMake. The existing tests are shell scripts (`test.sh`, `run_test.sh`, `verify_fix.sh`) that build and run the binary.\n+\n+- **`run_test.sh`** — already exercises headless batch mode; ensure it still passes.\n+- **`verify_fix.sh`** — exercises scenario mode; ensure it still passes.\n+- **New manual checks** (add to `verify_fix.sh` or a new `test_debug.sh`):\n+  1. `--debug` off by default: `./SimulationPathFinder --scenario straight_tunnel 2>/tmp/err.txt && test ! -s /tmp/err.txt` (stderr should be empty without `--debug`).\n+  2. `--debug` on: `./SimulationPathFinder --debug --scenario straight_tunnel 2>/tmp/err.txt && grep -q \"wall\\|RECOVERY\\|FOLLOW\" /tmp/err.txt`.\n+  3. Batch mode: `./SimulationPathFinder --headless --batch 3` exits with code 0.\n+\n+### Existing tests affected\n+- `test.sh` / `run_test.sh` / `verify_fix.sh` — should all continue to pass. The only behavioural change visible to callers is:\n+  - Stdout is quieter in normal mode (step-logging removed from stdout).\n+  - `config.json` physical values changed (`robot_radius_cm` 15→10); this affects robot collision margins in batch runs but does not break any script assertions (scripts check exit code, not metric values).\n+\n+---\n+\n+## Risks and Edge Cases\n+\n+| Risk | Mitigation |\n+|---|---|\n+| `WallFollower.cpp` uses `extern Config config;` (global) — `minimum_distance_to_wall` must be present on that global | The global `Config config` in `main.cpp` is always populated via `Config::loadFromFile()`, which now loads the new field. No risk as long as the JSON key is present. |\n+| `config.json` missing `minimum_distance_to_wall` in older checked-out trees | Step 1 adds it; any build from the patched tree will have it. Old binaries running against old configs would throw a JSON key-not-found exception — acceptable since we own the config file. |\n+| `robot_radius_cm` 15→10 changes wall-following thresholds in `WallFollower.cpp` | The proportional safe-distance logic (`config.robot_radius_cm + config.minimum_distance_to_wall`) evaluates to `10 + 10 = 20 cm`, slightly less than the previous `15 + 10 = 25 cm`. This is a deliberate part of the spec (smaller robot needs less clearance). The CLAUDE.md wall-follower parameters remain unchanged. |\n+| `Simulation.cpp` step-logging currently always fires (`should_log` logic is non-trivial) | Gating on `config.debug` wraps the entire block — existing `should_log` logic is preserved inside the guard, so it still provides selective logging when debug IS enabled. |\n+| Removing `hasWall`/`isWallBetween` could break future code | The spec explicitly permits removal when no callers exist. A grep confirms zero callers. If future code needs these methods, they can be re-added with implementations at that time. |\n+| `--debug` in the preliminary argv pass | The preliminary pass only sets `run_scenario`/`run_suite` flags and ignores all other args. Adding `--debug` to the main parse loop is sufficient; the preliminary pass will fall through to the \"Unknown option\" branch only if `--debug` appears before a `--scenario` arg and the arg is not handled. To be safe, add a no-op case for `--debug` in the preliminary pass too. |\n+| `BatchSimulation` does not accept `Config.debug` — WallFollower is constructed inside `Simulation` | `Simulation`'s constructor already reads `config.debug` (after Step 6), so `BatchSimulation` creates `Simulation(config)` and the debug flag propagates automatically. No changes needed in `BatchSimulation.cpp`. |\ndiff --git a/run-tests.sh b/run-tests.sh\nnew file mode 100755\nindex 0000000..c6eb15b\n--- /dev/null\n+++ b/run-tests.sh\n@@ -0,0 +1,35 @@\n+#!/bin/bash\n+set -euo pipefail\n+\n+# -- Sandbox dependencies -------------------------------------------------\n+# Detect and install any system packages required to build.\n+# Read AGENTS.md \"External Dependencies\" to know what is needed.\n+# Use `apt-get install -y --no-install-recommends` for Debian/Ubuntu sandboxes.\n+# Always install: cmake build-essential git\n+# Add language/project-specific packages (e.g. libsdl2-dev, default-jdk, nodejs).\n+if ! command -v cmake &>/dev/null; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends \\\n+    cmake build-essential git libsdl2-dev\n+fi\n+# -------------------------------------------------------------------------\n+\n+# Initialise submodules if present\n+cd target-repo\n+git submodule update --init --recursive\n+\n+# Build and test (from CLAUDE.md ## Build System)\n+cmake -B cmake-build-debug -S . -DCMAKE_CXX_FLAGS=\"-Wall -Wextra -Werror\"\n+cmake --build cmake-build-debug -- -j\"$(nproc)\"\n+\n+# Smoke-test: verify the binary runs and exits cleanly in headless batch mode\n+./cmake-build-debug/SimulationPathFinder --headless --batch 3\n+\n+# Scenario suite: verify all five scenarios complete without crashing\n+./cmake-build-debug/SimulationPathFinder --scenario-suite\n+\n+# Verify --debug flag sends output to stderr (stdout should remain clean)\n+./cmake-build-debug/SimulationPathFinder --debug --scenario straight_tunnel \\\n+  2>/tmp/dbg_test.txt\n+grep -qi \"wall\\|RECOVERY\\|FOLLOW\\|FIND\" /tmp/dbg_test.txt\n+\n+echo \"All tests passed.\"\ndiff --git a/target-repo b/target-repo\nnew file mode 160000\nindex 0000000..4c9dc47\n--- /dev/null\n+++ b/target-repo\n@@ -0,0 +1 @@\n+Subproject commit 4c9dc47ffdbd419b4989e0302342bc96f731c415\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 217,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T07:57:27.947445159Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.retry_count.gate_plan": 0,
+          "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag ",
+          "thread.plan.current_node": "gate_plan",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.run_id": "01KRZKH70HG2QH0BFJM7V8SH0H",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.node_visit_count": 1,
+          "internal.fidelity": "compact",
+          "current_node": "gate_plan",
+          "failure_class": "",
+          "internal.retry_count.start": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "last_stage": "plan",
+          "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
+          "internal.retry_count.plan": 0,
+          "human.gate.label": "[A] Approve",
+          "human.gate.gate_plan.answer": "A",
+          "thread.planner.current_node": "plan",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "human.gate.selected": "A",
+          "failure_signature": "",
+          "outcome": "succeeded",
+          "graph.rankdir": "LR",
+          "internal.thread_id": "plan",
+          "preferred_label": "[A] Approve"
+        },
+        "node_outcomes": {
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification",
+              "last_response": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag "
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 43700,
+                    "output_tokens": 6566,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 349018,
+                    "cache_write_tokens": 47412
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 47412,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 512090
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.selected": "A"
+            },
+            "usage": null
+          }
+        },
+        "next_node_id": "implement",
+        "node_visits": {
+          "gate_plan": 1,
           "start": 1,
           "plan": 1
         }
@@ -721,7 +835,29 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRZKQAA2K9TF8NJV5YDTSTPH": {
+      "question": {
+        "id": "01KRZKQAA2K9TF8NJV5YDTSTPH",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false,
+        "context_display": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## `plan.md` — Summary\n\n**Goal:** Make `config.json` the single source of truth for physical constants, add a `--debug` CLI flag (default off), improve `WallFollower`, and clean up the `Maze` interface.\n\n### Key findings from reading the codebase:\n\n1. **`config.json`** — `cell_size_cm` is already 50 ✓. Only `robot.radius_cm` needs to change (15→10) and `minimum_distance_to_wall: 10` needs to be added.\n\n2. **`Maze::hasWall` / `isWallBetween`** — confirmed **zero callers** in the entire codebase. The clean choice is **removal** from `Maze.h` (no `.cpp` implementation needed).\n\n3. **`WallFollower.cpp`** — uses `extern Config config;` global and already references `config.robot_radius_cm`. The safe-distance literals (`+10.0`, `+5.0`) will become `config.minimum_distance_to_wall`-based. All `std::cout` debug prints→`std::cerr`.\n\n4. **`Simulation.cpp`** — contains a large verbose step-logging block that always fires; this gets gated behind `config.debug`.\n\n5. **`Config`** — needs two new fields: `double minimum_distance_to_wall` (loaded from JSON) and `bool debug` (set by CLI, defaulting `false`).\n\n6. **`ScenarioSimulation.cpp`** — already reads `config.cell_size_cm` correctly; just needs `controller.setDebug(config.debug)`.\n\n### The plan covers 10 numbered steps with exact code snippets, a test strategy with 3 new shell checks, and a risk table with 7 edge cases.\n\n---\n\n## `run-tests.sh` — Summary\n\n- Installs `cmake build-essential git libsdl2-dev` if cmake is absent\n- Initialises git submodules (for `nlohmann/json`)\n- Configures with `-Wall -Wextra -Werror` to enforce the zero-warnings constraint\n- Builds with parallel jobs\n- Runs: headless batch (3 runs), full scenario suite, and the `--debug`→stderr verification"
+      },
+      "started_at": "2026-05-19T07:55:35.106446928Z"
+    }
+  },
   "stages": {
     "start@1": {
       "first_event_seq": 15,
@@ -756,7 +892,12 @@
       "first_event_seq": 19,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T07:55:32.261326178Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -769,6 +910,7 @@
       "output": null,
       "started_at": "2026-05-19T07:52:18.232906518Z",
       "handler": "agent",
+      "duration_ms": 194028,
       "usage": {
         "input_tokens": 43700,
         "output_tokens": 6566,
@@ -781,6 +923,29 @@
       "model": {
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
+      },
+      "state": "succeeded"
+    },
+    "gate_plan@1": {
+      "first_event_seq": 108,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T07:55:35.106398366Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
       },
       "state": "running"
     }
