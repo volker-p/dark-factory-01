@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T08:29:54.465236960Z",
-  "last_event_at": "2026-05-19T08:36:51.463598974Z",
+  "last_event_at": "2026-05-19T08:37:28.171269037Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -990,20 +990,22 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-19T08:37:27.026860551Z",
-        "current_node": "test",
+        "timestamp": "2026-05-19T08:37:29.870766685Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
           "internal.retry_count.start": 0,
           "human.gate.label": "[A] Approve",
           "thread.planner.current_node": "plan",
+          "thread.test.current_node": "test_gate",
           "internal.retry_count.implement": 0,
           "last_stage": "implement",
           "internal.retry_count.plan": 0,
@@ -1013,6 +1015,7 @@
           "internal.run_id": "01KRZNDKY3SXGRWWX73SQPZW1T",
           "last_response": "The commit is recorded with real file changes across all 13 modified files. Here's a summary of what was implemented:\n\n## Implementation Summary\n\n### Step 1 — `config.json`\n- Changed `robot.radius_c",
           "thread.plan.current_node": "gate_plan",
+          "internal.retry_count.test_gate": 0,
           "human.gate.gate_plan.question": "Approve Plan",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
           "internal.node_visit_count": 1,
@@ -1020,7 +1023,7 @@
           "outcome": "succeeded",
           "preferred_label": "[A] Approve",
           "human.gate.gate_plan.answer": "A",
-          "current_node": "test",
+          "current_node": "test_gate",
           "response.plan": "Both files are written. Here's a summary of what was produced:\n\n---\n\n## What was done\n\n### 1. Read and understood the spec\n- **Target repo**: `volker-p/SimulationPathFinder` (cloned into `target-repo/`)\n- **Type**: bugfix\n- **4 requirements**: unified physical config (R1), `--debug` flag (R2), WallFollower improvements (R3), clean Maze interface (R4)\n\n### 2. Key findings from reading the codebase\n\n| Finding | Impact on plan |\n|---|---|\n| `config.json` already has `cell_size_cm: 50`; `robot_radius_cm` is 15 (needs → 10) | Only `radius_cm` and `minimum_distance_to_wall` need adding to JSON |\n| `ScenarioSimulation.cpp` already reads `config.cell_size_cm` — no literal `20` | Spec's \"hard-coded cell_size_cm\" bug was already fixed in a prior commit; verify only |\n| `hasWall` / `isWallBetween` declared in `Maze.h` but **zero callers, zero implementations** | Decision: remove declarations (cleanest option) |\n| `WallFollower.debug_` initialised `true`, all debug output goes to `std::cout` | Needs: default → `false`, add `setDebug()`, reroute to `std::cerr` |\n| `Simulation.cpp` has a large always-on verbose step-logging block outputting to `std::cout` | Must be gated behind `debug_` flag |\n| `inner_radius = 18.0` hard-coded in `WallFollower.cpp` | Should come from `config.minimum_distance_to_wall` |\n| Build uses CMake 3.16+, C++20, SDL2, nlohmann/json submodule | Informs `run-tests.sh` dependencies |\n\n### 3. Outputs\n- **`plan.md`** — complete plan with goal, 11-row files table, 10-step implementation checklist, test strategy, and risks/edge cases table\n- **`run-tests.sh`** — installs SDL2, initialises submodules, builds with `cmake -B build`, then runs 4 acceptance checks that map directly to the spec's verification commands; prints `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers",
           "internal.retry_count.test": 0,
           "thread.implement.current_node": "test",
@@ -1028,7 +1031,7 @@
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "human.gate.selected": "A",
           "failure_signature": "",
-          "internal.thread_id": "implement",
+          "internal.thread_id": "test",
           "internal.retry_count.gate_plan": 0,
           "internal.fidelity": "compact",
           "human.gate.gate_plan.label": "[A] Approve",
@@ -1109,6 +1112,11 @@
             "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
             "usage": null
           },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
           "plan": {
             "status": "succeeded",
             "context_updates": {
@@ -1146,12 +1154,13 @@
             ]
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "test": 1,
           "gate_plan": 1,
           "start": 1,
           "implement": 1,
+          "test_gate": 1,
           "plan": 1
         }
       },
@@ -1249,7 +1258,12 @@
       "first_event_seq": 362,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T08:37:27.024382964Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1257,11 +1271,22 @@
         "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
         "language": "shell"
       },
-      "script_timing": null,
+      "script_timing": {
+        "output": "blob://sha256/91b6fda0b2a800e7ff5f2c9dd67c995dc98fe3acc1b58c13090dd9d36fe5bffe",
+        "exit_code": 0,
+        "duration_ms": 35551,
+        "termination": "exited",
+        "output_bytes": 46150,
+        "live_streaming": true
+      },
       "parallel_results": null,
       "output": null,
+      "output_bytes": 46150,
+      "live_streaming": true,
+      "termination": "exited",
       "started_at": "2026-05-19T08:36:51.463548178Z",
       "handler": "command",
+      "duration_ms": 35560,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1270,7 +1295,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
