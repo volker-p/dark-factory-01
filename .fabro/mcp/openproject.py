@@ -34,6 +34,49 @@ def _request(method: str, path: str, body: dict | None = None) -> dict:
 
 
 @mcp.tool()
+def get_highest_priority_work_package(project_id: str = DEFAULT_PROJECT_ID) -> str:
+    """Return the single highest-priority open work package in the project."""
+    import urllib.parse
+    filters = urllib.parse.quote('[{"status":{"operator":"o","values":[]}}]')
+    sort = urllib.parse.quote('[["priority","desc"],["id","asc"]]')
+    data = _request("GET", f"/projects/{project_id}/work_packages?filters={filters}&sortBy={sort}&pageSize=1")
+    if "error" in data:
+        return f"Error: {data}"
+    elements = data.get("_embedded", {}).get("elements", [])
+    if not elements:
+        return "No open work packages found."
+    wp = elements[0]
+    return json.dumps({
+        "id": wp["id"],
+        "subject": wp["subject"],
+        "description": wp.get("description", {}).get("raw", ""),
+        "priority": wp.get("_links", {}).get("priority", {}).get("title", ""),
+        "status": wp.get("_links", {}).get("status", {}).get("title", ""),
+        "type": wp.get("_links", {}).get("type", {}).get("title", ""),
+    }, indent=2)
+
+
+@mcp.tool()
+def set_work_package_status(work_package_id: int, status_id: int) -> str:
+    """Set the status of a work package. Use status_id=12 for Closed."""
+    current = _request("GET", f"/work_packages/{work_package_id}")
+    if "error" in current:
+        return f"Error fetching work package: {current}"
+    body = {
+        "lockVersion": current["lockVersion"],
+        "_links": {"status": {"href": f"/api/v3/statuses/{status_id}"}},
+    }
+    data = _request("PATCH", f"/work_packages/{work_package_id}", body)
+    if "error" in data:
+        return f"Error: {data}"
+    return json.dumps({
+        "id": data["id"],
+        "subject": data["subject"],
+        "status": data.get("_links", {}).get("status", {}).get("title", ""),
+    }, indent=2)
+
+
+@mcp.tool()
 def list_work_packages(project_id: str = DEFAULT_PROJECT_ID, page_size: int = 25) -> str:
     """List work packages for a project. Returns id, subject, status and type for each."""
     data = _request("GET", f"/projects/{project_id}/work_packages?pageSize={page_size}")
