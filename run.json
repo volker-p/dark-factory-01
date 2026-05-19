@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T09:41:48.773327046Z",
-  "last_event_at": "2026-05-19T09:47:12.482704997Z",
+  "last_event_at": "2026-05-19T09:47:15.372517331Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -2874,9 +2874,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 781,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:47:12.577442465Z",
+        "timestamp": "2026-05-19T09:47:15.367873535Z",
         "current_node": "implement",
         "completed_nodes": [
           "start",
@@ -2896,6 +2896,258 @@
         ],
         "node_retries": {},
         "context_values": {
+          "response.implement": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.0` robot radius removed**\n- `include/WallFollower.h`: Changed `robot_radius_cm_ = 15.0` → `10.0` (matches config), added `setRobotRadius(double r)` and `setMinDistanceToWall(double d)` public setters\n- `src/Simulation.cpp`: Added `controller->setRobotRadius(config.robot_radius_cm)` and `controller->setMinDistanceToWall(config.minimum_distance_to_wall_cm)` after construction\n- `src/ScenarioSimulation.cpp`: Same — added both setters after `setDebug()`\n\n**Item 2 — `minimum_distance_to_wall_cm` now actually consumed**\n- Added `min_distance_to_wall_cm_` member to `WallFollower`\n- `src/WallFollower.cpp`: Lines 164/167 now use `robot_radius_cm_ + min_distance_to_wall_cm_` and `robot_radius_cm_ + min_distance_to_wall_cm_ * 0.5` instead of the magic numbers `+10.0` and `+5.0`\n\n### Non-Blocking Items Fixed\n\n**Item 3 — Trailing newlines restored** on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`\n\n**Item 4 — Dead `--debug` preliminary-pass branch removed** from `main.cpp:86-89`\n\n**Item 5 — Pre-existing `-Wall` warnings resolved:**\n- `src/Maze.cpp`: Reordered constructor init list to match declaration order (fixes `-Wreorder` for `Maze::cell_size_cm`)\n- `src/PerformanceMetrics.cpp`: Reordered constructor init list (fixes `-Wreorder` for `PerformanceMetrics::stuck_step_count`)\n- `src/Pathfinder.cpp`: Removed unused `bool found = false` variable (fixes `-Wunused-but-set-variable`)\n- `src/SensorNoise.cpp`: Reordered constructor init list (fixes `-Wreorder` for `SensorNoise::sigma`)\n\nThe build now produces **zero `-Wall` warnings** and all functional tests continue to pass.",
+          "thread.impl.current_node": "implement",
+          "internal.retry_count.start": 0,
+          "human.gate.gate_plan.answer": "A",
+          "internal.retry_count.test": 0,
+          "internal.fidelity": "full",
+          "internal.thread_id": "impl",
+          "thread.plan.current_node": "gate_plan",
+          "internal.retry_count.plan": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "human.gate.label": "[R] Rework",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "thread.implement.current_node": "test",
+          "thread.planner.current_node": "plan",
+          "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428",
+          "internal.retry_count.gate_pr": 0,
+          "failure_class": "",
+          "internal.retry_count.gate_plan": 0,
+          "outcome": "succeeded",
+          "graph.rankdir": "LR",
+          "preferred_label": "[R] Rework",
+          "internal.retry_count.implement": 0,
+          "human.gate.gate_pr.label": "[R] Rework",
+          "last_response": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.",
+          "thread.reviewer.current_node": "review",
+          "human.gate.selected": "R",
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "human.gate.gate_pr.answer": "R",
+          "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n**What works (R2, R3, R4):**\n- `--debug` CLI flag correctly threaded through `Config` to `WallFollower` in both `Simulation` and `ScenarioSimulation`. Default off, on with `--debug`.\n- `WallFollower`: `debug_=false` default, `setDebug()` setter, all ~25 prints moved `cout`→`cerr`, dead `right_mean` duplicate removed.\n- `Maze::hasWall` / `Maze::isWallBetween` declarations removed (no callers existed) — clean build, allowed by spec.\n\n**Blocking problems (R1):**\n1. **Hard-coded `15.0` in `WallFollower.h:56`** when actual `radius_cm` is now `10`. The diff replaced `extern Config config; … config.robot_radius_cm` with a member literal — fixing a latent extern bug but introducing a value-disagreement regression.\n2. **`minimum_distance_to_wall_cm` is loaded but never consumed.** The spec explicitly requires \"WallFollower, collision detection, Simulation\" to read it. The `+ 10.0` and `+ 5.0` magic offsets in `WallFollower.cpp:164,167` are exactly its intended consumers.\n\n**Quality nits:** three files lost trailing newlines; an empty `--debug` no-op branch in the preliminary parse pass in `main.cpp`; three pre-existing `-Wall` warnings (Maze.h/PerformanceMetrics.h reorder, Pathfinder.cpp:41 unused `found`) that violate the spec's \"zero `-Wall` warnings\" constraint and the PR did not fix.\n\nThe functional test suite passes, but it cannot detect either of the blocking issues — it asserts output shape and exit codes, not config↔code consistency.",
+          "failure_signature": "",
+          "human.gate.gate_pr.question": "Approve PR",
+          "internal.retry_count.test_gate": 0,
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "thread.review.current_node": "gate_pr",
+          "thread.test.current_node": "test_gate",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "implement",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.node_visit_count": 3,
+          "internal.retry_count.review": 0,
+          "last_stage": "implement"
+        },
+        "node_outcomes": {
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "usage": null
+          },
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[R] Rework",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.label": "[R] Rework",
+              "human.gate.selected": "R",
+              "human.gate.label": "[R] Rework",
+              "human.gate.gate_pr.answer": "R"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "implement",
+              "response.implement": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.0` robot radius removed**\n- `include/WallFollower.h`: Changed `robot_radius_cm_ = 15.0` → `10.0` (matches config), added `setRobotRadius(double r)` and `setMinDistanceToWall(double d)` public setters\n- `src/Simulation.cpp`: Added `controller->setRobotRadius(config.robot_radius_cm)` and `controller->setMinDistanceToWall(config.minimum_distance_to_wall_cm)` after construction\n- `src/ScenarioSimulation.cpp`: Same — added both setters after `setDebug()`\n\n**Item 2 — `minimum_distance_to_wall_cm` now actually consumed**\n- Added `min_distance_to_wall_cm_` member to `WallFollower`\n- `src/WallFollower.cpp`: Lines 164/167 now use `robot_radius_cm_ + min_distance_to_wall_cm_` and `robot_radius_cm_ + min_distance_to_wall_cm_ * 0.5` instead of the magic numbers `+10.0` and `+5.0`\n\n### Non-Blocking Items Fixed\n\n**Item 3 — Trailing newlines restored** on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`\n\n**Item 4 — Dead `--debug` preliminary-pass branch removed** from `main.cpp:86-89`\n\n**Item 5 — Pre-existing `-Wall` warnings resolved:**\n- `src/Maze.cpp`: Reordered constructor init list to match declaration order (fixes `-Wreorder` for `Maze::cell_size_cm`)\n- `src/PerformanceMetrics.cpp`: Reordered constructor init list (fixes `-Wreorder` for `PerformanceMetrics::stuck_step_count`)\n- `src/Pathfinder.cpp`: Removed unused `bool found = false` variable (fixes `-Wunused-but-set-variable`)\n- `src/SensorNoise.cpp`: Reordered constructor init list (fixes `-Wreorder` for `SensorNoise::sigma`)\n\nThe build now produces **zero `-Wall` warnings** and all functional tests continue to pass.",
+              "last_response": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 53907,
+                    "output_tokens": 8479,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 1739182,
+                    "cache_write_tokens": 57753
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 57753,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1027233
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/include/WallFollower.h",
+              "/workspace/dark-factory-01/target-repo/main.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Maze.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Pathfinder.cpp",
+              "/workspace/dark-factory-01/target-repo/src/PerformanceMetrics.cpp",
+              "/workspace/dark-factory-01/target-repo/src/ScenarioSimulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/SensorNoise.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Simulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/WallFollower.cpp"
+            ]
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "review",
+              "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n*",
+              "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. The verdict is **REQUEST CHANGES**, consistent with the human gate decision of \"[R] Rework\".\n\n## Summary of findings\n\n**What works (R2, R3, R4):**\n- `--debug` CLI flag correctly threaded through `Config` to `WallFollower` in both `Simulation` and `ScenarioSimulation`. Default off, on with `--debug`.\n- `WallFollower`: `debug_=false` default, `setDebug()` setter, all ~25 prints moved `cout`→`cerr`, dead `right_mean` duplicate removed.\n- `Maze::hasWall` / `Maze::isWallBetween` declarations removed (no callers existed) — clean build, allowed by spec.\n\n**Blocking problems (R1):**\n1. **Hard-coded `15.0` in `WallFollower.h:56`** when actual `radius_cm` is now `10`. The diff replaced `extern Config config; … config.robot_radius_cm` with a member literal — fixing a latent extern bug but introducing a value-disagreement regression.\n2. **`minimum_distance_to_wall_cm` is loaded but never consumed.** The spec explicitly requires \"WallFollower, collision detection, Simulation\" to read it. The `+ 10.0` and `+ 5.0` magic offsets in `WallFollower.cpp:164,167` are exactly its intended consumers.\n\n**Quality nits:** three files lost trailing newlines; an empty `--debug` no-op branch in the preliminary parse pass in `main.cpp`; three pre-existing `-Wall` warnings (Maze.h/PerformanceMetrics.h reorder, Pathfinder.cpp:41 unused `found`) that violate the spec's \"zero `-Wall` warnings\" constraint and the PR did not fix.\n\nThe functional test suite passes, but it cannot detect either of the blocking issues — it asserts output shape and exit codes, not config↔code consistency."
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 37392,
+                    "output_tokens": 12629,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 256333,
+                    "cache_write_tokens": 43045
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 43045,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 899882
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          }
+        },
+        "next_node_id": "test",
+        "git_commit_sha": "7565e9128a771db0092db82aa7222a651721fd23",
+        "node_visits": {
+          "review": 2,
+          "start": 1,
+          "gate_plan": 1,
+          "plan": 1,
+          "test": 2,
+          "gate_pr": 2,
+          "implement": 3,
+          "test_gate": 2
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/target-repo b/target-repo\nindex d36b238..629e7c4 160000\n--- a/target-repo\n+++ b/target-repo\n@@ -1 +1 @@\n-Subproject commit d36b238c474eba80648477755d8ac580a448d3c8\n+Subproject commit 629e7c440ee62f42e4e26ebd3cb3363e0666eaaa\n",
+        "summary": {
+          "files_changed": 5,
+          "additions": 503,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:47:35.692786013Z",
+        "current_node": "test",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test"
+        ],
+        "node_retries": {},
+        "context_values": {
           "internal.retry_count.plan": 0,
           "thread.reviewer.current_node": "review",
           "thread.impl.current_node": "implement",
@@ -2907,12 +3159,12 @@
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_pr.label": "[R] Rework",
           "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "implement",
-          "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428",
+          "current_node": "test",
+          "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241",
           "thread.planner.current_node": "plan",
           "internal.retry_count.test": 0,
           "human.gate.label": "[R] Rework",
-          "internal.thread_id": "impl",
+          "internal.thread_id": "implement",
           "human.gate.selected": "R",
           "last_response": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.",
           "human.gate.gate_pr.question": "Approve PR",
@@ -2937,7 +3189,7 @@
           "internal.retry_count.test_gate": 0,
           "human.gate.gate_plan.answer": "A",
           "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
-          "internal.fidelity": "full"
+          "internal.fidelity": "compact"
         },
         "node_outcomes": {
           "gate_plan": {
@@ -3010,7 +3262,7 @@
           "test": {
             "status": "succeeded",
             "context_updates": {
-              "command.output": "blob://sha256/4c1ea12e256d6a306d345662fdc13e88984bdd7bd34cf4dd6a08e8df0dc6d428"
+              "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241"
             },
             "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
             "usage": null
@@ -3102,11 +3354,11 @@
             ]
           }
         },
-        "next_node_id": "test",
+        "next_node_id": "test_gate",
         "node_visits": {
           "gate_plan": 1,
           "implement": 3,
-          "test": 2,
+          "test": 3,
           "plan": 1,
           "review": 2,
           "start": 1,
@@ -3137,6 +3389,207 @@
   "superseded_by": null,
   "pending_interviews": {},
   "stages": {
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:09:51.252062306Z"
+      },
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:06:15.564963503Z",
+      "handler": "agent",
+      "duration_ms": 215686,
+      "usage": {
+        "input_tokens": 48522,
+        "output_tokens": 7506,
+        "total_tokens": 648472,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 540865,
+        "cache_write_tokens": 51579,
+        "total_usd_micros": 613836
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "succeeded"
+    },
+    "test_gate@2": {
+      "first_event_seq": 534,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Conditional node evaluated: test_gate",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:36:33.228023513Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:36:33.227356546Z",
+      "handler": "conditional",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "review@1": {
+      "first_event_seq": 425,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: review",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:30:27.440311398Z"
+      },
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-opus-4-7"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:28:33.179277682Z",
+      "handler": "agent",
+      "duration_ms": 114260,
+      "usage": {
+        "input_tokens": 26962,
+        "output_tokens": 7650,
+        "total_tokens": 224549,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 162316,
+        "cache_write_tokens": 27621,
+        "total_usd_micros": 579849
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-opus-4-7"
+      },
+      "state": "succeeded"
+    },
+    "test_gate@1": {
+      "first_event_seq": 417,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Conditional node evaluated: test_gate",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:28:30.179499975Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:28:30.178343635Z",
+      "handler": "conditional",
+      "duration_ms": 1,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "gate_pr@2": {
+      "first_event_seq": 611,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:41:48.773631010Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:39:36.403203034Z",
+      "handler": "human",
+      "duration_ms": 132370,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "implement@3": {
+      "first_event_seq": 623,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: implement",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:47:12.576208479Z"
+      },
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:41:51.590097834Z",
+      "handler": "agent",
+      "duration_ms": 320986,
+      "usage": {
+        "input_tokens": 53907,
+        "output_tokens": 8479,
+        "total_tokens": 1859321,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 1739182,
+        "cache_write_tokens": 57753,
+        "total_usd_micros": 1027233
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "succeeded"
+    },
     "start@1": {
       "first_event_seq": 15,
       "prompt": null,
@@ -3204,15 +3657,15 @@
       },
       "state": "succeeded"
     },
-    "plan@1": {
-      "first_event_seq": 19,
+    "implement@1": {
+      "first_event_seq": 137,
       "prompt": null,
       "response": null,
       "completion": {
         "outcome": "succeeded",
-        "notes": "Stage completed: plan",
+        "notes": "Stage completed: implement",
         "failure_reason": null,
-        "timestamp": "2026-05-19T09:09:51.252062306Z"
+        "timestamp": "2026-05-19T09:28:05.604882138Z"
       },
       "provider_used": {
         "mode": "agent",
@@ -3224,50 +3677,21 @@
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-19T09:06:15.564963503Z",
+      "started_at": "2026-05-19T09:21:21.090046550Z",
       "handler": "agent",
-      "duration_ms": 215686,
+      "duration_ms": 404514,
       "usage": {
-        "input_tokens": 48522,
-        "output_tokens": 7506,
-        "total_tokens": 648472,
+        "input_tokens": 59360,
+        "output_tokens": 16796,
+        "total_tokens": 3654785,
         "reasoning_tokens": 0,
-        "cache_read_tokens": 540865,
-        "cache_write_tokens": 51579,
-        "total_usd_micros": 613836
+        "cache_read_tokens": 3454240,
+        "cache_write_tokens": 124389,
+        "total_usd_micros": 1694941
       },
       "model": {
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
-      },
-      "state": "succeeded"
-    },
-    "test_gate@2": {
-      "first_event_seq": 534,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Conditional node evaluated: test_gate",
-        "failure_reason": null,
-        "timestamp": "2026-05-19T09:36:33.228023513Z"
-      },
-      "provider_used": null,
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T09:36:33.227356546Z",
-      "handler": "conditional",
-      "duration_ms": 0,
-      "usage": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "total_tokens": 0,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 0,
-        "cache_write_tokens": 0
       },
       "state": "succeeded"
     },
@@ -3357,73 +3781,6 @@
       },
       "state": "succeeded"
     },
-    "review@1": {
-      "first_event_seq": 425,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Stage completed: review",
-        "failure_reason": null,
-        "timestamp": "2026-05-19T09:30:27.440311398Z"
-      },
-      "provider_used": {
-        "mode": "agent",
-        "provider": "anthropic",
-        "model": "claude-opus-4-7"
-      },
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T09:28:33.179277682Z",
-      "handler": "agent",
-      "duration_ms": 114260,
-      "usage": {
-        "input_tokens": 26962,
-        "output_tokens": 7650,
-        "total_tokens": 224549,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 162316,
-        "cache_write_tokens": 27621,
-        "total_usd_micros": 579849
-      },
-      "model": {
-        "provider": "anthropic",
-        "model_id": "claude-opus-4-7"
-      },
-      "state": "succeeded"
-    },
-    "test_gate@1": {
-      "first_event_seq": 417,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Conditional node evaluated: test_gate",
-        "failure_reason": null,
-        "timestamp": "2026-05-19T09:28:30.179499975Z"
-      },
-      "provider_used": null,
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T09:28:30.178343635Z",
-      "handler": "conditional",
-      "duration_ms": 1,
-      "usage": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "total_tokens": 0,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 0,
-        "cache_write_tokens": 0
-      },
-      "state": "succeeded"
-    },
     "implement@2": {
       "first_event_seq": 502,
       "prompt": null,
@@ -3461,25 +3818,23 @@
       },
       "state": "failed"
     },
-    "gate_pr@2": {
-      "first_event_seq": 611,
+    "test@3": {
+      "first_event_seq": 784,
       "prompt": null,
       "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": null,
-        "failure_reason": null,
-        "timestamp": "2026-05-19T09:41:48.773631010Z"
-      },
+      "completion": null,
       "provider_used": null,
       "diff": null,
-      "script_invocation": null,
+      "script_invocation": {
+        "script": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "language": "shell"
+      },
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-19T09:39:36.403203034Z",
-      "handler": "human",
-      "duration_ms": 132370,
+      "started_at": "2026-05-19T09:47:15.371462853Z",
+      "handler": "command",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -3487,38 +3842,6 @@
         "reasoning_tokens": 0,
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
-      },
-      "state": "succeeded"
-    },
-    "implement@3": {
-      "first_event_seq": 623,
-      "prompt": null,
-      "response": null,
-      "completion": null,
-      "provider_used": {
-        "mode": "agent",
-        "provider": "anthropic",
-        "model": "claude-sonnet-4-6"
-      },
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T09:41:51.590097834Z",
-      "handler": "agent",
-      "usage": {
-        "input_tokens": 53907,
-        "output_tokens": 8479,
-        "total_tokens": 1859321,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 1739182,
-        "cache_write_tokens": 57753,
-        "total_usd_micros": 1027233
-      },
-      "model": {
-        "provider": "anthropic",
-        "model_id": "claude-sonnet-4-6"
       },
       "state": "running"
     },
@@ -3577,44 +3900,6 @@
         "reasoning_tokens": 0,
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
-      },
-      "state": "succeeded"
-    },
-    "implement@1": {
-      "first_event_seq": 137,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Stage completed: implement",
-        "failure_reason": null,
-        "timestamp": "2026-05-19T09:28:05.604882138Z"
-      },
-      "provider_used": {
-        "mode": "agent",
-        "provider": "anthropic",
-        "model": "claude-sonnet-4-6"
-      },
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T09:21:21.090046550Z",
-      "handler": "agent",
-      "duration_ms": 404514,
-      "usage": {
-        "input_tokens": 59360,
-        "output_tokens": 16796,
-        "total_tokens": 3654785,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 3454240,
-        "cache_write_tokens": 124389,
-        "total_usd_micros": 1694941
-      },
-      "model": {
-        "provider": "anthropic",
-        "model_id": "claude-sonnet-4-6"
       },
       "state": "succeeded"
     }
