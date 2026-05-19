@@ -67,11 +67,18 @@ digraph ImplementSpec {
     // Human sees satisfaction report, approves or requests rework
     gate_pr [shape=hexagon, label="Approve PR"]
 
-    // Commit, push branch to target repo, open draft PR
+    // Commit, push branch to target repo, open PR
     push_pr [
         label="Push PR"
         shape=parallelogram
         script="bash .fabro/workflows/implement-spec/scripts/push-pr.sh"
+    ]
+
+    // Squash-merge the PR into master via GitHub API
+    merge_pr [
+        label="Merge PR"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/merge-pr.sh"
     ]
 
     start    -> plan      -> gate_plan
@@ -84,5 +91,5 @@ digraph ImplementSpec {
     review    -> gate_pr
     gate_pr   -> push_pr   [label="[M] Merge"]
     gate_pr   -> implement [label="[R] Rework"]
-    push_pr   -> exit
+    push_pr   -> merge_pr  -> exit
 }

@@ -33,11 +33,16 @@ BODY="Automated implementation by the Fabro dark factory.\n\n**Spec**: \`{{ inpu
 TITLE_JSON=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))' <<< "$TITLE")
 BODY_JSON=$(python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))' <<< "$BODY")
 
-PR_URL=$(curl -sf -X POST \
+PR_RESPONSE=$(curl -sf -X POST \
     -H "Authorization: Bearer ${GITHUB_TOKEN}" \
     -H "Accept: application/vnd.github.v3+json" \
     "https://api.github.com/repos/${REPO}/pulls" \
-    -d "{\"title\": ${TITLE_JSON}, \"head\": \"${BRANCH}\", \"base\": \"master\", \"body\": ${BODY_JSON}, \"draft\": true}" \
-  | python3 -c 'import json,sys; print(json.load(sys.stdin)["html_url"])')
+    -d "{\"title\": ${TITLE_JSON}, \"head\": \"${BRANCH}\", \"base\": \"master\", \"body\": ${BODY_JSON}, \"draft\": false}")
 
-echo "Draft PR created: ${PR_URL}"
+PR_URL=$(echo "$PR_RESPONSE"    | python3 -c 'import json,sys; print(json.load(sys.stdin)["html_url"])')
+PR_NUMBER=$(echo "$PR_RESPONSE" | python3 -c 'import json,sys; print(json.load(sys.stdin)["number"])')
+
+# Write metadata for the merge step
+printf 'REPO=%s\nPR_NUMBER=%s\nBRANCH=%s\n' "$REPO" "$PR_NUMBER" "$BRANCH" > ../pr-metadata.txt
+
+echo "PR created: ${PR_URL}"
