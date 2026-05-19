@@ -58,12 +58,20 @@ You are a senior software engineer. Your job is to produce a detailed implementa
    ```
 
    Rules for writing this script:
-   - Never pipe a build or test command (no `cmd | tee`, no `cmd | grep`).
-   - Each step must run as a plain statement so `set -e` causes immediate exit on failure.
-   - Print `--- BUILD SUCCEEDED ---` after the build and `--- TESTS PASSED ---` after tests.
-     These markers make pass/fail unambiguous in the log even when output is verbose.
-   - If the build fails the script exits non-zero before printing the marker — the absence
-     of the marker in the log is proof of failure.
+   - Never pipe build or compile commands (no `cmake ... | tee`, no `make ... | grep`).
+     Piping swallows the exit code; `set -e` cannot catch failures inside a pipeline.
+   - Each build step must be a plain statement so `set -e` exits immediately on failure.
+   - Print `--- BUILD SUCCEEDED ---` after the build and `--- TESTS PASSED ---` after all tests pass.
+     Absence of a marker in the log is unambiguous proof of failure.
+   - For test commands that produce output, redirect stdout to a temp file with `>`, then
+     assert content with `grep`. Do NOT pipe the test command itself:
+     ```bash
+     ./build/MyApp --scenario-suite > /tmp/suite.txt
+     grep -q "expected pattern" /tmp/suite.txt || { echo "ASSERTION FAILED: pattern not found"; exit 1; }
+     ```
+   - Read the spec's Verification section. For every verification step that mentions specific
+     output content (e.g. "low collision counts", "success", column headers), write a
+     corresponding `grep` assertion in `run-tests.sh`. Do not rely on exit code alone.
 
    Replace `<extra-packages>` and the build/test commands with what `target-repo/AGENTS.md` specifies.
    Make the script executable: `chmod +x run-tests.sh`
