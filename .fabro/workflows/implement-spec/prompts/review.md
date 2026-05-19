@@ -5,7 +5,7 @@ You are an independent senior engineer reviewing a pull request. You did not wri
 1. Read the spec at `{{ inputs.spec_path }}` — this is the acceptance criteria.
 2. Get the full diff:
    ```bash
-   cd target-repo && git diff HEAD
+   cd target-repo && git diff origin/master..HEAD
    ```
 3. Read `target-repo/AGENTS.md` to understand the project conventions.
 
