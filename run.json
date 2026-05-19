@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T13:19:39.742258471Z",
-  "last_event_at": "2026-05-19T13:22:30.273314651Z",
+  "last_event_at": "2026-05-19T13:23:22.752891764Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -984,14 +984,15 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-19T13:23:21.553084946Z",
-        "current_node": "test",
+        "timestamp": "2026-05-19T13:23:24.517350608Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
@@ -1015,14 +1016,16 @@
           "internal.work_dir": "/workspace/dark-factory-01",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "command.output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987",
+          "thread.test.current_node": "test_gate",
           "thread.impl.current_node": "implement",
           "internal.retry_count.plan": 0,
           "outcome": "succeeded",
           "internal.retry_count.start": 0,
-          "internal.thread_id": "implement",
-          "current_node": "test",
+          "internal.thread_id": "test",
+          "current_node": "test_gate",
           "failure_class": "",
           "human.gate.selected": "A",
+          "internal.retry_count.test_gate": 0,
           "last_response": "The commit was successfully created with real file changes across all 7 required files. Here's a summary of what was implemented:\n\n## Summary\n\nAll checklist items from `plan.md` have been implemented:",
           "thread.planner.current_node": "plan",
           "response.plan": "Both files are complete. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What was read and understood\n\n- **Spec**: `specs/simulation-path-finder/sensor-config-and-tracing.md` — a feature spec adding configurable wall-scan angles, scan/decision state structs, and a `--trace` CSV flag to `SimulationPathFinder`.\n- **Target repo**: `volker-p/SimulationPathFinder` — a C++20 CMake project with SDL2 + nlohmann/json. Single executable, built via `cmake -B cmake-build-debug -S .` + `cmake --build cmake-build-debug`.\n- **Key files read**: `CLAUDE.md`, `include/Config.h`, `src/Config.cpp`, `include/WallFollower.h`, `src/WallFollower.cpp`, `include/ScenarioSimulation.h`, `src/ScenarioSimulation.cpp`, `main.cpp`, `CMakeLists.txt`, `config.json`, and the existing `fix.md` (which already has the trace block — no change needed).\n\n### `plan.md` covers\n\n1. **Goal** — one sentence\n2. **Files to change** — 8-row table with precise descriptions\n3. **Implementation checklist** — 37 numbered steps covering all 8 changes, specific enough for a junior developer to follow without ambiguity\n4. **Test strategy** — lists both existing tests that must not break and 11 new assertions derived from the spec's Verification section\n5. **Risks and edge cases** — 9 specific risks with mitigations (sensor index, scan ordering, 0° entry, arg parsing scope, `ofstream` lifetime, heading normalisation, `setprecision` stickiness, enum init warning, transitive include)\n\n### `run-tests.sh` covers\n\n- Installs `cmake build-essential libsdl2-dev` if absent (both cmake-absent and SDL2-absent cases)\n- Initialises submodules (nlohmann/json)\n- Builds with `-Wall -Wextra` — both `cmake` configure and build as plain statements (no pipes)\n- Prints `--- BUILD SUCCEEDED ---`\n- Runs all 11 verification checks from the spec with explicit `grep` assertions and error messages\n- Prints `--- TESTS PASSED ---`",
@@ -1088,6 +1091,11 @@
               "/workspace/dark-factory-01/run-tests.sh"
             ]
           },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
           "start": {
             "status": "succeeded",
             "usage": null
@@ -1134,11 +1142,12 @@
             ]
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "test": 1,
           "implement": 1,
           "gate_plan": 1,
+          "test_gate": 1,
           "start": 1,
           "plan": 1
         }
@@ -1266,7 +1275,12 @@
       "first_event_seq": 244,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T13:23:21.550739417Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1274,11 +1288,22 @@
         "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
         "language": "shell"
       },
-      "script_timing": null,
+      "script_timing": {
+        "output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987",
+        "exit_code": 0,
+        "duration_ms": 51269,
+        "termination": "exited",
+        "output_bytes": 42424,
+        "live_streaming": true
+      },
       "parallel_results": null,
       "output": null,
+      "output_bytes": 42424,
+      "live_streaming": true,
+      "termination": "exited",
       "started_at": "2026-05-19T13:22:30.273280159Z",
       "handler": "command",
+      "duration_ms": 51277,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1287,7 +1312,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "implement@1": {
       "first_event_seq": 123,
