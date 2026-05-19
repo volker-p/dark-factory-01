@@ -573,14 +573,106 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KRZGT8AQSR9D2BREDZKAHHTC",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-19T07:04:46.908826592Z",
+    "run_branch": "fabro/run/01KRZGT8AQSR9D2BREDZKAHHTC",
+    "base_sha": "af9f1e58c6d1321bcf7fbff11ecb6beaa0c5ad93"
   },
-  "status_updated_at": "2026-05-19T07:04:45.732626021Z",
-  "last_event_at": "2026-05-19T07:04:46.657912397Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-19T07:04:46.908875045Z",
+  "last_event_at": "2026-05-19T07:09:37.208021233Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 18,
+      "checkpoint": {
+        "timestamp": "2026-05-19T07:04:48.234777813Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "current_node": "start",
+          "failure_signature": "",
+          "failure_class": "",
+          "internal.run_id": "01KRZGT8AQSR9D2BREDZKAHHTC",
+          "internal.thread_id": null,
+          "graph.rankdir": "LR",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.fidelity": "compact",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "outcome": "succeeded",
+          "internal.retry_count.start": 0,
+          "internal.node_visit_count": 1
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T07:09:48.240542911Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.retry_count.start": 0,
+          "graph.rankdir": "LR",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "plan",
+          "internal.node_visit_count": 1,
+          "internal.fidelity": "compact",
+          "failure_signature": "plan|transient_infra|handler timed out after 300000ms",
+          "outcome": "failed",
+          "failure_class": "transient_infra",
+          "internal.thread_id": "planner",
+          "thread.planner.current_node": "plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.retry_count.plan": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
+          "internal.run_id": "01KRZGT8AQSR9D2BREDZKAHHTC"
+        },
+        "node_outcomes": {
+          "plan": {
+            "status": "failed",
+            "failure": {
+              "message": "handler timed out after 300000ms",
+              "category": "transient_infra",
+              "system_actor": "timeout"
+            },
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -600,5 +692,66 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T07:04:48.234585054Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T07:04:48.234518454Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T07:04:48.234934097Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 49329,
+        "output_tokens": 9480,
+        "total_tokens": 956152,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 844382,
+        "cache_write_tokens": 52961
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    }
+  }
 }
