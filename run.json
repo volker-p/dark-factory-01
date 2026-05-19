@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T09:50:52.646444949Z",
-  "last_event_at": "2026-05-19T09:51:01.007824432Z",
+  "last_event_at": "2026-05-19T09:51:06.412845106Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -4404,9 +4404,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 920,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:51:03.615333023Z",
+        "timestamp": "2026-05-19T09:51:06.410477332Z",
         "current_node": "merge_pr",
         "completed_nodes": [
           "start",
@@ -4432,54 +4432,94 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.retry_count.plan": 0,
-          "thread.reviewer.current_node": "review",
-          "thread.impl.current_node": "implement",
-          "internal.retry_count.review": 0,
-          "internal.retry_count.gate_plan": 0,
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
-          "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round.",
-          "internal.retry_count.implement": 0,
-          "thread.gate_pr.current_node": "push_pr",
-          "thread.plan.current_node": "gate_plan",
-          "human.gate.gate_pr.label": "[M] Merge",
-          "internal.retry_count.push_pr": 0,
-          "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "merge_pr",
-          "command.output": "blob://sha256/d4f4d3117a8705dfea49badc1ef88476776372e7be49c0bcae48720d2828ace5",
-          "thread.planner.current_node": "plan",
-          "internal.retry_count.test": 0,
-          "internal.retry_count.merge_pr": 0,
-          "human.gate.label": "[M] Merge",
-          "internal.thread_id": "push_pr",
-          "human.gate.selected": "M",
           "last_response": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regr",
+          "thread.planner.current_node": "plan",
           "human.gate.gate_pr.question": "Approve PR",
-          "human.gate.gate_pr.answer": "M",
-          "internal.node_visit_count": 1,
-          "last_stage": "review",
           "internal.work_dir": "/workspace/dark-factory-01",
-          "failure_signature": "",
-          "failure_class": "",
           "response.implement": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.0` robot radius removed**\n- `include/WallFollower.h`: Changed `robot_radius_cm_ = 15.0` → `10.0` (matches config), added `setRobotRadius(double r)` and `setMinDistanceToWall(double d)` public setters\n- `src/Simulation.cpp`: Added `controller->setRobotRadius(config.robot_radius_cm)` and `controller->setMinDistanceToWall(config.minimum_distance_to_wall_cm)` after construction\n- `src/ScenarioSimulation.cpp`: Same — added both setters after `setDebug()`\n\n**Item 2 — `minimum_distance_to_wall_cm` now actually consumed**\n- Added `min_distance_to_wall_cm_` member to `WallFollower`\n- `src/WallFollower.cpp`: Lines 164/167 now use `robot_radius_cm_ + min_distance_to_wall_cm_` and `robot_radius_cm_ + min_distance_to_wall_cm_ * 0.5` instead of the magic numbers `+10.0` and `+5.0`\n\n### Non-Blocking Items Fixed\n\n**Item 3 — Trailing newlines restored** on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`\n\n**Item 4 — Dead `--debug` preliminary-pass branch removed** from `main.cpp:86-89`\n\n**Item 5 — Pre-existing `-Wall` warnings resolved:**\n- `src/Maze.cpp`: Reordered constructor init list to match declaration order (fixes `-Wreorder` for `Maze::cell_size_cm`)\n- `src/PerformanceMetrics.cpp`: Reordered constructor init list (fixes `-Wreorder` for `PerformanceMetrics::stuck_step_count`)\n- `src/Pathfinder.cpp`: Removed unused `bool found = false` variable (fixes `-Wunused-but-set-variable`)\n- `src/SensorNoise.cpp`: Reordered constructor init list (fixes `-Wreorder` for `SensorNoise::sigma`)\n\nThe build now produces **zero `-Wall` warnings** and all functional tests continue to pass.",
-          "internal.retry_count.start": 0,
-          "thread.review.current_node": "gate_pr",
-          "internal.retry_count.gate_pr": 0,
+          "outcome": "succeeded",
+          "internal.retry_count.implement": 0,
           "graph.rankdir": "LR",
+          "internal.fidelity": "compact",
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "internal.retry_count.test": 0,
+          "thread.review.current_node": "gate_pr",
           "human.gate.gate_plan.question": "Approve Plan",
           "preferred_label": "[M] Merge",
+          "current_node": "merge_pr",
+          "command.output": "blob://sha256/d4f4d3117a8705dfea49badc1ef88476776372e7be49c0bcae48720d2828ace5",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
           "thread.implement.current_node": "test",
-          "thread.push_pr.current_node": "merge_pr",
-          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
           "thread.test.current_node": "test_gate",
-          "outcome": "succeeded",
+          "thread.push_pr.current_node": "merge_pr",
+          "human.gate.label": "[M] Merge",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "failure_class": "",
+          "human.gate.selected": "M",
+          "internal.retry_count.gate_pr": 0,
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.push_pr": 0,
+          "failure_signature": "",
+          "internal.retry_count.review": 0,
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "internal.thread_id": "push_pr",
+          "internal.node_visit_count": 1,
           "internal.retry_count.test_gate": 0,
+          "thread.gate_pr.current_node": "push_pr",
+          "thread.impl.current_node": "implement",
+          "thread.plan.current_node": "gate_plan",
+          "thread.reviewer.current_node": "review",
+          "last_stage": "review",
+          "human.gate.gate_pr.answer": "M",
+          "human.gate.gate_pr.label": "[M] Merge",
+          "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round.",
           "human.gate.gate_plan.answer": "A",
-          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
-          "internal.fidelity": "compact"
+          "internal.retry_count.start": 0,
+          "internal.retry_count.merge_pr": 0,
+          "internal.retry_count.gate_plan": 0
         },
         "node_outcomes": {
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
           "push_pr": {
             "status": "succeeded",
             "context_updates": {
@@ -4488,19 +4528,12 @@
             "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/push-pr.sh",
             "usage": null
           },
-          "gate_plan": {
+          "test": {
             "status": "succeeded",
-            "preferred_label": "[A] Approve",
-            "suggested_next_ids": [
-              "implement"
-            ],
             "context_updates": {
-              "human.gate.gate_plan.answer": "A",
-              "human.gate.gate_plan.question": "Approve Plan",
-              "human.gate.label": "[A] Approve",
-              "human.gate.selected": "A",
-              "human.gate.gate_plan.label": "[A] Approve"
+              "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241"
             },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
             "usage": null
           },
           "implement": {
@@ -4546,8 +4579,19 @@
               "/workspace/dark-factory-01/target-repo/src/WallFollower.cpp"
             ]
           },
-          "start": {
+          "gate_pr": {
             "status": "succeeded",
+            "preferred_label": "[M] Merge",
+            "suggested_next_ids": [
+              "push_pr"
+            ],
+            "context_updates": {
+              "human.gate.label": "[M] Merge",
+              "human.gate.gate_pr.answer": "M",
+              "human.gate.selected": "M",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.label": "[M] Merge"
+            },
             "usage": null
           },
           "test_gate": {
@@ -4555,12 +4599,27 @@
             "notes": "Conditional node evaluated: test_gate",
             "usage": null
           },
-          "test": {
+          "merge_pr": {
             "status": "succeeded",
             "context_updates": {
-              "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241"
+              "command.output": "blob://sha256/d4f4d3117a8705dfea49badc1ef88476776372e7be49c0bcae48720d2828ace5"
             },
-            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
             "usage": null
           },
           "review": {
@@ -4597,85 +4656,114 @@
             "files_touched": [
               "/workspace/dark-factory-01/review-report.md"
             ]
-          },
-          "gate_pr": {
-            "status": "succeeded",
-            "preferred_label": "[M] Merge",
-            "suggested_next_ids": [
-              "push_pr"
-            ],
-            "context_updates": {
-              "human.gate.label": "[M] Merge",
-              "human.gate.gate_pr.answer": "M",
-              "human.gate.selected": "M",
-              "human.gate.gate_pr.question": "Approve PR",
-              "human.gate.gate_pr.label": "[M] Merge"
-            },
-            "usage": null
-          },
-          "plan": {
-            "status": "succeeded",
-            "context_updates": {
-              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
-              "last_stage": "plan",
-              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
-            },
-            "notes": "Stage completed: plan",
-            "usage": {
-              "input": {
-                "usage": {
-                  "model": {
-                    "provider": "anthropic",
-                    "model_id": "claude-sonnet-4-6"
-                  },
-                  "tokens": {
-                    "input_tokens": 48522,
-                    "output_tokens": 7506,
-                    "reasoning_tokens": 0,
-                    "cache_read_tokens": 540865,
-                    "cache_write_tokens": 51579
-                  }
-                },
-                "facts": {
-                  "algorithm": "anthropic",
-                  "cache_write_5m_tokens": 51579,
-                  "cache_write_1h_tokens": 0
-                }
-              },
-              "total_usd_micros": 613836
-            },
-            "files_touched": [
-              "/workspace/dark-factory-01/plan.md",
-              "/workspace/dark-factory-01/run-tests.sh"
-            ]
-          },
-          "merge_pr": {
-            "status": "succeeded",
-            "context_updates": {
-              "command.output": "blob://sha256/d4f4d3117a8705dfea49badc1ef88476776372e7be49c0bcae48720d2828ace5"
-            },
-            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
-            "usage": null
           }
         },
         "next_node_id": "exit",
+        "git_commit_sha": "89215ed8cde463939d8a5b4fddc1773c221b54c1",
         "node_visits": {
-          "gate_plan": 1,
-          "implement": 3,
+          "test_gate": 3,
           "test": 3,
+          "gate_pr": 3,
           "plan": 1,
           "review": 3,
-          "start": 1,
-          "test_gate": 3,
-          "gate_pr": 3,
+          "gate_plan": 1,
+          "merge_pr": 1,
+          "implement": 3,
           "push_pr": 1,
-          "merge_pr": 1
+          "start": 1
         }
       },
-      "diff": {}
+      "diff": {
+        "summary": {
+          "files_changed": 6,
+          "additions": 551,
+          "deletions": 0
+        }
+      }
     }
   ],
-  "conclusion": null,
+  "conclusion": {
+    "timestamp": "2026-05-19T09:51:06.559877899Z",
+    "status": "succeeded",
+    "duration_ms": 2692320,
+    "final_git_commit_sha": "89215ed8cde463939d8a5b4fddc1773c221b54c1",
+    "stages": [
+      {
+        "stage_id": "start",
+        "stage_label": "start",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "plan",
+        "stage_label": "plan",
+        "duration_ms": 215686,
+        "billing_usd_micros": 613836,
+        "retries": 0
+      },
+      {
+        "stage_id": "gate_plan",
+        "stage_label": "gate_plan",
+        "duration_ms": 683461,
+        "retries": 0
+      },
+      {
+        "stage_id": "implement",
+        "stage_label": "implement",
+        "duration_ms": 729608,
+        "billing_usd_micros": 2722174,
+        "retries": 0
+      },
+      {
+        "stage_id": "test",
+        "stage_label": "test",
+        "duration_ms": 51543,
+        "retries": 0
+      },
+      {
+        "stage_id": "test_gate",
+        "stage_label": "test_gate",
+        "duration_ms": 3,
+        "retries": 0
+      },
+      {
+        "stage_id": "review",
+        "stage_label": "review",
+        "duration_ms": 451834,
+        "billing_usd_micros": 2703189,
+        "retries": 0
+      },
+      {
+        "stage_id": "gate_pr",
+        "stage_label": "gate_pr",
+        "duration_ms": 498274,
+        "retries": 0
+      },
+      {
+        "stage_id": "push_pr",
+        "stage_label": "push_pr",
+        "duration_ms": 2800,
+        "retries": 0
+      },
+      {
+        "stage_id": "merge_pr",
+        "stage_label": "merge_pr",
+        "duration_ms": 2607,
+        "retries": 0
+      }
+    ],
+    "billing": {
+      "input_tokens": 283405,
+      "output_tokens": 62598,
+      "total_tokens": 7634684,
+      "reasoning_tokens": 0,
+      "cache_read_tokens": 6866143,
+      "cache_write_tokens": 422538,
+      "total_usd_micros": 6039199
+    },
+    "total_retries": 0,
+    "diff": {}
+  },
   "sandbox": {
     "provider": "docker",
     "image": "buildpack-deps:noble",
@@ -4992,23 +5080,25 @@
       },
       "state": "succeeded"
     },
-    "merge_pr@1": {
-      "first_event_seq": 913,
+    "exit@1": {
+      "first_event_seq": 923,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:51:06.410673125Z"
+      },
       "provider_used": null,
       "diff": null,
-      "script_invocation": {
-        "script": "bash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
-        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
-        "language": "shell"
-      },
+      "script_invocation": null,
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-19T09:51:01.006828523Z",
-      "handler": "command",
+      "started_at": "2026-05-19T09:51:06.410651003Z",
+      "handler": "exit",
+      "duration_ms": 0,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -5017,7 +5107,50 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
+    },
+    "merge_pr@1": {
+      "first_event_seq": 913,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:51:03.614356692Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/merge-pr.sh",
+        "language": "shell"
+      },
+      "script_timing": {
+        "output": "blob://sha256/d4f4d3117a8705dfea49badc1ef88476776372e7be49c0bcae48720d2828ace5",
+        "exit_code": 0,
+        "duration_ms": 2599,
+        "termination": "exited",
+        "output_bytes": 61,
+        "live_streaming": true
+      },
+      "parallel_results": null,
+      "output": null,
+      "output_bytes": 61,
+      "live_streaming": true,
+      "termination": "exited",
+      "started_at": "2026-05-19T09:51:01.006828523Z",
+      "handler": "command",
+      "duration_ms": 2607,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
