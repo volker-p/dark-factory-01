@@ -1,0 +1,23 @@
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /repos/volker-p/dark-factory-01/target-repo/cmake-build-debug
+[100%] Built target SimulationPathFinder
+--- BUILD SUCCEEDED ---
+--- SUITE OK ---
+Configuration loaded from config.json
+Scenario: STRAIGHT_TUNNEL
+  Traversal success : NO
+  Steps taken       : 10000
+  Distance (cm)     : 19.2
+  Min clearance (cm): 9.0
+  Near misses       : 6405
+  Collisions        : 9960
+Configuration loaded from config.json
+SCENARIO              SUCCESS  STEPS   DIST(cm)  MIN_CLR  NEAR_MISS  COLLISIONS 
+STRAIGHT_TUNNEL       NO       10000   19.2      9.0      6405       9960       
+CORNER_RIGHT          NO       10000   19.2      9.0      6405       9960       
+CORNER_LEFT           NO       10000   18.2      9.0      7310       9962       
+T_JUNCTION            NO       10000   19.2      9.0      6405       9960       
+FOUR_WAY_CROSSING     NO       10000   18.2      9.0      7310       9962       
+--- TRACE FLAG OK ---
+--- TESTS PASSED ---
