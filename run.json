@@ -581,8 +581,8 @@
   "status": {
     "kind": "running"
   },
-  "status_updated_at": "2026-05-19T06:27:48.828834355Z",
-  "last_event_at": "2026-05-19T06:35:46.858556373Z",
+  "status_updated_at": "2026-05-19T06:38:32.843896997Z",
+  "last_event_at": "2026-05-19T06:38:32.846812187Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -1330,9 +1330,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 361,
       "checkpoint": {
-        "timestamp": "2026-05-19T06:35:46.870311955Z",
+        "timestamp": "2026-05-19T06:35:49.561679156Z",
         "current_node": "review",
         "completed_nodes": [
           "start",
@@ -1345,9 +1345,230 @@
         ],
         "node_retries": {},
         "context_values": {
+          "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):*",
+          "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):** All six met against the literal text of the spec. I traced each scenario's wall-removal calls against the ASCII diagrams; they all match. The public API (`ScenarioType`, `createScenario`, `setGoalPosition`, `ScenarioMetrics`, `ScenarioSimulation`) matches exactly. The CLI flags work and the print format follows the spec.\n\n**Caveats a reviewer must know about:**\n\n1. **Identical metrics across all five scenarios** (10000 / 1446.6 / 14.0 / 2638 / 3795). I reproduced this locally. After tracing the code I'm confident it is *not* a state-leak bug — fresh `Maze`/`Robot`/`WallFollower`/`ScenarioMetrics` are constructed per call. The cause is that all five start cells are at the top of a 1-cell-wide southbound corridor with 50 cm cells, and a 30 cm-diameter robot literally cannot turn around in 50 cm. So the controller gets stuck in the corridor entrance before reaching the differentiating geometry. This is a **fit-for-purpose problem with the spec** (\"Do not modify `WallFollower`\"), not a code bug — but it does mean the suite has near-zero discriminatory power.\n\n2. **Coordinate-system note in CLAUDE.md is stale.** CLAUDE.md says \"South → theta = -PI/2\", but the actual physics (`Robot.cpp:83`: `new_y = y + sin(theta)*dt`, y increases south) makes +PI/2 the correct value for south. The spec and implementation use +PI/2; this is consistent with the live code.\n\n3. **No unit tests** — only a smoke-test CLI invocation. `isAtGoal`'s alternate-goal branches for T_JUNCTION and FOUR_WAY are never executed.\n\n4. **Cosmetic:** trailing-newline regression in `CMakeLists.txt`, `Maze.h`, `main.cpp`; `test_output/batch_summary.txt` is tracked but is a build artifact.\n\n5. The `cell_size_cm = 20` default in `createScenario` is dead code (R4 says to pass `config.cell_size_cm`, which is 50).\n\nNone of these block a merge under the spec as written.",
+          "human.gate.selected": "A",
+          "thread.planner.current_node": "plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.retry_count.gate_plan": 0,
+          "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
+          "internal.retry_count.plan": 0,
+          "internal.run_id": "01KRZE7FKPSYR8H53013FM84A0",
+          "internal.fidelity": "compact",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "response.implement": "The commit is recorded with real file changes across all 6 files. Here's a summary of everything implemented:\n\n## Summary\n\nAll 9 checklist items from `plan.md` have been implemented:\n\n1. **Bypass constructor in `Maze`** — Private `Maze(int w, int h, double cell_size, bool /*tag*/)` that initialises the grid without calling `generateRecursiveBacktracking` or `setRandomGoal`.\n\n2. **`Maze.h` extended** — Added `ScenarioType` enum class (5 variants), private `removeWallBetween` and `generateScenario` helpers, public `setGoalPosition` setter, and `static createScenario` factory.\n\n3. **`Maze::setGoalPosition` and `Maze::removeWallBetween`** — Implemented symmetrically (removes both cells' shared wall based on relative dx/dy direction).\n\n4. **`Maze::createScenario`** — Determines grid dimensions per scenario type, constructs via bypass constructor, calls `generateScenario`, returns the maze.\n\n5. **`Maze::generateScenario`** — Implements all five scenario geometries (STRAIGHT_TUNNEL 3×5, CORNER_RIGHT 5×4, CORNER_LEFT 5×4, T_JUNCTION 5×5, FOUR_WAY_CROSSING 5×5) with correct wall removals and goal placement.\n\n6. **`include/ScenarioSimulation.h`** — New file declaring `ScenarioMetrics` struct and `ScenarioSimulation` class with `runScenario`, `runSuite`, and private `isAtGoal`.\n\n7. **`src/ScenarioSimulation.cpp`** — Full implementation: constructor stores config; `runScenario` sets up maze+robot+controller, runs headlessly up to `max_steps`, tracks min clearance, near-misses, collisions, and stops early at goal; `isAtGoal` checks primary goal plus alternate cells for T_JUNCTION/FOUR_WAY_CROSSING; `runSuite` iterates all five types.\n\n8. **`main.cpp`** — Added `#include \"ScenarioSimulation.h\"`, `scenarioName` helper, `printSingleScenario` and `printSuiteTable` formatters, updated `printUsage`, preliminary arg scan for `--scenario`/`--scenario-suite`, and scenario dispatch block after config loading.\n\n9. **`CMakeLists.txt`** — `src/ScenarioSimulation.cpp` appended to `SOURCES`.",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
+          "failure_class": "",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.retry_count.start": 0,
+          "failure_signature": "",
+          "outcome": "succeeded",
+          "human.gate.label": "[A] Approve",
+          "internal.retry_count.review": 0,
+          "thread.impl.current_node": "implement",
+          "preferred_label": "[A] Approve",
+          "thread.reviewer.current_node": "review",
+          "internal.retry_count.test_gate": 0,
+          "graph.rankdir": "LR",
+          "human.gate.gate_plan.answer": "A",
+          "internal.retry_count.test": 0,
+          "last_stage": "review",
+          "internal.thread_id": "reviewer",
+          "thread.implement.current_node": "test",
+          "command.output": "blob://sha256/986000c2f0665d923506009ad20e46387decd8b3a2b5daff38ccd7c89a9c537c",
+          "internal.retry_count.implement": 0,
+          "thread.test.current_node": "test_gate",
+          "internal.node_visit_count": 1,
+          "current_node": "review",
+          "thread.plan.current_node": "gate_plan",
+          "internal.work_dir": "/workspace/dark-factory-01"
+        },
+        "node_outcomes": {
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "The commit is recorded with real file changes across all 6 files. Here's a summary of everything implemented:\n\n## Summary\n\nAll 9 checklist items from `plan.md` have been implemented:\n\n1. **Bypass cons",
+              "last_stage": "implement",
+              "response.implement": "The commit is recorded with real file changes across all 6 files. Here's a summary of everything implemented:\n\n## Summary\n\nAll 9 checklist items from `plan.md` have been implemented:\n\n1. **Bypass constructor in `Maze`** — Private `Maze(int w, int h, double cell_size, bool /*tag*/)` that initialises the grid without calling `generateRecursiveBacktracking` or `setRandomGoal`.\n\n2. **`Maze.h` extended** — Added `ScenarioType` enum class (5 variants), private `removeWallBetween` and `generateScenario` helpers, public `setGoalPosition` setter, and `static createScenario` factory.\n\n3. **`Maze::setGoalPosition` and `Maze::removeWallBetween`** — Implemented symmetrically (removes both cells' shared wall based on relative dx/dy direction).\n\n4. **`Maze::createScenario`** — Determines grid dimensions per scenario type, constructs via bypass constructor, calls `generateScenario`, returns the maze.\n\n5. **`Maze::generateScenario`** — Implements all five scenario geometries (STRAIGHT_TUNNEL 3×5, CORNER_RIGHT 5×4, CORNER_LEFT 5×4, T_JUNCTION 5×5, FOUR_WAY_CROSSING 5×5) with correct wall removals and goal placement.\n\n6. **`include/ScenarioSimulation.h`** — New file declaring `ScenarioMetrics` struct and `ScenarioSimulation` class with `runScenario`, `runSuite`, and private `isAtGoal`.\n\n7. **`src/ScenarioSimulation.cpp`** — Full implementation: constructor stores config; `runScenario` sets up maze+robot+controller, runs headlessly up to `max_steps`, tracks min clearance, near-misses, collisions, and stops early at goal; `isAtGoal` checks primary goal plus alternate cells for T_JUNCTION/FOUR_WAY_CROSSING; `runSuite` iterates all five types.\n\n8. **`main.cpp`** — Added `#include \"ScenarioSimulation.h\"`, `scenarioName` helper, `printSingleScenario` and `printSuiteTable` formatters, updated `printUsage`, preliminary arg scan for `--scenario`/`--scenario-suite`, and scenario dispatch block after config loading.\n\n9. **`CMakeLists.txt`** — `src/ScenarioSimulation.cpp` appended to `SOURCES`."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 40926,
+                    "output_tokens": 9820,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 683823,
+                    "cache_write_tokens": 44371
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 44371,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 641615
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/CMakeLists.txt",
+              "/workspace/dark-factory-01/target-repo/include/Maze.h",
+              "/workspace/dark-factory-01/target-repo/include/ScenarioSimulation.h",
+              "/workspace/dark-factory-01/target-repo/main.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Maze.cpp",
+              "/workspace/dark-factory-01/target-repo/src/ScenarioSimulation.cpp"
+            ]
+          },
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "review",
+              "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):*",
+              "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):** All six met against the literal text of the spec. I traced each scenario's wall-removal calls against the ASCII diagrams; they all match. The public API (`ScenarioType`, `createScenario`, `setGoalPosition`, `ScenarioMetrics`, `ScenarioSimulation`) matches exactly. The CLI flags work and the print format follows the spec.\n\n**Caveats a reviewer must know about:**\n\n1. **Identical metrics across all five scenarios** (10000 / 1446.6 / 14.0 / 2638 / 3795). I reproduced this locally. After tracing the code I'm confident it is *not* a state-leak bug — fresh `Maze`/`Robot`/`WallFollower`/`ScenarioMetrics` are constructed per call. The cause is that all five start cells are at the top of a 1-cell-wide southbound corridor with 50 cm cells, and a 30 cm-diameter robot literally cannot turn around in 50 cm. So the controller gets stuck in the corridor entrance before reaching the differentiating geometry. This is a **fit-for-purpose problem with the spec** (\"Do not modify `WallFollower`\"), not a code bug — but it does mean the suite has near-zero discriminatory power.\n\n2. **Coordinate-system note in CLAUDE.md is stale.** CLAUDE.md says \"South → theta = -PI/2\", but the actual physics (`Robot.cpp:83`: `new_y = y + sin(theta)*dt`, y increases south) makes +PI/2 the correct value for south. The spec and implementation use +PI/2; this is consistent with the live code.\n\n3. **No unit tests** — only a smoke-test CLI invocation. `isAtGoal`'s alternate-goal branches for T_JUNCTION and FOUR_WAY are never executed.\n\n4. **Cosmetic:** trailing-newline regression in `CMakeLists.txt`, `Maze.h`, `main.cpp`; `test_output/batch_summary.txt` is tracked but is a build artifact.\n\n5. The `cell_size_cm = 20` default in `createScenario` is dead code (R4 says to pass `config.cell_size_cm`, which is 50).\n\nNone of these block a merge under the spec as written."
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 48556,
+                    "output_tokens": 14342,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 1144939,
+                    "cache_write_tokens": 48078
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 48078,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1474286
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          },
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/986000c2f0665d923506009ad20e46387decd8b3a2b5daff38ccd7c89a9c537c"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_r",
+              "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
+              "last_stage": "plan"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 34717,
+                    "output_tokens": 8674,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 358862,
+                    "cache_write_tokens": 37877
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 37877,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 483957
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_pr",
+        "git_commit_sha": "12ee09e288b61648220a258add103e97b2b76059",
+        "node_visits": {
+          "test": 1,
+          "gate_plan": 1,
+          "implement": 1,
+          "plan": 1,
+          "review": 1,
+          "start": 1,
+          "test_gate": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/review-report.md b/review-report.md\nnew file mode 100644\nindex 0000000..d33cc73\n--- /dev/null\n+++ b/review-report.md\n@@ -0,0 +1,258 @@\n+# PR Review: Deterministic Scenario Testing with Wall-Safety Metrics\n+\n+**Spec:** `specs/simulation-path-finder/scenario-testing.md`\n+**Commit under review:** `81ee94f` — *Add deterministic scenario testing with wall-safety metrics (--scenario / --scenario-suite)*\n+\n+Note: the repo does not contain an `AGENTS.md`. The project-wide conventions\n+document is `target-repo/CLAUDE.md`, which I used as the reference for style and\n+architecture expectations.\n+\n+---\n+\n+## Requirements\n+\n+### R1 — Deterministic maze factory — ✅ Met\n+- `ScenarioType` enum defined at `include/Maze.h:7-13`.\n+- `static Maze createScenario(ScenarioType, int cell_size_cm = 20)` declared\n+  at `include/Maze.h:73`, implemented at `src/Maze.cpp:189-200`.\n+- Private helper `removeWallBetween` declared at `include/Maze.h:42`,\n+  implemented at `src/Maze.cpp:101-118`. It symmetrically updates both cells\n+  (N↔S, E↔W). Wall-index convention matches the spec\n+  (N=0, E=1, S=2, W=3).\n+- Private helper `generateScenario(ScenarioType)` at\n+  `src/Maze.cpp:120-187` removes the correct walls for each scenario.\n+- A second private constructor `Maze(int, int, double, bool)` was added at\n+  `include/Maze.h:44` / `src/Maze.cpp:87-95` to build an empty grid without\n+  running `generateRecursiveBacktracking`. That function is left untouched,\n+  satisfying the \"Do not modify `generateRecursiveBacktracking`\" constraint.\n+\n+I traced each scenario by hand against the ASCII diagrams in the spec — all\n+five wall removals match (STRAIGHT_TUNNEL: south of `(1,r)` for `r=0..3`;\n+CORNER_RIGHT: vertical `(1,0)-(1,2)` + horizontal `(1,2)-(4,2)`; CORNER_LEFT:\n+vertical `(3,0)-(3,2)` + horizontal `(0,2)-(3,2)`; T_JUNCTION: vertical\n+`(2,0)-(2,3)` + horizontal `(1,3)-(3,3)`; FOUR_WAY: vertical `(2,0)-(2,4)`\n++ horizontal `(0,2)-(4,2)`).\n+\n+**Minor inconsistency (not blocking):** the spec text says \"All use\n+`cell_size_cm = 20`\" but also instructs `runScenario` (R4) to call\n+`Maze::createScenario(type, config.cell_size_cm)`. The implementation\n+follows R4 (uses `config.cell_size_cm`, which defaults to 50 in `config.json`),\n+so the runtime cell size is 50 cm and the `=20` default is dead. This matches\n+the spec literally and is sensible (robot radius is 15 cm — 20 cm cells would\n+be infeasible).\n+\n+### R2 — Scenario goal placement — ✅ Met\n+- `setGoalPosition(double, double)` declared at `include/Maze.h:70`,\n+  implemented at `src/Maze.cpp:97-99`.\n+- Called from `generateScenario` for every scenario (`src/Maze.cpp:127, 137,\n+  147, 159, 173`). Goal placed at cell-centre as required\n+  (`(cx + 0.5) * cs`).\n+\n+### R3 — `ScenarioMetrics` struct — ✅ Met\n+- Declared at `include/ScenarioSimulation.h:7-15`. All seven fields present\n+  with the names and types from the spec.\n+- `near_miss_count` increment at `src/ScenarioSimulation.cpp:53-54` uses\n+  `min_reading < config.robot_radius_cm + 2.0`. The spec wording is \"any\n+  sensor\"; using the minimum sensor reading is equivalent.\n+- `collision_count` increment at `src/ScenarioSimulation.cpp:64-66` compares\n+  pose before/after `Robot::update` — equivalent to the spec's reference to\n+  `getPose()` vs `getPreviousPose()`, since `update` sets `previous_pose`\n+  to the pre-update pose (`src/Robot.cpp:78`).\n+\n+### R4 — `ScenarioSimulation` class — ✅ Met\n+- Declared at `include/ScenarioSimulation.h:17-26` with the exact public\n+  surface required.\n+- `runScenario` (`src/ScenarioSimulation.cpp:10-79`) follows the seven sub-\n+  steps: creates the maze, picks start cell + heading, constructs Robot +\n+  WallFollower, runs up to `config.max_steps`, collects sensor readings with\n+  `with_noise = false` (line 49), detects collision via pose comparison,\n+  exits early on `isAtGoal`.\n+- All five start poses use heading `PI/2` (south). This is **consistent with\n+  the codebase**: in `Robot::update` (`src/Robot.cpp:82-83`),\n+  `new_y = y + linear_vel * sin(theta) * dt`. With y increasing south,\n+  `sin(PI/2) = +1` ⇒ moves south. (Note: `CLAUDE.md:62-72` actually says\n+  \"South → theta = -PI/2\", but that note appears to be a stale convention\n+  document — the actual `Robot::reset` callsites and physics use +PI/2 for\n+  south. The implementation matches the spec and the live code.)\n+- `isAtGoal` (`src/ScenarioSimulation.cpp:81-114`) checks the stored goal\n+  plus the alternate goal cells for T_JUNCTION (`(3,3)`) and FOUR_WAY_CROSSING\n+  (`(0,2)`, `(4,2)`). The \"within `cell_size_cm / 2`\" threshold matches the\n+  spec.\n+- `runSuite` (`src/ScenarioSimulation.cpp:116-123`) iterates the enum in\n+  the required order.\n+\n+### R5 — CLI flags — ✅ Met\n+- `--scenario <name>` and `--scenario-suite` parsed in a preliminary pass\n+  (`main.cpp:74-86`) and acknowledged in the main pass (`main.cpp:98-101`).\n+- Name → enum mapping uses the exact strings from the spec\n+  (`main.cpp:151-168`).\n+- Help text updated (`main.cpp:56-59`).\n+- Scenario mode forces `enable_visualization = false` and exits after\n+  printing — bypasses normal batch flow (`main.cpp:138-171`).\n+\n+### R6 — Console output format — ✅ Met\n+- Single-scenario output (`main.cpp:20-28`) reproduces the labels and order\n+  from the spec verbatim (`Scenario:`, `Traversal success`, `Steps taken`,\n+  `Distance (cm)`, `Min clearance (cm)`, `Near misses`, `Collisions`).\n+- Suite table (`main.cpp:30-43`) uses `std::printf` with `%-Nx` width\n+  specifiers as the spec allows. Column header order matches.\n+- Alignment differs slightly from the spec's hand-drawn example (the spec\n+  shows numeric columns right-aligned; the implementation uses\n+  left-aligned `%-` widths). Header columns line up with their values, so\n+  this is readable but not a perfect visual match. Not blocking.\n+\n+### Constraints — ✅ Met\n+- C++20: ok (structured bindings, brace-init).\n+- `common/` directory: untouched (not present anyway).\n+- `WallFollower`, `Renderer`, `DataLogger`: not modified, not invoked.\n+- No raw owning pointers added.\n+\n+---\n+\n+## Test Coverage\n+\n+`run-tests.sh` exercises the build plus three smoke invocations:\n+1. `--batch 2 --headless` (regression check)\n+2. `--scenario straight_tunnel`\n+3. `--scenario-suite`\n+\n+What it actually verifies:\n+- The new code paths **compile and run to completion** without crashing.\n+- The output format is produced.\n+- Existing batch mode still functions.\n+\n+What it does **not** verify:\n+- Wall geometry per scenario. There are no unit tests asserting that, e.g.,\n+  cell `(1,0).walls[2] == false` in STRAIGHT_TUNNEL or that `(2,3)` is open\n+  to both `(1,3)` and `(3,3)` in T_JUNCTION. Given the only safety net is\n+  one human visually inspecting CLI output, a typo in `generateScenario`\n+  could easily go unnoticed.\n+- Goal-detection correctness. `isAtGoal` is never exercised positively in\n+  the test (every scenario times out; see below). The alternate-goal\n+  branches for T_JUNCTION and FOUR_WAY are entirely uncovered.\n+- `removeWallBetween` symmetry. A unit test would be ~10 lines and would\n+  catch a future regression where someone reverses an index.\n+\n+### Weakness: the empirical run shows every scenario failing identically\n+\n+Test output (from the gate log and reproduced locally):\n+```\n+STRAIGHT_TUNNEL       NO  10000  1446.6  14.0  2638  3795\n+CORNER_RIGHT          NO  10000  1446.6  14.0  2638  3795\n+CORNER_LEFT           NO  10000  1446.6  14.0  2638  3795\n+T_JUNCTION            NO  10000  1446.6  14.0  2638  3795\n+FOUR_WAY_CROSSING     NO  10000  1446.6  14.0  2638  3795\n+```\n+\n+I reproduced this — every scenario produces bit-identical metrics. I believe\n+the root cause is that all five scenarios start the robot at row 0 of a\n+1-cell-wide southbound corridor of 50 cm cells. The robot (15 cm radius =\n+30 cm diameter, 20 cm of margin total inside the corridor) cannot reverse\n+direction inside the corridor, gets stuck in the RECOVERY ↔ FOLLOW_WALL\n+loop visible in the logs, and never reaches the differentiating geometry\n+further down. The metric collector itself appears to work correctly — fresh\n+`Maze`, fresh `Robot`, fresh `WallFollower`, fresh `ScenarioMetrics` are\n+constructed per call (`src/ScenarioSimulation.cpp:11-35`).\n+\n+This is a **spec/controller-fit problem, not an implementation defect**:\n+the spec explicitly says \"Do not modify `WallFollower` — scenarios exercise\n+the controller as-is\", and the spec also defines the start poses and cell\n+sizes. The factory output is faithful to the spec; the wall follower simply\n+cannot solve these corridors. The acceptance criteria for R1–R6 are\n+behavioural (\"must compute X, must print Y\"), not \"robot must succeed\", so\n+strictly speaking nothing is failing the spec. But a human reviewer should\n+know this when interpreting the numbers — **the suite as it stands cannot\n+tell us whether the simulation framework is doing the right thing**, because\n+all five rows are identical regardless of the maze.\n+\n+---\n+\n+## Code Quality\n+\n+### Conformance with CLAUDE.md\n+- Coordinate system: matches the live code (south = +PI/2). The CLAUDE.md\n+  note that says otherwise is stale — see R4 above.\n+- Style: matches surrounding files (header guard / `#pragma once` mix\n+  matches existing convention — `ScenarioSimulation.h` uses `#pragma once`\n+  like `WallFollower.h`).\n+- `std::unique_ptr` for heap allocation: none needed; nothing is heap-\n+  allocated in the new code.\n+- Sensor index assumptions: `ScenarioSimulation` does not bake in any\n+  sensor-index logic; it only takes the min — robust to sensor-layout\n+  changes.\n+\n+### Correctness issues / bugs\n+\n+1. **Trailing-newline regression (cosmetic).** Three of the modified files\n+   now end without a trailing newline:\n+   - `CMakeLists.txt` (visible in the diff as\n+     `target_link_libraries(...)$\\ No newline at end of file`)\n+   - `include/Maze.h`\n+   - `main.cpp`\n+   Not a blocker, but mildly annoying for future diffs and should be fixed.\n+\n+2. **Uncommitted `test_output/batch_summary.txt` drift.** `git diff HEAD`\n+   on `target-repo` shows the only working-tree change is an updated\n+   `test_output/batch_summary.txt` from the test script running `--batch 2`.\n+   This file was checked into the repo from a prior `--batch 5` run. Either\n+   the file should not be tracked (it's a build artifact), or `run-tests.sh`\n+   should write to a temp directory. Not introduced by this PR — but the\n+   PR didn't fix it either. Worth a one-line `.gitignore` cleanup.\n+\n+3. **`createScenario`'s `cell_size_cm = 20` default is effectively dead.**\n+   `runScenario` always passes `config.cell_size_cm`, and there is no other\n+   caller. Harmless, but the spec's claim that scenarios \"use\n+   `cell_size_cm = 20`\" is not what actually runs.\n+\n+4. **`distance_cm` is read from `Robot::getTotalDistance()` once after the\n+   loop exits.** If the loop exits via `break` on `isAtGoal`, the distance\n+   reflects the path travelled — good. If it exits via `max_steps`, the\n+   distance still reflects the actual path. ✓ This is correct, just calling\n+   it out because I verified it.\n+\n+5. **`near_miss_count` uses minimum sensor.** The spec says \"at least one\n+   sensor reading falls below threshold\", i.e. `any_of(...)`. Using\n+   `min(...) < threshold` is mathematically equivalent. ✓\n+\n+### Surprises a reviewer should look at\n+- The new private constructor `Maze(int, int, double, bool /*tag*/)` is an\n+  unusual idiom — a `bool` tag is used purely to disambiguate from the\n+  random-maze constructor. A small named factory or a private default\n+  constructor + grid-init helper would be cleaner, but the current approach\n+  works and is contained.\n+- All five scenarios produce identical metrics in the test run. See the\n+  **Test Coverage** section. A reviewer might initially suspect a state-\n+  leak bug; on inspection there is none — it's a controller-vs-geometry\n+  issue.\n+\n+---\n+\n+## Verdict\n+\n+**APPROVE** — with the caveats below.\n+\n+All six P0 requirements (R1–R6) are met against the literal text of the\n+spec, the code compiles cleanly, existing batch mode is not regressed,\n+and the new CLI flags work as specified. The implementation is small,\n+self-contained, and follows the codebase's style.\n+\n+Caveats the author/reviewer should be aware of before merging:\n+\n+- **Identical metrics across all five scenarios** in the smoke run mean\n+  the suite, in its current form, has very weak signal value. This is a\n+  fit-for-purpose problem with the spec (controller cannot turn around in\n+  a 50 cm corridor with a 30 cm-diameter robot), not a code bug. A follow-\n+  up spec should either (a) widen the start corridor, (b) allow modifying\n+  the controller, or (c) accept this and just use the suite as a\n+  collision-counter smoke test.\n+- **No unit tests** for `removeWallBetween` symmetry, scenario wall layouts,\n+  or `isAtGoal` multi-goal handling. The current acceptance is \"compiles\n+  and runs\"; the alternate-goal branches for T_JUNCTION and FOUR_WAY are\n+  effectively unexecuted. A follow-up should add a minimal gtest/Catch2\n+  harness or a `--scenario-self-check` flag that asserts wall booleans.\n+- Trim trailing newlines back into `CMakeLists.txt`, `include/Maze.h`,\n+  `main.cpp` (1-line fix in each).\n+- `test_output/batch_summary.txt` should not be a tracked file. Add to\n+  `.gitignore` in a follow-up.\n+\n+None of these block the merge under the spec as written.\n",
+        "summary": {
+          "files_changed": 4,
+          "additions": 625,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T06:38:32.896472264Z",
+        "current_node": "gate_pr",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr"
+        ],
+        "node_retries": {},
+        "context_values": {
           "graph.rankdir": "LR",
           "internal.work_dir": "/workspace/dark-factory-01",
-          "human.gate.selected": "A",
+          "human.gate.selected": "R",
           "thread.impl.current_node": "implement",
           "human.gate.gate_plan.answer": "A",
           "human.gate.gate_plan.question": "Approve Plan",
@@ -1355,7 +1576,9 @@
           "outcome": "succeeded",
           "thread.implement.current_node": "test",
           "thread.test.current_node": "test_gate",
+          "human.gate.gate_pr.answer": "R",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "human.gate.gate_pr.label": "[R] Rework",
           "internal.retry_count.test_gate": 0,
           "thread.reviewer.current_node": "review",
           "internal.node_visit_count": 1,
@@ -1364,20 +1587,23 @@
           "last_stage": "review",
           "failure_class": "",
           "internal.retry_count.implement": 0,
+          "human.gate.gate_pr.question": "Approve PR",
           "thread.planner.current_node": "plan",
-          "human.gate.label": "[A] Approve",
+          "human.gate.label": "[R] Rework",
           "internal.run_id": "01KRZE7FKPSYR8H53013FM84A0",
           "response.review": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):** All six met against the literal text of the spec. I traced each scenario's wall-removal calls against the ASCII diagrams; they all match. The public API (`ScenarioType`, `createScenario`, `setGoalPosition`, `ScenarioMetrics`, `ScenarioSimulation`) matches exactly. The CLI flags work and the print format follows the spec.\n\n**Caveats a reviewer must know about:**\n\n1. **Identical metrics across all five scenarios** (10000 / 1446.6 / 14.0 / 2638 / 3795). I reproduced this locally. After tracing the code I'm confident it is *not* a state-leak bug — fresh `Maze`/`Robot`/`WallFollower`/`ScenarioMetrics` are constructed per call. The cause is that all five start cells are at the top of a 1-cell-wide southbound corridor with 50 cm cells, and a 30 cm-diameter robot literally cannot turn around in 50 cm. So the controller gets stuck in the corridor entrance before reaching the differentiating geometry. This is a **fit-for-purpose problem with the spec** (\"Do not modify `WallFollower`\"), not a code bug — but it does mean the suite has near-zero discriminatory power.\n\n2. **Coordinate-system note in CLAUDE.md is stale.** CLAUDE.md says \"South → theta = -PI/2\", but the actual physics (`Robot.cpp:83`: `new_y = y + sin(theta)*dt`, y increases south) makes +PI/2 the correct value for south. The spec and implementation use +PI/2; this is consistent with the live code.\n\n3. **No unit tests** — only a smoke-test CLI invocation. `isAtGoal`'s alternate-goal branches for T_JUNCTION and FOUR_WAY are never executed.\n\n4. **Cosmetic:** trailing-newline regression in `CMakeLists.txt`, `Maze.h`, `main.cpp`; `test_output/batch_summary.txt` is tracked but is a build artifact.\n\n5. The `cell_size_cm = 20` default in `createScenario` is dead code (R4 says to pass `config.cell_size_cm`, which is 50).\n\nNone of these block a merge under the spec as written.",
-          "current_node": "review",
+          "current_node": "gate_pr",
           "last_response": "I've written the review report to `/workspace/dark-factory-01/review-report.md`. Here's a summary of my findings:\n\n## Verdict: **APPROVE** (with caveats)\n\n### Key findings:\n\n**Requirements (R1–R6):*",
-          "preferred_label": "[A] Approve",
-          "internal.thread_id": "reviewer",
+          "preferred_label": "[R] Rework",
+          "internal.thread_id": "review",
           "command.output": "blob://sha256/986000c2f0665d923506009ad20e46387decd8b3a2b5daff38ccd7c89a9c537c",
           "internal.retry_count.review": 0,
+          "thread.review.current_node": "gate_pr",
           "failure_signature": "",
           "internal.retry_count.gate_plan": 0,
           "internal.fidelity": "compact",
           "internal.retry_count.plan": 0,
+          "internal.retry_count.gate_pr": 0,
           "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
           "internal.retry_count.start": 0,
           "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
@@ -1479,6 +1705,21 @@
             },
             "usage": null
           },
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[R] Rework",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_pr.answer": "R",
+              "human.gate.gate_pr.label": "[R] Rework",
+              "human.gate.selected": "R",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.label": "[R] Rework"
+            },
+            "usage": null
+          },
           "test": {
             "status": "succeeded",
             "context_updates": {
@@ -1528,15 +1769,16 @@
             ]
           }
         },
-        "next_node_id": "gate_pr",
+        "next_node_id": "implement",
         "node_visits": {
+          "gate_plan": 1,
           "review": 1,
           "start": 1,
           "test_gate": 1,
+          "gate_pr": 1,
           "plan": 1,
           "implement": 1,
-          "test": 1,
-          "gate_plan": 1
+          "test": 1
         }
       },
       "diff": {}
@@ -1562,44 +1804,6 @@
   "superseded_by": null,
   "pending_interviews": {},
   "stages": {
-    "plan@1": {
-      "first_event_seq": 19,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Stage completed: plan",
-        "failure_reason": null,
-        "timestamp": "2026-05-19T06:22:50.691004237Z"
-      },
-      "provider_used": {
-        "mode": "agent",
-        "provider": "anthropic",
-        "model": "claude-sonnet-4-6"
-      },
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T06:19:36.690131843Z",
-      "handler": "agent",
-      "duration_ms": 194000,
-      "usage": {
-        "input_tokens": 34717,
-        "output_tokens": 8674,
-        "total_tokens": 440130,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 358862,
-        "cache_write_tokens": 37877,
-        "total_usd_micros": 483957
-      },
-      "model": {
-        "provider": "anthropic",
-        "model_id": "claude-sonnet-4-6"
-      },
-      "state": "succeeded"
-    },
     "implement@1": {
       "first_event_seq": 115,
       "prompt": null,
@@ -1673,35 +1877,6 @@
       "model": {
         "provider": "anthropic",
         "model_id": "claude-opus-4-7"
-      },
-      "state": "succeeded"
-    },
-    "start@1": {
-      "first_event_seq": 15,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": null,
-        "failure_reason": null,
-        "timestamp": "2026-05-19T06:19:36.689891183Z"
-      },
-      "provider_used": null,
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-19T06:19:36.689738725Z",
-      "handler": "start",
-      "duration_ms": 1,
-      "usage": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "total_tokens": 0,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 0,
-        "cache_write_tokens": 0
       },
       "state": "succeeded"
     },
@@ -1796,6 +1971,102 @@
       "started_at": "2026-05-19T06:30:33.811022065Z",
       "handler": "command",
       "duration_ms": 51410,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T06:22:50.691004237Z"
+      },
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T06:19:36.690131843Z",
+      "handler": "agent",
+      "duration_ms": 194000,
+      "usage": {
+        "input_tokens": 34717,
+        "output_tokens": 8674,
+        "total_tokens": 440130,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 358862,
+        "cache_write_tokens": 37877,
+        "total_usd_micros": 483957
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "succeeded"
+    },
+    "gate_pr@1": {
+      "first_event_seq": 364,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T06:38:32.846812187Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T06:35:49.587898912Z",
+      "handler": "human",
+      "duration_ms": 163258,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T06:19:36.689891183Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T06:19:36.689738725Z",
+      "handler": "start",
+      "duration_ms": 1,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
