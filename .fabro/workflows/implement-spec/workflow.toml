@@ -16,3 +16,7 @@ draft = true
 [run.integrations.github.permissions]
 contents = "write"
 pull_requests = "write"
+
+[run.mcps.openproject]
+type = "http"
+url = "http://172.17.0.1:8090/mcp"

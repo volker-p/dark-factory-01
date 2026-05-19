@@ -1,0 +1,19 @@
+[Unit]
+Description=OpenProject MCP Server for Fabro
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/fabro-mcp/openproject.py
+Restart=on-failure
+RestartSec=5
+
+Environment=MCP_TRANSPORT=http
+Environment=MCP_HOST=0.0.0.0
+Environment=MCP_PORT=8090
+Environment=OPENPROJECT_URL=https://op.uawg.xyz
+Environment=OPENPROJECT_PROJECT_ID=7
+EnvironmentFile=/etc/fabro-mcp/secrets.env
+
+[Install]
+WantedBy=multi-user.target

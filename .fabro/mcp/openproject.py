@@ -103,4 +103,10 @@ def update_work_package(work_package_id: int, subject: str | None = None,
 
 
 if __name__ == "__main__":
-    mcp.run()
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
+    if transport == "http":
+        host = os.environ.get("MCP_HOST", "0.0.0.0")
+        port = int(os.environ.get("MCP_PORT", "8090"))
+        mcp.run(transport="streamable-http", host=host, port=port, path="/mcp")
+    else:
+        mcp.run(transport="stdio")
