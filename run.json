@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T13:30:30.708592623Z",
-  "last_event_at": "2026-05-19T13:31:00.087000444Z",
+  "last_event_at": "2026-05-19T13:31:03.329932459Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -1797,9 +1797,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 381,
       "checkpoint": {
-        "timestamp": "2026-05-19T13:31:00.138884427Z",
+        "timestamp": "2026-05-19T13:31:03.324736467Z",
         "current_node": "implement",
         "completed_nodes": [
           "start",
@@ -1811,6 +1811,241 @@
           "review",
           "gate_pr",
           "implement"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "human.gate.gate_plan.answer": "A",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.retry_count.review": 0,
+          "internal.thread_id": "impl",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/sensor-config-and-tracing.md in the target repository and open a pull request",
+          "internal.retry_count.gate_pr": 0,
+          "internal.retry_count.test_gate": 0,
+          "internal.run_id": "01KS05N12EP0HG5R2ESG8AY8J9",
+          "failure_class": "",
+          "last_response": "The review report contains **no REQUEST CHANGES items** — the verdict is a clean **APPROVE**. Here's the situation:\n\n## Rework Pass Assessment\n\n**Review verdict: APPROVE**\n\nThe review report (`revie",
+          "outcome": "succeeded",
+          "response.plan": "Both files are complete. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What was read and understood\n\n- **Spec**: `specs/simulation-path-finder/sensor-config-and-tracing.md` — a feature spec adding configurable wall-scan angles, scan/decision state structs, and a `--trace` CSV flag to `SimulationPathFinder`.\n- **Target repo**: `volker-p/SimulationPathFinder` — a C++20 CMake project with SDL2 + nlohmann/json. Single executable, built via `cmake -B cmake-build-debug -S .` + `cmake --build cmake-build-debug`.\n- **Key files read**: `CLAUDE.md`, `include/Config.h`, `src/Config.cpp`, `include/WallFollower.h`, `src/WallFollower.cpp`, `include/ScenarioSimulation.h`, `src/ScenarioSimulation.cpp`, `main.cpp`, `CMakeLists.txt`, `config.json`, and the existing `fix.md` (which already has the trace block — no change needed).\n\n### `plan.md` covers\n\n1. **Goal** — one sentence\n2. **Files to change** — 8-row table with precise descriptions\n3. **Implementation checklist** — 37 numbered steps covering all 8 changes, specific enough for a junior developer to follow without ambiguity\n4. **Test strategy** — lists both existing tests that must not break and 11 new assertions derived from the spec's Verification section\n5. **Risks and edge cases** — 9 specific risks with mitigations (sensor index, scan ordering, 0° entry, arg parsing scope, `ofstream` lifetime, heading normalisation, `setprecision` stickiness, enum init warning, transitive include)\n\n### `run-tests.sh` covers\n\n- Installs `cmake build-essential libsdl2-dev` if absent (both cmake-absent and SDL2-absent cases)\n- Initialises submodules (nlohmann/json)\n- Builds with `-Wall -Wextra` — both `cmake` configure and build as plain statements (no pipes)\n- Prints `--- BUILD SUCCEEDED ---`\n- Runs all 11 verification checks from the spec with explicit `grep` assertions and error messages\n- Prints `--- TESTS PASSED ---`",
+          "thread.review.current_node": "gate_pr",
+          "internal.retry_count.plan": 0,
+          "preferred_label": "[R] Rework",
+          "current_node": "implement",
+          "internal.retry_count.test": 0,
+          "thread.implement.current_node": "test",
+          "thread.test.current_node": "test_gate",
+          "graph.rankdir": "LR",
+          "internal.node_visit_count": 2,
+          "thread.reviewer.current_node": "review",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.fidelity": "full",
+          "last_stage": "implement",
+          "human.gate.gate_pr.answer": "R",
+          "internal.retry_count.implement": 0,
+          "command.output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987",
+          "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n**Summary:**\n\n- **Verdict: APPROVE** — all P0 requirements (R1–R5) are met, all 11 verification assertions pass, no blocking issues.\n\n- **Key findings:**\n  - R1–R5 each map to specific files and lines that satisfy them; the implementation closely follows the spec's prescribed shape (struct fields, signatures, header format).\n  - Verified one trace row by hand — internally consistent.\n  - `--trace` silent no-op without `--scenario`/`--scenario-suite` is correctly implemented.\n\n- **Non-blocking observations called out:**\n  - Pre-existing `-Wunused-parameter` warnings in `Renderer.cpp` (untouched file, present on master).\n  - All five scenarios fail with ~9960 collisions — a pre-existing wall-follower regression from commit `cb10d47`, NOT introduced by this PR. The trace tooling being added here is the right next step to diagnose it.\n  - Minor: missing trailing newlines in `Config.h`/`Config.cpp`, redundant loop counter `i` in `runScenario`, `static_cast<int>` instead of `std::floor` for cell coords (identical for non-negative positions), two different PI constants across two files.\n  - Test coverage gaps: no assertion that `step` resets across scenarios in suite mode, no test of custom `wall_scan_angles_deg`, no precision assertions.",
+          "thread.impl.current_node": "implement",
+          "human.gate.gate_pr.label": "[R] Rework",
+          "thread.planner.current_node": "plan",
+          "human.gate.label": "[R] Rework",
+          "human.gate.gate_pr.question": "Approve PR",
+          "thread.plan.current_node": "gate_plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "failure_signature": "",
+          "response.implement": "The review report contains **no REQUEST CHANGES items** — the verdict is a clean **APPROVE**. Here's the situation:\n\n## Rework Pass Assessment\n\n**Review verdict: APPROVE**\n\nThe review report (`review-report.md`) contains:\n- ✅ All 5 requirements (R1–R5) marked as **Met**\n- ✅ All 11 verification steps passing\n- ✅ All constraints satisfied\n- **No `REQUEST CHANGES` items** — only cosmetic/minor observations flagged with ⚠️\n\nThe minor observations noted are:\n1. **Redundant `i` counter** in `runScenario` loop — cosmetic, not wrong\n2. **`static_cast<int>` vs `std::floor`** — functionally identical for non-negative positions\n3. **Missing trailing newlines** in two files — cosmetic\n4. **Inconsistent PI constant** naming across files — cosmetic\n\nNone of these rise to blocking status. Since there are no mandatory REQUEST CHANGES items, **no rework commit is required**. The implementation from the previous pass (commit `cbab5a3`) is complete and approved.",
+          "internal.retry_count.gate_plan": 0,
+          "human.gate.selected": "R",
+          "internal.retry_count.start": 0,
+          "human.gate.gate_plan.label": "[A] Approve"
+        },
+        "node_outcomes": {
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[R] Rework",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.selected": "R",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.answer": "R",
+              "human.gate.gate_pr.label": "[R] Rework",
+              "human.gate.label": "[R] Rework"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "The review report contains **no REQUEST CHANGES items** — the verdict is a clean **APPROVE**. Here's the situation:\n\n## Rework Pass Assessment\n\n**Review verdict: APPROVE**\n\nThe review report (`revie",
+              "last_stage": "implement",
+              "response.implement": "The review report contains **no REQUEST CHANGES items** — the verdict is a clean **APPROVE**. Here's the situation:\n\n## Rework Pass Assessment\n\n**Review verdict: APPROVE**\n\nThe review report (`review-report.md`) contains:\n- ✅ All 5 requirements (R1–R5) marked as **Met**\n- ✅ All 11 verification steps passing\n- ✅ All constraints satisfied\n- **No `REQUEST CHANGES` items** — only cosmetic/minor observations flagged with ⚠️\n\nThe minor observations noted are:\n1. **Redundant `i` counter** in `runScenario` loop — cosmetic, not wrong\n2. **`static_cast<int>` vs `std::floor`** — functionally identical for non-negative positions\n3. **Missing trailing newlines** in two files — cosmetic\n4. **Inconsistent PI constant** naming across files — cosmetic\n\nNone of these rise to blocking status. Since there are no mandatory REQUEST CHANGES items, **no rework commit is required**. The implementation from the previous pass (commit `cbab5a3`) is complete and approved."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 6977,
+                    "output_tokens": 892,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 247128,
+                    "cache_write_tokens": 53886
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 53886,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 310521
+            }
+          },
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "usage": null
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "review",
+              "last_response": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n**Summary:**\n\n- **Verdict: APPROVE** — all P0 requirements (R1–R5) are met, all 11 verification assertions pass, no blockin",
+              "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n**Summary:**\n\n- **Verdict: APPROVE** — all P0 requirements (R1–R5) are met, all 11 verification assertions pass, no blocking issues.\n\n- **Key findings:**\n  - R1–R5 each map to specific files and lines that satisfy them; the implementation closely follows the spec's prescribed shape (struct fields, signatures, header format).\n  - Verified one trace row by hand — internally consistent.\n  - `--trace` silent no-op without `--scenario`/`--scenario-suite` is correctly implemented.\n\n- **Non-blocking observations called out:**\n  - Pre-existing `-Wunused-parameter` warnings in `Renderer.cpp` (untouched file, present on master).\n  - All five scenarios fail with ~9960 collisions — a pre-existing wall-follower regression from commit `cb10d47`, NOT introduced by this PR. The trace tooling being added here is the right next step to diagnose it.\n  - Minor: missing trailing newlines in `Config.h`/`Config.cpp`, redundant loop counter `i` in `runScenario`, `static_cast<int>` instead of `std::floor` for cell coords (identical for non-negative positions), two different PI constants across two files.\n  - Test coverage gaps: no assertion that `step` resets across scenarios in suite mode, no test of custom `wall_scan_angles_deg`, no precision assertions."
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 58471,
+                    "output_tokens": 8785,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 416953,
+                    "cache_write_tokens": 62805
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 62805,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1112987
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "Both files are complete. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What was read and understood\n\n- **Spec**: `specs/simulation-path-finder/sensor-config-and-tracing.md` — a featur",
+              "last_stage": "plan",
+              "response.plan": "Both files are complete. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What was read and understood\n\n- **Spec**: `specs/simulation-path-finder/sensor-config-and-tracing.md` — a feature spec adding configurable wall-scan angles, scan/decision state structs, and a `--trace` CSV flag to `SimulationPathFinder`.\n- **Target repo**: `volker-p/SimulationPathFinder` — a C++20 CMake project with SDL2 + nlohmann/json. Single executable, built via `cmake -B cmake-build-debug -S .` + `cmake --build cmake-build-debug`.\n- **Key files read**: `CLAUDE.md`, `include/Config.h`, `src/Config.cpp`, `include/WallFollower.h`, `src/WallFollower.cpp`, `include/ScenarioSimulation.h`, `src/ScenarioSimulation.cpp`, `main.cpp`, `CMakeLists.txt`, `config.json`, and the existing `fix.md` (which already has the trace block — no change needed).\n\n### `plan.md` covers\n\n1. **Goal** — one sentence\n2. **Files to change** — 8-row table with precise descriptions\n3. **Implementation checklist** — 37 numbered steps covering all 8 changes, specific enough for a junior developer to follow without ambiguity\n4. **Test strategy** — lists both existing tests that must not break and 11 new assertions derived from the spec's Verification section\n5. **Risks and edge cases** — 9 specific risks with mitigations (sensor index, scan ordering, 0° entry, arg parsing scope, `ofstream` lifetime, heading normalisation, `setprecision` stickiness, enum init warning, transitive include)\n\n### `run-tests.sh` covers\n\n- Installs `cmake build-essential libsdl2-dev` if absent (both cmake-absent and SDL2-absent cases)\n- Initialises submodules (nlohmann/json)\n- Builds with `-Wall -Wextra` — both `cmake` configure and build as plain statements (no pipes)\n- Prints `--- BUILD SUCCEEDED ---`\n- Runs all 11 verification checks from the spec with explicit `grep` assertions and error messages\n- Prints `--- TESTS PASSED ---`"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 38288,
+                    "output_tokens": 10221,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 434298,
+                    "cache_write_tokens": 43988
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 43988,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 563423
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.label": "[A] Approve",
+              "human.gate.selected": "A"
+            },
+            "usage": null
+          }
+        },
+        "next_node_id": "test",
+        "git_commit_sha": "bb50f752d36fc835407e6363a81bd30cd5d58b78",
+        "node_visits": {
+          "gate_pr": 1,
+          "review": 1,
+          "gate_plan": 1,
+          "start": 1,
+          "implement": 2,
+          "test_gate": 1,
+          "plan": 1,
+          "test": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 5,
+          "additions": 1208,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T13:31:06.856789975Z",
+        "current_node": "test",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test"
         ],
         "node_retries": {},
         "context_values": {
@@ -1829,14 +2064,14 @@
           "internal.retry_count.implement": 0,
           "internal.retry_count.test": 0,
           "internal.retry_count.review": 0,
-          "internal.fidelity": "full",
+          "internal.fidelity": "compact",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/sensor-config-and-tracing.md in the target repository and open a pull request",
           "human.gate.gate_plan.question": "Approve Plan",
           "human.gate.label": "[R] Rework",
           "human.gate.gate_plan.answer": "A",
           "internal.work_dir": "/workspace/dark-factory-01",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "command.output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987",
+          "command.output": "blob://sha256/d53b9ca42333934c9cec6a2a316554acf232a768d04d448c473fcfbd70c67ce5",
           "thread.test.current_node": "test_gate",
           "thread.reviewer.current_node": "review",
           "human.gate.gate_pr.answer": "R",
@@ -1845,9 +2080,9 @@
           "internal.retry_count.plan": 0,
           "outcome": "succeeded",
           "internal.retry_count.start": 0,
-          "internal.thread_id": "impl",
+          "internal.thread_id": "implement",
           "human.gate.gate_pr.question": "Approve PR",
-          "current_node": "implement",
+          "current_node": "test",
           "internal.retry_count.gate_pr": 0,
           "failure_class": "",
           "human.gate.selected": "R",
@@ -1896,7 +2131,7 @@
           "test": {
             "status": "succeeded",
             "context_updates": {
-              "command.output": "blob://sha256/0da69f045e3ed9f0a5f4f468918bb6339acf182c3551903269afbe0fa837a987"
+              "command.output": "blob://sha256/d53b9ca42333934c9cec6a2a316554acf232a768d04d448c473fcfbd70c67ce5"
             },
             "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
             "usage": null
@@ -2009,9 +2244,9 @@
             }
           }
         },
-        "next_node_id": "test",
+        "next_node_id": "test_gate",
         "node_visits": {
-          "test": 1,
+          "test": 2,
           "gate_plan": 1,
           "test_gate": 1,
           "plan": 1,
@@ -2173,7 +2408,12 @@
       "first_event_seq": 338,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: implement",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T13:31:00.136438960Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -2186,6 +2426,7 @@
       "output": null,
       "started_at": "2026-05-19T13:30:34.005468694Z",
       "handler": "agent",
+      "duration_ms": 26130,
       "usage": {
         "input_tokens": 6977,
         "output_tokens": 892,
@@ -2199,7 +2440,7 @@
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "gate_pr@1": {
       "first_event_seq": 326,
@@ -2267,6 +2508,33 @@
         "model_id": "claude-opus-4-7"
       },
       "state": "succeeded"
+    },
+    "test@2": {
+      "first_event_seq": 384,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "language": "shell"
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T13:31:03.328343362Z",
+      "handler": "command",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     },
     "test@1": {
       "first_event_seq": 244,
