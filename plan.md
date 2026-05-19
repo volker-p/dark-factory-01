@@ -1,0 +1,328 @@
+# Implementation Plan: Deterministic Scenario Testing with Wall-Safety Metrics
+
+## Goal
+
+Add five hand-crafted deterministic maze scenarios and a headless `ScenarioSimulation` class that runs the existing `WallFollower` controller through each scenario and reports per-run wall-safety metrics via two new CLI flags (`--scenario` / `--scenario-suite`).
+
+---
+
+## Files to Change
+
+| File | What changes and why |
+|---|---|
+| `include/Maze.h` | Add `ScenarioType` enum class; declare `static Maze createScenario(ScenarioType, int)`, `void setGoalPosition(double, double)`, and private `void removeWallBetween(int,int,int,int)` + `void generateScenario(ScenarioType)` |
+| `src/Maze.cpp` | Implement `createScenario`, `generateScenario` (all five scenario geometries), `removeWallBetween`, `setGoalPosition`; also add a second constructor overload needed by `createScenario` to bypass random maze generation |
+| `include/ScenarioSimulation.h` | **New file** — declares `ScenarioMetrics` struct and `ScenarioSimulation` class (R3 + R4) |
+| `src/ScenarioSimulation.cpp` | **New file** — full implementation of `runScenario` and `runSuite` (R4) |
+| `main.cpp` | Parse `--scenario <name>` and `--scenario-suite` flags before the existing argument loop; load `Config`, construct `ScenarioSimulation`, print results, and exit (R5 + R6) |
+| `CMakeLists.txt` | Append `src/ScenarioSimulation.cpp` to the `SOURCES` list |
+
+---
+
+## Implementation Checklist
+
+### Step 1 — Add a bypass constructor to `Maze` (prerequisite for `createScenario`)
+
+`createScenario` needs to build a `Maze` of arbitrary dimensions without triggering `generateRecursiveBacktracking` or `setRandomGoal`.  The cleanest approach is a private constructor that only initialises the grid and the RNG, with no generation call.
+
+1. In `Maze.h`, declare a private constructor:
+   ```cpp
+   Maze(int width_cells, int height_cells, double cell_size_cm, bool /*tag*/);
+   ```
+   The `bool` parameter is a disambiguation tag (never used by name); it will be used only by `createScenario`.
+
+2. In `Maze.cpp`, implement it:
+   ```cpp
+   Maze::Maze(int w, int h, double cell_size, bool /*tag*/)
+       : cell_size_cm(cell_size), width_cells(w), height_cells(h) {
+       grid.resize(h);
+       for (int y = 0; y < h; y++) {
+           grid[y].reserve(w);
+           for (int x = 0; x < w; x++)
+               grid[y].emplace_back(x, y);
+       }
+   }
+   ```
+
+### Step 2 — Extend `Maze.h`
+
+1. After the existing `#include` lines add the `ScenarioType` enum class:
+   ```cpp
+   enum class ScenarioType {
+       STRAIGHT_TUNNEL,
+       CORNER_RIGHT,
+       CORNER_LEFT,
+       T_JUNCTION,
+       FOUR_WAY_CROSSING
+   };
+   ```
+
+2. In the `private:` section, add:
+   ```cpp
+   void removeWallBetween(int x1, int y1, int x2, int y2);
+   void generateScenario(ScenarioType type);
+   ```
+
+3. In the `public:` section, add:
+   ```cpp
+   static Maze createScenario(ScenarioType type, int cell_size_cm = 20);
+   void setGoalPosition(double x_cm, double y_cm);
+   ```
+
+### Step 3 — Implement `Maze::setGoalPosition` and `Maze::removeWallBetween` in `Maze.cpp`
+
+```cpp
+void Maze::setGoalPosition(double x_cm, double y_cm) {
+    goal_position = Position(x_cm, y_cm);
+}
+
+void Maze::removeWallBetween(int x1, int y1, int x2, int y2) {
+    // Determine which walls to remove based on relative position
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    if (dx == 1) {          // (x2,y2) is East of (x1,y1)
+        grid[y1][x1].walls[1] = false;   // remove East wall of (x1,y1)
+        grid[y2][x2].walls[3] = false;   // remove West wall of (x2,y2)
+    } else if (dx == -1) {  // West
+        grid[y1][x1].walls[3] = false;
+        grid[y2][x2].walls[1] = false;
+    } else if (dy == 1) {   // (x2,y2) is South of (x1,y1)
+        grid[y1][x1].walls[2] = false;   // remove South wall of (x1,y1)
+        grid[y2][x2].walls[0] = false;   // remove North wall of (x2,y2)
+    } else if (dy == -1) {  // North
+        grid[y1][x1].walls[0] = false;
+        grid[y2][x2].walls[2] = false;
+    }
+}
+```
+
+### Step 4 — Implement `Maze::createScenario` in `Maze.cpp`
+
+```cpp
+Maze Maze::createScenario(ScenarioType type, int cell_size_cm) {
+    // Determine grid dimensions per scenario
+    int w = 0, h = 0;
+    switch (type) {
+        case ScenarioType::STRAIGHT_TUNNEL:    w = 3; h = 5; break;
+        case ScenarioType::CORNER_RIGHT:       w = 5; h = 4; break;
+        case ScenarioType::CORNER_LEFT:        w = 5; h = 4; break;
+        case ScenarioType::T_JUNCTION:         w = 5; h = 5; break;
+        case ScenarioType::FOUR_WAY_CROSSING:  w = 5; h = 5; break;
+    }
+    Maze maze(w, h, static_cast<double>(cell_size_cm), true /*tag*/);
+    maze.generateScenario(type);
+    return maze;
+}
+```
+
+### Step 5 — Implement `Maze::generateScenario` in `Maze.cpp`
+
+Define geometry, wall removals, and goal placement for all five scenarios:
+
+**STRAIGHT_TUNNEL** (3 × 5):
+- Remove walls along centre column: for `r = 0..3`, call `removeWallBetween(1, r, 1, r+1)`.
+- Goal: `setGoalPosition((1 + 0.5) * cell_size_cm, (4 + 0.5) * cell_size_cm)`.
+
+**CORNER_RIGHT** (5 × 4):
+- Vertical: `removeWallBetween(1,0,1,1)`, `removeWallBetween(1,1,1,2)`.
+- Horizontal: `removeWallBetween(1,2,2,2)`, `removeWallBetween(2,2,3,2)`, `removeWallBetween(3,2,4,2)`.
+- Goal: `setGoalPosition((4+0.5)*cs, (2+0.5)*cs)`.
+
+**CORNER_LEFT** (5 × 4):
+- Vertical: `removeWallBetween(3,0,3,1)`, `removeWallBetween(3,1,3,2)`.
+- Horizontal: `removeWallBetween(0,2,1,2)`, `removeWallBetween(1,2,2,2)`, `removeWallBetween(2,2,3,2)`.
+- Goal: `setGoalPosition((0+0.5)*cs, (2+0.5)*cs)`.
+
+**T_JUNCTION** (5 × 5):
+- Vertical: `removeWallBetween(2,0,2,1)`, `(2,1,2,2)`, `(2,2,2,3)`.
+- Horizontal: `removeWallBetween(1,3,2,3)`, `(2,3,3,3)`.
+- Goal: arbitrarily pick `(1, 3)` as the primary goal position for `createScenario` (the `isAtGoal` helper checks both cells).
+
+**FOUR_WAY_CROSSING** (5 × 5):
+- Vertical: `removeWallBetween(2,0,2,1)`, `(2,1,2,2)`, `(2,2,2,3)`, `(2,3,2,4)`.
+- Horizontal: `removeWallBetween(0,2,1,2)`, `(1,2,2,2)`, `(2,2,3,2)`, `(3,2,4,2)`.
+- Goal: arbitrarily pick `(2, 4)` as primary goal (others also checked in `isAtGoal`).
+
+### Step 6 — Create `include/ScenarioSimulation.h`
+
+```cpp
+#pragma once
+#include "Maze.h"
+#include "Config.h"
+#include "Robot.h"
+#include <vector>
+
+struct ScenarioMetrics {
+    ScenarioType  scenario;
+    bool          traversal_success;
+    int           steps_taken;
+    double        distance_cm;
+    double        min_clearance_cm;
+    int           near_miss_count;
+    int           collision_count;
+};
+
+class ScenarioSimulation {
+public:
+    explicit ScenarioSimulation(const Config& cfg);
+
+    ScenarioMetrics              runScenario(ScenarioType type);
+    std::vector<ScenarioMetrics> runSuite();
+
+private:
+    Config config;
+    bool isAtGoal(const Maze& maze, const Robot& robot, ScenarioType type) const;
+};
+```
+
+### Step 7 — Create `src/ScenarioSimulation.cpp`
+
+Implement `ScenarioSimulation`:
+
+1. **Constructor**: store `config`.
+
+2. **`runScenario(ScenarioType type)`**:
+   - Call `Maze maze = Maze::createScenario(type, config.cell_size_cm)`.
+   - Determine the start pose for each scenario:
+     - `STRAIGHT_TUNNEL`:   cell `(1,0)`, θ = −π/2 (South; recall y increases downward and physics: South = negative-Y direction = θ = -π/2 per `CLAUDE.md`).
+
+       > **Important coordinate note from `CLAUDE.md`**: `theta = -PI/2` → South (DOWN, +Y direction). Despite the comment being slightly confusing, `Simulation.cpp` lines 62-63 confirm: `South wall open → theta = PI/2`. Wait — re-reading: comment says "Face South (positive Y direction)" maps to `initial_theta = PI/2`. So **South = +π/2**.  
+       > Cross-check from kinematics: `new_y = y + linear_vel * sin(theta) * dt`. For the robot to move southward (increasing y), `sin(theta) > 0` → `theta = π/2`. So South heading = **θ = +π/2**.
+
+     - `CORNER_RIGHT`:       cell `(1,0)`, θ = +π/2 (South).
+     - `CORNER_LEFT`:        cell `(3,0)`, θ = +π/2 (South).
+     - `T_JUNCTION`:         cell `(2,0)`, θ = +π/2 (South).
+     - `FOUR_WAY_CROSSING`:  cell `(2,0)`, θ = +π/2 (South).
+   
+   - Construct `Robot robot(config.robot_radius_cm, config.sensor_range_cm, config.sensor_angles_deg, config.sensor_noise_sigma_cm)`.
+   - Call `robot.reset(start_x, start_y, start_theta)` where `start_x = (cell_x + 0.5) * config.cell_size_cm`, same for y.
+   - Construct `WallFollower controller`.
+   - Initialise `ScenarioMetrics m{type, false, 0, 0.0, std::numeric_limits<double>::max(), 0, 0}`.
+   - Loop for up to `config.max_steps`:
+     - Get `auto readings = robot.getSensorReadings(maze, false)` (no noise).
+     - Compute `min_reading = *std::min_element(readings.begin(), readings.end())`.
+     - Update `m.min_clearance_cm = std::min(m.min_clearance_cm, min_reading)`.
+     - Increment `m.near_miss_count` if `min_reading < config.robot_radius_cm + 2.0`.
+     - Save `Pose before = robot.getPose()`.
+     - Call `controller.updatePosition(before.x_cm, before.y_cm)`.
+     - Get velocities from `controller.computeVelocity(readings, config.robot_radius_cm + 20.0, 50.0)`.
+     - Call `robot.update(config.timestep_s, linear_vel, angular_vel, maze)`.
+     - Detect collision: if `robot.getPose().x_cm == before.x_cm && robot.getPose().y_cm == before.y_cm`, increment `m.collision_count`. (Use exact equality — both values come from the same floating-point computation path, so if position didn't change, the values are bitwise identical.)
+     - Increment `m.steps_taken`.
+     - If `isAtGoal(maze, robot, type)`: set `m.traversal_success = true`, break.
+   - Set `m.distance_cm = robot.getTotalDistance()`.
+   - Return `m`.
+
+3. **`isAtGoal`**: compute Euclidean distance from robot centre to the goal position stored in `maze.getGoalPosition()`. Return true if `< config.cell_size_cm / 2.0`. For multi-goal scenarios (T_JUNCTION, FOUR_WAY_CROSSING), check all alternate goal cell centres as well:
+   - T_JUNCTION alternates: `(1,3)`, `(3,3)`.
+   - FOUR_WAY_CROSSING alternates: `(0,2)`, `(4,2)`, `(2,4)`.
+
+4. **`runSuite`**: iterate in enum order:
+   ```cpp
+   for (auto t : {ScenarioType::STRAIGHT_TUNNEL, ScenarioType::CORNER_RIGHT,
+                  ScenarioType::CORNER_LEFT, ScenarioType::T_JUNCTION,
+                  ScenarioType::FOUR_WAY_CROSSING})
+       results.push_back(runScenario(t));
+   ```
+
+### Step 8 — Modify `main.cpp`
+
+1. Add includes at the top:
+   ```cpp
+   #include "ScenarioSimulation.h"
+   #include <iomanip>
+   #include <cstdio>
+   ```
+
+2. Add helper to convert `ScenarioType` → string name (used in output):
+   ```cpp
+   static const char* scenarioName(ScenarioType t) {
+       switch (t) {
+           case ScenarioType::STRAIGHT_TUNNEL:   return "STRAIGHT_TUNNEL";
+           case ScenarioType::CORNER_RIGHT:      return "CORNER_RIGHT";
+           case ScenarioType::CORNER_LEFT:       return "CORNER_LEFT";
+           case ScenarioType::T_JUNCTION:        return "T_JUNCTION";
+           case ScenarioType::FOUR_WAY_CROSSING: return "FOUR_WAY_CROSSING";
+       }
+       return "UNKNOWN";
+   }
+   ```
+
+3. Add helpers to print single metric and suite table (using `std::printf` / `std::setw`).
+
+4. Before the existing `for (int i = 1; ...)` loop, detect `--scenario` and `--scenario-suite` in a preliminary pass:
+   ```cpp
+   bool run_scenario = false;
+   bool run_suite = false;
+   std::string scenario_name;
+
+   for (int i = 1; i < argc; i++) {
+       if (strcmp(argv[i], "--scenario") == 0 && i + 1 < argc) {
+           run_scenario = true;
+           scenario_name = argv[++i];
+       } else if (strcmp(argv[i], "--scenario-suite") == 0) {
+           run_suite = true;
+       }
+   }
+   ```
+
+5. After loading `Config` (reuse the existing load block, possibly extract to a helper or just duplicate the minimal load), if `run_scenario` or `run_suite`:
+   - Set `config.enable_visualization = false`.
+   - Construct `ScenarioSimulation sim(config)`.
+   - If `run_scenario`: map `scenario_name` string → `ScenarioType`, call `sim.runScenario(type)`, print single-scenario output, return 0.
+   - If `run_suite`: call `sim.runSuite()`, print table, return 0.
+
+   **Insertion point**: insert the scenario handling block right after the config is loaded and overrides applied, before the "Print configuration summary" `std::cout` block. This avoids duplicating the load logic.
+
+6. Update `printUsage` to document the two new flags.
+
+### Step 9 — Update `CMakeLists.txt`
+
+Append `src/ScenarioSimulation.cpp` to the `SOURCES` list (after `src/BatchSimulation.cpp`).
+
+---
+
+## Test Strategy
+
+### Build verification
+- Run `cmake -B cmake-build-debug -S . && cmake --build cmake-build-debug` — must compile without warnings under `-Wall`.
+
+### Smoke tests (headless CLI)
+1. `./cmake-build-debug/SimulationPathFinder --scenario straight_tunnel`  
+   → exits 0, prints the single-scenario block, "Traversal success : YES" is expected (STRAIGHT_TUNNEL has a trivially clear tunnel).
+
+2. `./cmake-build-debug/SimulationPathFinder --scenario-suite`  
+   → exits 0, prints a 5-row table; all rows have `YES` in SUCCESS for well-tuned WallFollower.
+
+3. `./cmake-build-debug/SimulationPathFinder --scenario corner_right`  
+   → exits 0, output matches format in R6.
+
+4. `./cmake-build-debug/SimulationPathFinder --scenario invalid_name`  
+   → exits non-zero with an error message, does not crash.
+
+5. Verify existing batch mode is unaffected:  
+   `./cmake-build-debug/SimulationPathFinder --batch 2 --headless --output-dir ./test_output/`  
+   → exits 0, generates CSV files as before.
+
+### Unit-level checks (manual inspection)
+- After `createScenario(STRAIGHT_TUNNEL, 20)`, confirm `getWidthCells()==3`, `getHeightCells()==5`.
+- Confirm `getGoalPosition()` centre is `(30.0, 90.0)` for STRAIGHT_TUNNEL (`cell (1,4)` at cell_size=20).
+- Confirm walls are correctly removed: e.g., for cell `(1,0)` South wall is `false` and for `(1,1)` North wall is `false`.
+
+### Existing tests not affected
+- There are no formal unit test files in the repo (no `test/` directory, no gtest).  The project's "test" is building and doing a short batch headless run (`test.sh` / `run_test.sh`).  Both scripts remain valid and unchanged by this feature.
+
+---
+
+## Risks and Edge Cases
+
+| Risk | Mitigation |
+|---|---|
+| **Heading direction confusion**: `CLAUDE.md` is ambiguous (says `theta=PI/2` is North but `Simulation.cpp` uses `theta=PI/2` for South). Kinematics confirm South = `sin(theta) > 0` = `+π/2`. | Use kinematics cross-check; document in code comment. |
+| **Robot collides immediately at start** if cell_size_cm (20 cm) < 2 × robot_radius_cm (15 cm default from config, so diameter = 30 cm > 20 cm). | `createScenario` takes `cell_size_cm` separately (defaults to 20). The scenario call in `ScenarioSimulation` should pass `config.cell_size_cm` (the user-configured value, typically 50 cm from `config.json`) not the hardcoded 20 — or ensure that scenario runs with robot radius that fits. The spec says `cell_size_cm = 20` for geometry descriptions, but `ScenarioSimulation` passes `config.cell_size_cm`. This is the intent per R4 step 1. Document that the default `config.json` uses `cell_size_cm=50`, which is fine. |
+| **Collision detection for metrics**: pose comparison via `==` on `double` is safe here because if the collision check in `Robot::update` prevents the move, the position variables are literally never modified — no arithmetic is performed on them. | Confirmed by reading `Robot.cpp` lines 93–101. |
+| **T_JUNCTION / FOUR_WAY_CROSSING goal detection**: the stored goal position (set by `createScenario`) is only one of the valid goal cells. | `isAtGoal` must check all valid goal cells explicitly for these two scenarios. |
+| **SDL2 linkage at scenario runtime**: `Renderer.cpp` and `SDL2` are always compiled in, even for headless scenario runs. This is fine — `Renderer` is never instantiated in scenario runs. `SDL2_Init` is not called. | No change needed. |
+| **`WallFollower` debug output** (`debug_ = true` by default in `WallFollower.h`): the controller prints state transitions to stdout during scenario runs, which will intersperse with metric output. | Either note it in the plan or (optionally) construct `WallFollower` and call `forceRecovery` — but do NOT modify `WallFollower`. The scenario output will follow after all debug lines, which is acceptable. Alternatively, redirect stdout for the loop, but this is unnecessary complexity. The spec does not mandate suppression. |
+| **`max_steps` from config**: the default config has `max_steps = 10000`. A scenario that the WallFollower cannot solve will run the full 10 000 steps, taking ~0.16 s headlessly (since no SDL2 sleep is involved). This is acceptable. | No change needed. |
+| **`removeWallBetween` called with non-adjacent cells**: the helper silently does nothing for non-adjacent inputs since none of the `dx`/`dy` conditions match. The scenario geometries never call it with invalid inputs. | No error handling needed. |
