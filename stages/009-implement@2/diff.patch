@@ -1,0 +1,7 @@
+diff --git a/target-repo b/target-repo
+index ce0cb11..6778dea 160000
+--- a/target-repo
++++ b/target-repo
+@@ -1 +1 @@
+-Subproject commit ce0cb11b9b0ba9978383e7599b1f4bae92d917cf
++Subproject commit 6778dea99d3007af648635239b5f63c673b02598
