@@ -1,0 +1,167 @@
+diff --git a/review-report.md b/review-report.md
+new file mode 100644
+index 0000000..be483fa
+--- /dev/null
++++ b/review-report.md
+@@ -0,0 +1,161 @@
++# Review Report — Completely Rewrite Wall Follower Code
++
++Spec: `specs/simulation-path-finder/wall-follower.md`
++Target: `volker-p/SimulationPathFinder` @ `master`
++
++---
++
++## Test Results
++
++**FAILED.** Build and static checks pass, but the very first scenario assertion (`straight_tunnel`) fails catastrophically.
++
++Final relevant lines from `test-output.txt`:
++
++```
++[100%] Built target SimulationPathFinder
++--- BUILD SUCCEEDED ---
++--- Checking for banned symbols in WallFollower.cpp ---
++PASS: no relative-turn flags found
++--- Checking Config.h for required fields ---
++PASS: all three config fields present in Config.h
++--- Running scenario: straight_tunnel ---
++Configuration loaded from config.json
++Scenario: STRAIGHT_TUNNEL
++  Traversal success : NO
++  Steps taken       : 10000
++  Distance (cm)     : 19.7
++  Min clearance (cm): 9.0
++  Near misses       : 9966
++  Collisions        : 9959
++ASSERTION FAILED: straight_tunnel did not report Traversal success: YES
++```
++
++Notable signals from the failed run:
++- Robot traveled only **19.7 cm in 10 000 steps**.
++- Robot was in collision **9 959 / 10 000 steps** (≈ 99.6 %).
++- Near-miss count **9 966 / 10 000**, so it sat against a wall almost the entire run.
++- The remaining scenarios (`corner_right`, `corner_left`, `--scenario-suite`, batch smoke) never ran because `set -euo pipefail` aborts on the first failed assertion. We have no information on them.
++- Build produces no compiler warnings reported in the log — but the log was truncated to the last 30 lines around the build, so a clean `-Wall -Wextra` pass cannot be fully confirmed from the artifact alone.
++
++---
++
++## Requirements
++
++### R1 — Delete and replace `WallFollower` — ✅ Met
++- `include/WallFollower.h` is fully rewritten to the mandated interface (`include/WallFollower.h:11-17`).
++- `src/WallFollower.cpp` rewritten from 504 → 89 lines (`src/WallFollower.cpp`).
++- Old `State`/`Action` enums, setters, `computeVelocity`, `updatePosition`, `forceRecovery`, `isStuck`, `getLastAction`, `getState`, `reset`, `linear_speed_`, etc. are all gone — confirmed via `git diff`.
++- ⚠️ Side-effect: the `Action` enum (previously declared in `WallFollower.h`) has been **moved into `DataLogger.h`** (`include/DataLogger.h:11-18`). This is reasonable since `DataLogger::logSample` still takes an `Action` parameter, but it is a header-relocation that callers should be aware of. The spec doesn't mention `Action`, so this is acceptable scope.
++
++### R2 — Absolute-angle heading — ✅ Met
++- All angle arithmetic uses absolute radians: `current_heading_rad_`, `left_angle = current_heading + PI/2`, `right_angle = current_heading - PI/2`, `new_heading = current + correction` (`src/WallFollower.cpp:38-89`).
++- `normalise()` uses `std::fmod` to keep values in `[0, 2π)` (`src/WallFollower.cpp:10-14`).
++- No `turn_left` / `turn_right` / `deltaTheta` boolean flags anywhere — `run-tests.sh` grep check confirms this.
++
++### R3 — Scan procedure — ⚠️ Partial
++The seven-step sequence is implemented in `update()` (`src/WallFollower.cpp:38-89`):
++1. Stop & record heading — ✅ (`:39-41`)
++2. Rotate to left scan angle — ✅ (`:44-45`)
++3. Read sensor → `dist_left` — ⚠️ uses `readings[0]`, the sensor at angle **-15°** relative to robot, not the front-centre. Project has sensors at `[-15, 15, -75, 75]` (no 0° sensor). The plan acknowledged this approximation; in practice, after rotating to "left" the actual ray points at *heading + 90° − 15° = heading + 75°*, biased 15° backward of true-left.
++4. Rotate to right scan angle — ✅ (`:51-52`)
++5. Read sensor → `dist_right` — ⚠️ same -15° bias: actual ray points at *heading − 90° − 15° = heading − 105°*, biased 15° past true-right (rearward).
++   The **left and right scans are not symmetric** with respect to forward, which directly corrupts the error signal `dist_right − dist_left` used in R4.
++6. Compute new heading — ✅ (`:59-83`)
++7. Rotate to new heading, drive forward one step — ✅ (`:85-87`)
++
++Stop semantics (`linear_velocity = 0` during scan rotations) — ✅ (`src/WallFollower.cpp:34` passes `0.0` as linear vel).
++
++### R4 — Tunnel-centring algorithm — ⚠️ Partial (correctness concern)
++The formula matches the spec literally (`src/WallFollower.cpp:67-71`):
++```cpp
++double error      = dist_right - dist_left;
++double correction = clamp(cfg_.wall_follow_kp * error, -PI / 4.0, PI / 4.0);
++new_heading = normalise(current_heading_rad_ + correction);
++```
++`kp` defaults to `0.5`, clamp to `[-π/4, π/4]` is correct, normalise applied.
++
++**However**, the spec's `kp = 0.5` is dimensionally a `rad / cm` factor. In a 50-cm-wide cell (config.json: `cell_size_cm = 50`) the robot starts centered → 25 cm from each wall. Even a 2 cm sensor-noise difference (`sigma = 2.0`) produces `correction = 0.5 × 2 = 1.0 rad ≈ 57°`, clamped to 45°. The robot will pivot 45° per scan cycle on noise alone, then drive into the wall. Combined with the R3 asymmetry above, the resulting behaviour is unstable — consistent with the observed 9 959 collisions.
++
++The implementation **literally satisfies the formula** in the spec, but the spec value plus the robot geometry produce divergent control. This is a meaningful warning sign rather than a strict spec violation.
++
++### R5 — Single-wall fallback — ⚠️ Partial (likely sign/scale issue)
++Implemented at `src/WallFollower.cpp:72-83`. Code matches the spec language verbatim.
++
++Concerns:
++- **Detection threshold**: R4/R5 reference `cfg.wall_detection_threshold_cm`, which is **not** in the Config (and R7 forbids adding any 4th key). The implementation substitutes `cfg_.sensor_range_cm` (`:62`) — i.e. 100 cm. In a 50 cm cell every reading is below 100 cm, so the single-wall branch is effectively unreachable; only the two-wall R4 branch fires in the failing scenario. The plan flagged this as a known interpretation choice. It is defensible but does mean R5 is largely dead code in the test suite as written.
++- **Sign of the correction in the single-wall branches**: the spec says "*bias the heading toward the detected wall by `kp * (detected_dist - target_distance)`*". The right-wall branch (`:73-75`) subtracts the correction; the left-wall branch (`:76-79`) adds it. Whether those signs match "toward the wall" depends on the convention (CCW positive, East = 0). With CCW positive and right being the −y direction at heading East, "toward the right wall" means *decreasing* theta, so subtracting on the right branch is plausibly correct — but no test currently exercises this branch, so it is unverified.
++
++### R6 — Forward drive — ✅ Met
++`src/WallFollower.cpp:87` calls `robot.update(timestep_s, linear_velocity_cm_per_s, 0.0, maze)` — linear speed from config, zero angular, single step. No steering while moving (rotation always happens with `linear = 0`).
++
++### R7 — Config keys — ✅ Met
++- `include/Config.h:47-49` adds the three fields with correct defaults (`0.5`, `10.0`, `0.05`).
++- `src/Config.cpp:55-58` parses them via `j.value(..., default)` so existing `config.json` files keep working without modification.
++- No fourth key is introduced. The `wall_detection_threshold_cm` mentioned in R4/R5 is **not** added (correctly per R7) and is instead substituted with `sensor_range_cm` — see R5 concern above.
++
++### Verification items from the spec
++
++| Item | Status | Evidence |
++|---|---|---|
++| 1. Build succeeds with no warnings (`-Wall -Wextra`) | ⚠️ Build succeeds; `-Wall -Wextra` not explicitly enabled in the captured CMake output (the log shows `cmake -S . -B cmake-build-debug -DCMAKE_BUILD_TYPE=Debug` and no warning lines). Cannot fully verify "no warnings" from the truncated log. |
++| 2. Existing tests pass | n/a — repo has no `ctest` suite. |
++| 3. `--scenario straight_tunnel` → `Traversal success: YES` | ❌ **NO** — failed at 0.6 % traversal, 9959 collisions. |
++| 4. `corner_right` / `corner_left` → `YES` | ❌ **Not executed** (pipeline aborted at step 3). |
++| 5. No relative-turn flags in `WallFollower.cpp` | ✅ grep check passes. |
++| 6. Robot stops before each scan (zero linear vel during rotation) | ✅ `rotateToHeading()` always passes `linear_vel = 0.0` (`src/WallFollower.cpp:34`). |
++
++---
++
++## Test Coverage
++
++- The project has no unit tests (`ctest` is not configured). All verification rides on the 3 mandated scenarios + the suite + a batch smoke test, driven by `run-tests.sh`.
++- The single failing scenario (`straight_tunnel`) is the simplest possible scenario — a corridor where the robot starts centered between two walls and must drive straight. If the algorithm cannot pass this, it cannot pass anything harder, so the test ordering is appropriate.
++- Edge cases in the spec that are **not** covered by any test in this PR:
++  - R5 single-wall fallback (would need a scenario with only one wall in sensor range; the 50 cm cell width keeps both walls visible).
++  - R5 "no walls" branch (impossible in 50 cm cells with 100 cm sensor range).
++  - Behaviour when `angle_tolerance_rad` is very tight vs. very loose (no parameter-sensitivity test).
++- The collision/near-miss counters in `ScenarioSimulation.cpp:54-62` are meaningful, but they only show *whether* the robot moved between iterations — they don't distinguish between "moving forward and brushing a wall" and "fully wedged". Combined with the `Traversal success` flag they are adequate.
++
++---
++
++## Code Quality
++
++**Conventions:** Repository has no `AGENTS.md`. The diff respects the existing file layout (`include/` headers, `src/` implementations), uses the existing CMake build, and keeps `nlohmann::json` access via `j.value(key, default)` which matches the rest of `Config.cpp`. Style (4-space indent, `snake_case_` private members, trailing-underscore convention) is consistent with the file being replaced.
++
++**Specific issues to flag for a human reviewer:**
++
++1. **Algorithm divergence (blocking).** `src/WallFollower.cpp:67-71` — `kp = 0.5` rad/cm applied to a raw cm error produces 45°-clamped swings every scan cycle in a 50 cm tunnel. The spec literally specifies this formula and constant, but the implementation faithfully reproduces it without questioning the scale, and the result is the catastrophic failure observed. Either:
++   - the gain needs re-interpretation (e.g. normalise the error by `wall_target_distance_cm` first), or
++   - the scan-direction asymmetry from using the `−15°` sensor (see point 2) needs fixing, or
++   - both. Without one of these, no straight-tunnel run can succeed.
++
++2. **Sensor index `[0]` is not "the forward sensor".** `src/WallFollower.cpp:49` and `:57` use `readings[0]`, which is the sensor at `−15°` (`config.json: sensor_angles_deg = [-15, 15, -75, 75]`). After rotating to the nominal left-scan angle the actual measured ray is **75° CCW**, not 90°; after rotating right, the ray is **−105°**, not −90°. The left/right asymmetry is `(75°, −105°)`, which biases the imbalance signal even when the robot is perfectly centered. A more honest "front-facing" composite would average `readings[0]` and `readings[1]` (the symmetric −15°/+15° pair) or pick the sensor whose absolute angle is smallest in magnitude.
++
++3. **`Action` enum relocation.** `include/DataLogger.h:11-18` now owns the `Action` enum that used to live in `WallFollower.h`. `Simulation.cpp:185` hardcodes `Action::FORWARD` for every logged sample, so the action channel of the dataset is now a constant. If anything downstream consumes those logs for training, the data has silently lost a column of information. Mention to the human reviewer; out of scope to "fix" within this spec.
++
++4. **`rotateToHeading` MAX 500 inner steps × 3 calls per `update()` × up to 10 000 outer steps** — a single failing run does up to **15 M physics ticks**. The captured test loop apparently runs to completion in reasonable time, so this is not a build-blocker, but worth noting if anyone re-tunes `max_steps` or `timestep_s`.
++
++5. **Trailing-newline regressions.** `include/Config.h`, `src/Config.cpp`, `src/ScenarioSimulation.cpp` no longer end with a newline (`\ No newline at end of file` in the diff). Minor lint nit; pre-existing files in this repo are inconsistent so it is not a clear convention break, but POSIX-strict tooling will warn.
++
++6. **`Simulation.cpp` speed-multiplier loop** (`:174-176`) now starts at `i = 1` (correctly avoiding double-step), but the original called `robot->update()` with cached velocities — the new version invokes the full stop-scan-drive cycle multiple times per render frame. That changes the meaning of "speed multiplier" subtly (each multiplier step is now a whole scan cycle, not one physics tick). Probably fine, worth flagging.
++
++7. **No defensive check that `readings` is non-empty** in `WallFollower::update()` (`:49`, `:57`). The construction site guarantees 4 sensors via config, so this is safe today, but a single-sensor config would crash with UB.
++
++---
++
++## Verdict
++
++### REQUEST CHANGES
++
++Blocking items (must be fixed before merge):
++
++1. **`straight_tunnel` scenario fails** with 19.7 cm of travel and 9 959 collisions out of 10 000 steps. This is the simplest acceptance scenario in the spec (Verification item 3), and the spec explicitly mandates it must report `Traversal success: YES`. Currently it reports `NO`. (`src/WallFollower.cpp`)
++2. **Scenarios `corner_right` and `corner_left` are unverified** because the test pipeline aborts at item 1. Spec Verification item 4 requires both to succeed. They must be re-run after the straight-tunnel fix.
++3. **Investigate the sensor-index asymmetry** (`src/WallFollower.cpp:49, :57` using `readings[0]` which is at −15°, not 0°). This is likely the root cause of the failure together with the `kp` scale, and any fix attempt should address it explicitly so we don't ship an algorithm that only happens to limp through one tuning.
++4. **Confirm clean `-Wall -Wextra` build.** Spec Verification item 1 requires zero warnings; the test log shows a successful build but does not enable `-Wextra` in the CMake invocation, so this is unverified.
++
++Non-blocking observations (recommend addressing but not gating merge):
++
++- `Action` enum relocated into `DataLogger.h` and downgraded to a constant `FORWARD` in every logged sample — confirm the dataset consumers are okay with that.
++- `R5` single-wall and no-wall branches are unreachable in the current scenario suite; consider whether a new scenario should exist to exercise them, or whether the `wall_detection_threshold_cm` substitution by `sensor_range_cm` should be reconsidered.
++- Missing trailing newlines in three changed files.
