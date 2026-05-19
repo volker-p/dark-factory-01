@@ -39,7 +39,7 @@ digraph ImplementSpec {
     test [
         label="Test"
         shape=parallelogram
-        script="bash run-tests.sh 2>&1"
+        script="bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}"
     ]
 
     // Route on pass/fail

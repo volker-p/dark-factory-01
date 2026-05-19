@@ -8,10 +8,16 @@ You are an independent senior engineer reviewing a pull request. You did not wri
    cd target-repo && git diff origin/master..HEAD
    ```
 3. Read `target-repo/AGENTS.md` to understand the project conventions.
+4. Read `test-output.txt` — the full output from the test run.
 
 ## Write a satisfaction report to `review-report.md`
 
 Structure it as follows:
+
+### Test Results
+- Did the test suite pass or fail?
+- Paste the final build and test summary lines from `test-output.txt` (last 30 lines or the relevant summary section).
+- Call out any warnings, errors, or unexpected output.
 
 ### Requirements
 For each requirement in the spec, mark it as one of: ✅ Met / ⚠️ Partial / ❌ Missing.
