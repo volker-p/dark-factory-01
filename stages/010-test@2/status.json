@@ -1,0 +1,6 @@
+{
+  "outcome": "succeeded",
+  "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+  "failure_reason": null,
+  "timestamp": "2026-05-19T08:43:32.748134072Z"
+}
