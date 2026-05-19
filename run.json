@@ -582,7 +582,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-19T09:21:17.913399535Z",
-  "last_event_at": "2026-05-19T09:28:08.493102686Z",
+  "last_event_at": "2026-05-19T09:28:28.560319691Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -986,14 +986,15 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:28:27.206660633Z",
-        "current_node": "test",
+        "timestamp": "2026-05-19T09:28:30.181165256Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
@@ -1004,12 +1005,12 @@
           "internal.retry_count.implement": 0,
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "test",
+          "current_node": "test_gate",
           "command.output": "blob://sha256/623eb36d8da1d9501515208b4739c546e7a1495d245821a0e24672290a82f25a",
           "thread.planner.current_node": "plan",
           "internal.retry_count.test": 0,
           "human.gate.label": "[A] Approve",
-          "internal.thread_id": "implement",
+          "internal.thread_id": "test",
           "human.gate.selected": "A",
           "last_response": "The commit is in place. Here's a summary of everything implemented:\n\n## Summary\n\nAll 10 checklist items from `plan.md` have been implemented:\n\n### Changes Made\n\n1. **`config.json`** — Changed `robot",
           "internal.node_visit_count": 1,
@@ -1025,7 +1026,9 @@
           "thread.implement.current_node": "test",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
           "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "thread.test.current_node": "test_gate",
           "outcome": "succeeded",
+          "internal.retry_count.test_gate": 0,
           "human.gate.gate_plan.answer": "A",
           "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
           "internal.fidelity": "compact"
@@ -1136,10 +1139,16 @@
               "/workspace/dark-factory-01/plan.md",
               "/workspace/dark-factory-01/run-tests.sh"
             ]
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
+          "test_gate": 1,
           "gate_plan": 1,
           "implement": 1,
           "test": 1,
@@ -1279,7 +1288,12 @@
       "first_event_seq": 407,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:28:27.205203873Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1287,11 +1301,22 @@
         "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
         "language": "shell"
       },
-      "script_timing": null,
+      "script_timing": {
+        "output": "blob://sha256/623eb36d8da1d9501515208b4739c546e7a1495d245821a0e24672290a82f25a",
+        "exit_code": 0,
+        "duration_ms": 18704,
+        "termination": "exited",
+        "output_bytes": 4570,
+        "live_streaming": true
+      },
       "parallel_results": null,
       "output": null,
+      "output_bytes": 4570,
+      "live_streaming": true,
+      "termination": "exited",
       "started_at": "2026-05-19T09:28:08.493037810Z",
       "handler": "command",
+      "duration_ms": 18712,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1300,7 +1325,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
