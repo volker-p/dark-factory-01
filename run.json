@@ -579,11 +579,10 @@
     "base_sha": "639271fb4a486d1a42850a5dc5577989bd73f3cc"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-19T09:50:24.119789408Z",
-  "last_event_at": "2026-05-19T09:50:24.119789408Z",
+  "status_updated_at": "2026-05-19T09:50:52.646444949Z",
+  "last_event_at": "2026-05-19T09:50:55.412910195Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -3884,9 +3883,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 900,
       "checkpoint": {
-        "timestamp": "2026-05-19T09:50:52.648241817Z",
+        "timestamp": "2026-05-19T09:50:55.410313470Z",
         "current_node": "gate_pr",
         "completed_nodes": [
           "start",
@@ -3910,6 +3909,261 @@
         ],
         "node_retries": {},
         "context_values": {
+          "thread.implement.current_node": "test",
+          "failure_class": "",
+          "internal.retry_count.gate_plan": 0,
+          "internal.retry_count.start": 0,
+          "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round.",
+          "thread.review.current_node": "gate_pr",
+          "current_node": "gate_pr",
+          "internal.fidelity": "compact",
+          "last_response": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regr",
+          "internal.retry_count.implement": 0,
+          "human.gate.gate_pr.answer": "M",
+          "internal.retry_count.test": 0,
+          "internal.run_id": "01KRZQRMQ7VZZRASFH5D0RRECB",
+          "human.gate.selected": "M",
+          "human.gate.gate_pr.label": "[M] Merge",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
+          "human.gate.label": "[M] Merge",
+          "internal.retry_count.test_gate": 0,
+          "internal.thread_id": "review",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "last_stage": "review",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "graph.rankdir": "LR",
+          "response.implement": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.0` robot radius removed**\n- `include/WallFollower.h`: Changed `robot_radius_cm_ = 15.0` → `10.0` (matches config), added `setRobotRadius(double r)` and `setMinDistanceToWall(double d)` public setters\n- `src/Simulation.cpp`: Added `controller->setRobotRadius(config.robot_radius_cm)` and `controller->setMinDistanceToWall(config.minimum_distance_to_wall_cm)` after construction\n- `src/ScenarioSimulation.cpp`: Same — added both setters after `setDebug()`\n\n**Item 2 — `minimum_distance_to_wall_cm` now actually consumed**\n- Added `min_distance_to_wall_cm_` member to `WallFollower`\n- `src/WallFollower.cpp`: Lines 164/167 now use `robot_radius_cm_ + min_distance_to_wall_cm_` and `robot_radius_cm_ + min_distance_to_wall_cm_ * 0.5` instead of the magic numbers `+10.0` and `+5.0`\n\n### Non-Blocking Items Fixed\n\n**Item 3 — Trailing newlines restored** on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`\n\n**Item 4 — Dead `--debug` preliminary-pass branch removed** from `main.cpp:86-89`\n\n**Item 5 — Pre-existing `-Wall` warnings resolved:**\n- `src/Maze.cpp`: Reordered constructor init list to match declaration order (fixes `-Wreorder` for `Maze::cell_size_cm`)\n- `src/PerformanceMetrics.cpp`: Reordered constructor init list (fixes `-Wreorder` for `PerformanceMetrics::stuck_step_count`)\n- `src/Pathfinder.cpp`: Removed unused `bool found = false` variable (fixes `-Wunused-but-set-variable`)\n- `src/SensorNoise.cpp`: Reordered constructor init list (fixes `-Wreorder` for `SensorNoise::sigma`)\n\nThe build now produces **zero `-Wall` warnings** and all functional tests continue to pass.",
+          "human.gate.gate_plan.answer": "A",
+          "internal.retry_count.review": 0,
+          "failure_signature": "",
+          "thread.plan.current_node": "gate_plan",
+          "outcome": "succeeded",
+          "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass",
+          "thread.planner.current_node": "plan",
+          "internal.retry_count.gate_pr": 0,
+          "human.gate.gate_plan.question": "Approve Plan",
+          "thread.reviewer.current_node": "review",
+          "thread.test.current_node": "test_gate",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "human.gate.gate_pr.question": "Approve PR",
+          "internal.retry_count.plan": 0,
+          "preferred_label": "[M] Merge",
+          "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241",
+          "thread.impl.current_node": "implement",
+          "internal.node_visit_count": 3
+        },
+        "node_outcomes": {
+          "gate_pr": {
+            "status": "succeeded",
+            "preferred_label": "[M] Merge",
+            "suggested_next_ids": [
+              "push_pr"
+            ],
+            "context_updates": {
+              "human.gate.label": "[M] Merge",
+              "human.gate.gate_pr.answer": "M",
+              "human.gate.selected": "M",
+              "human.gate.gate_pr.question": "Approve PR",
+              "human.gate.gate_pr.label": "[M] Merge"
+            },
+            "usage": null
+          },
+          "test": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241"
+            },
+            "notes": "Script completed: bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will no",
+              "last_stage": "plan",
+              "response.plan": "All grep targets (`Traversal success`, `Collisions`, `SCENARIO`, `SUCCESS`, `COLLISIONS`, `STRAIGHT_TUNNEL`, `Batch complete`) are confirmed to be produced by the existing print functions that will not be changed. The batch test will catch `\"Batch complete\"` from `BatchSimulation.cpp:69`.\n\nHere's a summary of everything produced:\n\n---\n\n## What was created\n\n### `plan.md`\n\nA complete implementation plan covering:\n\n- **Goal**: one-sentence summary\n- **Files to change**: 11-row table with paths and rationale\n- **Implementation checklist**: 11 numbered steps with specific code snippets a junior developer can follow directly\n- **Test strategy**: how the 5 verification steps are exercised, plus which existing behaviours are protected\n- **Risks and edge cases**: 8 identified risks with mitigations\n\n### `run-tests.sh`\n\nA build-and-test script that:\n\n1. **Installs sandbox dependencies** — cmake, build-essential, libsdl2-dev\n2. **Initialises submodules** — nlohmann/json via git submodule\n3. **Builds** — `cmake -B build -S .` then `cmake --build build` (no piping), prints `--- BUILD SUCCEEDED ---`\n4. **Verification 1** — `--scenario straight_tunnel`: asserts `Traversal success` and `Collisions` present on stdout; asserts WallFollower state noise is absent from stdout (debug off by default)\n5. **Verification 2** — `--scenario-suite`: asserts tabular column headers `SCENARIO`, `SUCCESS`, `COLLISIONS`, and `STRAIGHT_TUNNEL` row appear on stdout\n6. **Verification 3** — `--debug --scenario straight_tunnel`: redirects stderr to file, asserts `wall` appears (WallFollower trace), asserts normal stdout output still present\n7. **Verification 4** — `--headless --batch 5`: asserts `Batch complete` or `successful` appears in output\n8. Prints `--- TESTS PASSED ---` only when all assertions pass"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 48522,
+                    "output_tokens": 7506,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 540865,
+                    "cache_write_tokens": 51579
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 51579,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 613836
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
+            "usage": null
+          },
+          "review": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regr",
+              "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round.",
+              "last_stage": "review"
+            },
+            "notes": "Stage completed: review",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-opus-4-7"
+                  },
+                  "tokens": {
+                    "input_tokens": 56096,
+                    "output_tokens": 9406,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 713207,
+                    "cache_write_tokens": 56196
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 56196,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1223458
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/review-report.md"
+            ]
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "implement",
+              "response.implement": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15.0` robot radius removed**\n- `include/WallFollower.h`: Changed `robot_radius_cm_ = 15.0` → `10.0` (matches config), added `setRobotRadius(double r)` and `setMinDistanceToWall(double d)` public setters\n- `src/Simulation.cpp`: Added `controller->setRobotRadius(config.robot_radius_cm)` and `controller->setMinDistanceToWall(config.minimum_distance_to_wall_cm)` after construction\n- `src/ScenarioSimulation.cpp`: Same — added both setters after `setDebug()`\n\n**Item 2 — `minimum_distance_to_wall_cm` now actually consumed**\n- Added `min_distance_to_wall_cm_` member to `WallFollower`\n- `src/WallFollower.cpp`: Lines 164/167 now use `robot_radius_cm_ + min_distance_to_wall_cm_` and `robot_radius_cm_ + min_distance_to_wall_cm_ * 0.5` instead of the magic numbers `+10.0` and `+5.0`\n\n### Non-Blocking Items Fixed\n\n**Item 3 — Trailing newlines restored** on `include/Config.h`, `src/Simulation.cpp`, `src/ScenarioSimulation.cpp`\n\n**Item 4 — Dead `--debug` preliminary-pass branch removed** from `main.cpp:86-89`\n\n**Item 5 — Pre-existing `-Wall` warnings resolved:**\n- `src/Maze.cpp`: Reordered constructor init list to match declaration order (fixes `-Wreorder` for `Maze::cell_size_cm`)\n- `src/PerformanceMetrics.cpp`: Reordered constructor init list (fixes `-Wreorder` for `PerformanceMetrics::stuck_step_count`)\n- `src/Pathfinder.cpp`: Removed unused `bool found = false` variable (fixes `-Wunused-but-set-variable`)\n- `src/SensorNoise.cpp`: Reordered constructor init list (fixes `-Wreorder` for `SensorNoise::sigma`)\n\nThe build now produces **zero `-Wall` warnings** and all functional tests continue to pass.",
+              "last_response": "The rework is complete and verified. Here's a summary of everything that was done:\n\n## Summary of Changes\n\n### Blocking Items Fixed (from review-report.md)\n\n**Item 1 — R1 regression: Hard-coded `15."
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 53907,
+                    "output_tokens": 8479,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 1739182,
+                    "cache_write_tokens": 57753
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 57753,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1027233
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/include/WallFollower.h",
+              "/workspace/dark-factory-01/target-repo/main.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Maze.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Pathfinder.cpp",
+              "/workspace/dark-factory-01/target-repo/src/PerformanceMetrics.cpp",
+              "/workspace/dark-factory-01/target-repo/src/ScenarioSimulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/SensorNoise.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Simulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/WallFollower.cpp"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "push_pr",
+        "git_commit_sha": "7ab73015dd0b4bd8c082531626aede5056a95d72",
+        "node_visits": {
+          "start": 1,
+          "test_gate": 3,
+          "gate_plan": 1,
+          "plan": 1,
+          "implement": 3,
+          "review": 3,
+          "test": 3,
+          "gate_pr": 3
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 5,
+          "additions": 548,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T09:50:58.213896206Z",
+        "current_node": "push_pr",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "implement",
+          "test",
+          "test_gate",
+          "review",
+          "gate_pr",
+          "push_pr"
+        ],
+        "node_retries": {},
+        "context_values": {
           "internal.retry_count.plan": 0,
           "thread.reviewer.current_node": "review",
           "thread.impl.current_node": "implement",
@@ -3918,20 +4172,22 @@
           "graph.goal": "Implement the spec at specs/simulation-path-finder/config-and-debug.md in the target repository and open a pull request",
           "response.review": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round.",
           "internal.retry_count.implement": 0,
+          "thread.gate_pr.current_node": "push_pr",
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_pr.label": "[M] Merge",
+          "internal.retry_count.push_pr": 0,
           "human.gate.gate_plan.label": "[A] Approve",
-          "current_node": "gate_pr",
-          "command.output": "blob://sha256/4c85f6e1956618a32d20bd6460e405df58a69ba954b180132c838867a1f2d241",
+          "current_node": "push_pr",
+          "command.output": "blob://sha256/596f96db13a03dfbb7e7732594029544ba7a8e41df55b69346a182a518eb0d94",
           "thread.planner.current_node": "plan",
           "internal.retry_count.test": 0,
           "human.gate.label": "[M] Merge",
-          "internal.thread_id": "review",
+          "internal.thread_id": "gate_pr",
           "human.gate.selected": "M",
           "last_response": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regr",
           "human.gate.gate_pr.question": "Approve PR",
           "human.gate.gate_pr.answer": "M",
-          "internal.node_visit_count": 3,
+          "internal.node_visit_count": 1,
           "last_stage": "review",
           "internal.work_dir": "/workspace/dark-factory-01",
           "failure_signature": "",
@@ -3954,6 +4210,14 @@
           "internal.fidelity": "compact"
         },
         "node_outcomes": {
+          "push_pr": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/596f96db13a03dfbb7e7732594029544ba7a8e41df55b69346a182a518eb0d94"
+            },
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/push-pr.sh",
+            "usage": null
+          },
           "gate_plan": {
             "status": "succeeded",
             "preferred_label": "[A] Approve",
@@ -4116,7 +4380,7 @@
             ]
           }
         },
-        "next_node_id": "push_pr",
+        "next_node_id": "merge_pr",
         "node_visits": {
           "gate_plan": 1,
           "implement": 3,
@@ -4125,7 +4389,8 @@
           "review": 3,
           "start": 1,
           "test_gate": 3,
-          "gate_pr": 3
+          "gate_pr": 3,
+          "push_pr": 1
         }
       },
       "diff": {}
@@ -4149,35 +4414,18 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KRZT9HVQ5XNWGQCZQNB9B4EF": {
-      "question": {
-        "id": "01KRZT9HVQ5XNWGQCZQNB9B4EF",
-        "text": "Approve PR",
-        "stage": "gate_pr",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "M",
-            "label": "[M] Merge"
-          },
-          {
-            "key": "R",
-            "label": "[R] Rework"
-          }
-        ],
-        "allow_freeform": false,
-        "context_display": "Review report written to `/workspace/dark-factory-01/review-report.md`.\n\n## Summary\n\n**Verdict: APPROVE**\n\nThe rev-2 implementation resolves both blocking items from the previous review:\n\n1. **R1 regression fixed** — The hard-coded `15.0` robot-radius literal in `WallFollower.h` is replaced by `10.0` defaults plus runtime injection via new `setRobotRadius()` / `setMinDistanceToWall()` setters. Both `Simulation::Simulation` and `ScenarioSimulation::runScenario` now push the configured values into the controller.\n\n2. **`minimum_distance_to_wall_cm` is now consumed** — At `WallFollower.cpp:164,167`, the previously hard-coded `+10.0` / `+5.0` margins are replaced by `robot_radius_cm_ + min_distance_to_wall_cm_` (and `* 0.5` variant), flowing from config.\n\nThe non-blocking items from rev-1 are also addressed: `-Wall` warnings (member-init reorders in `Maze`, `PerformanceMetrics`, `SensorNoise`; unused `found` removed in `Pathfinder`); the dead `--debug` preliminary-pass branch is gone.\n\nAll four functional acceptance tests pass: `--scenario`, `--scenario-suite`, `--debug` on stderr, `--headless --batch 5`. No warnings appear in the build log.\n\nOne small new nit was introduced (lost trailing newline on `src/Maze.cpp`) — called out as a non-blocking follow-up. R2, R3, R4 remain in good shape from the previous round."
-      },
-      "started_at": "2026-05-19T09:50:24.119681446Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
     "gate_pr@3": {
       "first_event_seq": 891,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T09:50:52.646633039Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": null,
@@ -4186,6 +4434,7 @@
       "output": null,
       "started_at": "2026-05-19T09:50:24.118427851Z",
       "handler": "human",
+      "duration_ms": 28528,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -4194,7 +4443,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "plan@1": {
       "first_event_seq": 19,
@@ -4792,6 +5041,33 @@
         "cache_write_tokens": 0
       },
       "state": "succeeded"
+    },
+    "push_pr@1": {
+      "first_event_seq": 903,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/push-pr.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/push-pr.sh",
+        "language": "shell"
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T09:50:55.412388083Z",
+      "handler": "command",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     }
   }
 }
