@@ -580,11 +580,10 @@
     "base_sha": "aa7f88e4adbaa6ffe3818f6f6e8a35f7c118e390"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-19T11:54:06.994669890Z",
-  "last_event_at": "2026-05-19T11:54:06.994669890Z",
+  "status_updated_at": "2026-05-19T11:55:47.296969589Z",
+  "last_event_at": "2026-05-19T11:59:12.415257889Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -713,9 +712,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 121,
       "checkpoint": {
-        "timestamp": "2026-05-19T11:55:47.297346743Z",
+        "timestamp": "2026-05-19T11:55:49.984128196Z",
         "current_node": "gate_plan",
         "completed_nodes": [
           "start",
@@ -724,32 +723,148 @@
         ],
         "node_retries": {},
         "context_values": {
+          "human.gate.selected": "A",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower.md in the target repository and open a pull request",
           "human.gate.label": "[A] Approve",
+          "internal.retry_count.gate_plan": 0,
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.start": 0,
+          "last_response": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo",
+          "failure_class": "",
+          "internal.fidelity": "compact",
+          "internal.node_visit_count": 1,
+          "internal.run_id": "01KS015YGX6ETB1RFAPA0YSBTP",
+          "internal.thread_id": "plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "current_node": "gate_plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "last_stage": "plan",
+          "outcome": "succeeded",
+          "failure_signature": "",
+          "thread.plan.current_node": "gate_plan",
+          "graph.rankdir": "LR",
+          "thread.planner.current_node": "plan",
+          "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test",
+          "human.gate.gate_plan.answer": "A",
+          "preferred_label": "[A] Approve",
+          "internal.work_dir": "/workspace/dark-factory-01"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo",
+              "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 44324,
+                    "output_tokens": 9735,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 416649,
+                    "cache_write_tokens": 50646
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 50646,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 593913
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          }
+        },
+        "next_node_id": "implement",
+        "git_commit_sha": "7fb8f477bd80bed3c748fc8c02b65bcbd24a10f0",
+        "node_visits": {
+          "plan": 1,
+          "start": 1,
+          "gate_plan": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 3,
+          "additions": 424,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T11:59:12.503325794Z",
+        "current_node": "implement",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "human.gate.gate_plan.label": "[A] Approve",
           "thread.plan.current_node": "gate_plan",
           "human.gate.gate_plan.question": "Approve Plan",
-          "thread.planner.current_node": "plan",
-          "human.gate.gate_plan.label": "[A] Approve",
           "internal.retry_count.gate_plan": 0,
           "internal.run_id": "01KS015YGX6ETB1RFAPA0YSBTP",
           "human.gate.selected": "A",
+          "internal.fidelity": "full",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower.md in the target repository and open a pull request",
+          "internal.retry_count.implement": 0,
+          "current_node": "implement",
+          "last_response": "The commit is recorded with real file changes. Here's a summary of everything implemented:\n\n---\n\n## Summary of Changes\n\n### `include/Config.h`\nAdded three new `WallFollower` algorithm config fields wi",
+          "last_stage": "implement",
+          "outcome": "succeeded",
+          "human.gate.label": "[A] Approve",
+          "thread.planner.current_node": "plan",
           "preferred_label": "[A] Approve",
           "internal.retry_count.start": 0,
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower.md in the target repository and open a pull request",
-          "internal.thread_id": "plan",
-          "internal.fidelity": "compact",
+          "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test",
+          "internal.thread_id": "impl",
           "graph.rankdir": "LR",
           "internal.work_dir": "/workspace/dark-factory-01",
-          "current_node": "gate_plan",
           "internal.node_visit_count": 1,
-          "last_response": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo",
-          "failure_class": "",
-          "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test",
           "internal.retry_count.plan": 0,
+          "failure_class": "",
           "failure_signature": "",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "last_stage": "plan",
+          "response.implement": "The commit is recorded with real file changes. Here's a summary of everything implemented:\n\n---\n\n## Summary of Changes\n\n### `include/Config.h`\nAdded three new `WallFollower` algorithm config fields with defaults:\n- `wall_follow_kp = 0.5`\n- `wall_target_distance_cm = 10.0`\n- `angle_tolerance_rad = 0.05`\n\n### `src/Config.cpp`\nAdded parsing of the three new fields using `nlohmann::json::value()` with defaults — no new JSON keys required in `config.json`.\n\n### `include/WallFollower.h`\n**Full rewrite**: Removed 5-state machine, `computeVelocity()`, `updatePosition()`, all setter helpers, `Action`/`State` enums. New interface: `explicit WallFollower(const Config& cfg)` + `void update(Robot& robot, const Maze& maze)`. Private state: `cfg_` reference, `current_heading_rad_`, and `rotateToHeading()` helper.\n\n### `src/WallFollower.cpp`\n**Full rewrite**: Implements the stop-scan-drive cycle using absolute-angle arithmetic:\n1. Records current absolute heading\n2. Rotates to left scan angle (heading + π/2), reads sensor\n3. Rotates to right scan angle (heading - π/2), reads sensor\n4. Computes new heading: tunnel-centring (R4) or single-wall fallback (R5)\n5. Rotates to new heading and drives forward one step\n\n### `include/DataLogger.h`\nMoved `Action` enum definition here (was forward-declared before, defined in old `WallFollower.h`).\n\n### `src/DataLogger.cpp`\nRemoved now-unnecessary `#include \"WallFollower.h\"`.\n\n### `src/Simulation.cpp`\n- Replaced `make_unique<WallFollower>()` + setters with `make_unique<WallFollower>(config)`\n- Replaced `computeVelocity`/`getLastAction`/`getState` + `robot->update()` call sequence with single `controller->update(*robot, *maze)`\n- Simplified debug logging (removed dead state/action references)\n- Passes `Action::FORWARD` as a constant to `logSample()`\n\n### `src/ScenarioSimulation.cpp`\n- Replaced `WallFollower()` + setter sequence with `WallFollower controller(config)`\n- Replaced `updatePosition` + `computeVelocity` + `robot.update()` with `controller.update(robot, maze)`\n- Kept pre-update sensor snapshot for clearance/near-miss metrics",
           "human.gate.gate_plan.answer": "A",
-          "outcome": "succeeded"
+          "thread.impl.current_node": "implement"
         },
         "node_outcomes": {
           "start": {
@@ -806,11 +921,54 @@
               "human.gate.gate_plan.label": "[A] Approve"
             },
             "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "response.implement": "The commit is recorded with real file changes. Here's a summary of everything implemented:\n\n---\n\n## Summary of Changes\n\n### `include/Config.h`\nAdded three new `WallFollower` algorithm config fields with defaults:\n- `wall_follow_kp = 0.5`\n- `wall_target_distance_cm = 10.0`\n- `angle_tolerance_rad = 0.05`\n\n### `src/Config.cpp`\nAdded parsing of the three new fields using `nlohmann::json::value()` with defaults — no new JSON keys required in `config.json`.\n\n### `include/WallFollower.h`\n**Full rewrite**: Removed 5-state machine, `computeVelocity()`, `updatePosition()`, all setter helpers, `Action`/`State` enums. New interface: `explicit WallFollower(const Config& cfg)` + `void update(Robot& robot, const Maze& maze)`. Private state: `cfg_` reference, `current_heading_rad_`, and `rotateToHeading()` helper.\n\n### `src/WallFollower.cpp`\n**Full rewrite**: Implements the stop-scan-drive cycle using absolute-angle arithmetic:\n1. Records current absolute heading\n2. Rotates to left scan angle (heading + π/2), reads sensor\n3. Rotates to right scan angle (heading - π/2), reads sensor\n4. Computes new heading: tunnel-centring (R4) or single-wall fallback (R5)\n5. Rotates to new heading and drives forward one step\n\n### `include/DataLogger.h`\nMoved `Action` enum definition here (was forward-declared before, defined in old `WallFollower.h`).\n\n### `src/DataLogger.cpp`\nRemoved now-unnecessary `#include \"WallFollower.h\"`.\n\n### `src/Simulation.cpp`\n- Replaced `make_unique<WallFollower>()` + setters with `make_unique<WallFollower>(config)`\n- Replaced `computeVelocity`/`getLastAction`/`getState` + `robot->update()` call sequence with single `controller->update(*robot, *maze)`\n- Simplified debug logging (removed dead state/action references)\n- Passes `Action::FORWARD` as a constant to `logSample()`\n\n### `src/ScenarioSimulation.cpp`\n- Replaced `WallFollower()` + setter sequence with `WallFollower controller(config)`\n- Replaced `updatePosition` + `computeVelocity` + `robot.update()` with `controller.update(robot, maze)`\n- Kept pre-update sensor snapshot for clearance/near-miss metrics",
+              "last_stage": "implement",
+              "last_response": "The commit is recorded with real file changes. Here's a summary of everything implemented:\n\n---\n\n## Summary of Changes\n\n### `include/Config.h`\nAdded three new `WallFollower` algorithm config fields wi"
+            },
+            "notes": "Stage completed: implement",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 56821,
+                    "output_tokens": 10723,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 1630491,
+                    "cache_write_tokens": 61820
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 61820,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 1052280
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/target-repo/include/Config.h",
+              "/workspace/dark-factory-01/target-repo/include/DataLogger.h",
+              "/workspace/dark-factory-01/target-repo/include/WallFollower.h",
+              "/workspace/dark-factory-01/target-repo/src/Config.cpp",
+              "/workspace/dark-factory-01/target-repo/src/DataLogger.cpp",
+              "/workspace/dark-factory-01/target-repo/src/ScenarioSimulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/Simulation.cpp",
+              "/workspace/dark-factory-01/target-repo/src/WallFollower.cpp"
+            ]
           }
         },
-        "next_node_id": "implement",
+        "next_node_id": "test",
         "node_visits": {
           "start": 1,
+          "implement": 1,
           "gate_plan": 1,
           "plan": 1
         }
@@ -836,29 +994,7 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KS01C2RJ2YNZ6RGJMBE44V0X": {
-      "question": {
-        "id": "01KS01C2RJ2YNZ6RGJMBE44V0X",
-        "text": "Approve Plan",
-        "stage": "gate_plan",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "A",
-            "label": "[A] Approve"
-          },
-          {
-            "key": "R",
-            "label": "[R] Revise"
-          }
-        ],
-        "allow_freeform": false,
-        "context_display": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test"
-      },
-      "started_at": "2026-05-19T11:54:06.994652143Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
     "start@1": {
       "first_event_seq": 16,
@@ -931,7 +1067,12 @@
       "first_event_seq": 112,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T11:55:47.297150279Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": null,
@@ -940,6 +1081,7 @@
       "output": null,
       "started_at": "2026-05-19T11:54:06.994614046Z",
       "handler": "human",
+      "duration_ms": 100302,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -947,6 +1089,38 @@
         "reasoning_tokens": 0,
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "implement@1": {
+      "first_event_seq": 124,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T11:55:49.984421044Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 56821,
+        "output_tokens": 10723,
+        "total_tokens": 1759855,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 1630491,
+        "cache_write_tokens": 61820,
+        "total_usd_micros": 1052280
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
       },
       "state": "running"
     }
