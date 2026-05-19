@@ -1,0 +1,142 @@
+# Review Report — Physical Configuration Consolidation & Debug Control
+
+Spec: `specs/simulation-path-finder/config-and-debug.md`
+Target: `volker-p/SimulationPathFinder` @ branch `master`
+Diff: `git diff origin/master..HEAD` — 9 files, +70 / −62
+
+---
+
+## Test Results
+
+The test suite (`bash run-tests.sh`) **passed**. Final summary from `test-output.txt`:
+
+```
+[100%] Linking CXX executable SimulationPathFinder
+[100%] Built target SimulationPathFinder
+--- BUILD SUCCEEDED ---
+PASS: --scenario straight_tunnel produces clean tabular output
+PASS: --scenario-suite produces tabular output with all expected columns
+PASS: --debug enables WallFollower trace on stderr
+PASS: --headless --batch 5 completes successfully
+--- TESTS PASSED ---
+```
+
+### Warnings observed
+
+The build is not warning-clean. The spec constraint says *"Build must produce zero `-Wall` warnings."* The build currently emits:
+
+- `-Wreorder` in `include/Maze.h` (lines 34/36) — pre-existing in a file this PR did not modify in the affected lines.
+- `-Wreorder` in `include/SensorNoise.h` (lines 9/10) — pre-existing, not touched.
+- `-Wreorder` in `include/PerformanceMetrics.h` (lines 12/16) — pre-existing, not touched.
+- `-Wunused-but-set-variable` in `src/Pathfinder.cpp:41` (`bool found = false;`) — pre-existing, not touched.
+
+These warnings exist on `origin/master` as well; this PR neither introduced nor removed any of them. The spec constraint is therefore not fully satisfied, but the warnings are pre-existing technical debt rather than regressions from this change.
+
+---
+
+## Requirements
+
+### R1 — Unified physical configuration — ⚠️ Partial
+
+| Sub-requirement | Status | Evidence |
+|---|---|---|
+| `config.json` sets `cell_size_cm: 50` | ✅ | `config.json:5` |
+| `config.json` sets `robot_radius_cm: 10` | ✅ | `config.json:10` (`radius_cm: 10`) |
+| `config.json` sets `minimum_distance_to_wall: 10` | ✅ | `config.json:11` |
+| `Config.h` has `minimum_distance_to_wall` field | ✅ | `include/Config.h:17` (`minimum_distance_to_wall_cm`) |
+| Loaded from JSON | ✅ | `src/Config.cpp:28` |
+| `ScenarioSimulation` reads `cell_size_cm` from Config | ✅ | `src/ScenarioSimulation.cpp:11, 37, 38, 82, 86, 87` — no literals |
+| **All components that use this concept read `minimum_distance_to_wall` from Config** | ❌ | **`minimum_distance_to_wall_cm` is loaded but never read anywhere.** `grep -rn minimum_distance_to_wall_cm src/ include/` returns only the load site (`Config.cpp:28`) and the declaration (`Config.h:17`). It is *not* threaded into `WallFollower`, `Simulation`, or any collision-detection code, contradicting the spec text: *"All components that currently use this concept (WallFollower, collision detection, Simulation) must read it from the loaded `Config` object."* |
+| `WallFollower` reads `robot_radius_cm` from Config | ❌ | `include/WallFollower.h:56` hard-codes `double robot_radius_cm_ = 15.0;` — out of sync with `config.json`'s new value of 10. It is used at `src/WallFollower.cpp:164, 167` in safe-distance computations, so this is a live mis-configuration: the controller still believes the robot is 15 cm radius while the loaded config says 10 cm. This contradicts R1's intent that `config.json` be the single source of truth. |
+
+### R2 — `--debug` CLI flag — ✅ Met
+
+- Flag declared in usage text: `main.cpp:60`.
+- Parsed: `main.cpp:106-107`.
+- Default off: `main.cpp:73` (`bool debug_flag = false;`).
+- Stored on `Config`: `include/Config.h:45` (`bool debug = false;`), set at `main.cpp:129`.
+- Threaded into `Simulation`: `src/Simulation.cpp:18` (`controller->setDebug(config.debug);`) and gates direct stdout traces at `src/Simulation.cpp:73, 176`.
+- Threaded into `ScenarioSimulation`: `src/ScenarioSimulation.cpp:45`.
+
+Minor nit: the preliminary-pass branch at `main.cpp:87-88` is a dead else-if that does nothing (`// handled in main parse loop`). Harmless but odd.
+
+### R3 — WallFollower improvements — ⚠️ Partial
+
+| Sub-requirement | Status | Evidence |
+|---|---|---|
+| `debug_` default changed `true` → `false` | ✅ | `include/WallFollower.h:46` |
+| Public `setDebug(bool)` added | ✅ | `include/WallFollower.h:43` |
+| All debug output routed `cout` → `cerr` | ✅ | All ~20 trace sites in `src/WallFollower.cpp` use `std::cerr`. Verified via `git diff`. |
+| Obviously wasteful patterns fixed | ⚠️ | The diff shows one substantive fix: replacing `right_mean` (a recomputed average) with `right_side` (the cached value already in scope) at `WallFollower.cpp:275, 341`. That is a legitimate micro-improvement. The header still contains the hard-coded `robot_radius_cm_ = 15.0` (a worse smell than what was removed — see R1). |
+
+### R4 — Complete or clean Maze interface — ✅ Met
+
+- Declarations of `hasWall` and `isWallBetween` removed from `include/Maze.h` (formerly lines 49-52).
+- `grep -rn 'hasWall\|isWallBetween' target-repo/` returns no hits — no callers existed.
+- Build links cleanly (no link errors).
+
+This is the cleaner of the two options the spec offered.
+
+### Constraint: `BatchResults` / `saveSummary()` unchanged — ✅
+Not in diff.
+
+### Constraint: maze-generation algorithm unchanged — ✅
+`src/Maze.cpp` is not in the diff except via the removed declarations (header only).
+
+### Constraint: existing `--headless --batch N` and `--scenario*` work — ✅
+Verified by the four PASS lines in `test-output.txt`.
+
+### Constraint: zero `-Wall` warnings — ⚠️ Partial
+See "Warnings observed" above — pre-existing, not regressed by this PR, but the constraint is literally not met.
+
+---
+
+## Test Coverage
+
+The test harness (`run-tests.sh`) covers the four verification steps from the spec:
+
+1. ✅ `--scenario straight_tunnel` runs and produces tabular output.
+2. ✅ `--scenario-suite` runs and prints all expected columns.
+3. ✅ `--debug --scenario straight_tunnel 2>/tmp/dbg.txt` produces wall-trace text on stderr.
+4. ✅ `--headless --batch 5` completes.
+
+**Gaps:**
+
+- Nothing tests that `minimum_distance_to_wall` is actually *used* — because it isn't used at all (see R1). A test that asserts the loaded value influences robot behaviour would have caught the threading omission.
+- Nothing tests the absence of debug spam by default. A negative assertion (e.g. "running without `--debug` produces no `wall` / `RECOVERY` lines on stderr") would have been a useful complement to test 3.
+- Spec verification step 3 says collision counts should be low because "robot fits corridors" — the test only checks columns exist, not that collisions are actually low. The PR ships a config where `robot_radius_cm=10` and `cell_size_cm=50`, which should produce low collisions, but a sanity-bound assertion would be more meaningful than a presence-of-columns check.
+
+---
+
+## Code Quality
+
+- **No `AGENTS.md` exists in `target-repo/`** — no project-specific conventions to verify against.
+- **Hard-coded `robot_radius_cm_ = 15.0` in `include/WallFollower.h:56`** is the most significant code-quality issue and is in direct tension with R1. With `config.json` now setting `radius_cm: 10`, the WallFollower's safety margin calculations (`safe_left_distance = robot_radius_cm_ + 10.0` at `WallFollower.cpp:164`) use 25 cm instead of the configured 20 cm. Behaviour is currently "safe-side wrong" (over-conservative), but it is still a correctness issue and should be fed from `Config`.
+- **`minimum_distance_to_wall_cm` is dead** — loaded from JSON, exposed on the `Config` struct, and read by nothing. Either wire it into `WallFollower` / collision logic (preferred per spec) or do not add it. Dead config fields are a maintenance trap.
+- **Missing newline at EOF** in three modified files: `include/Config.h`, `src/ScenarioSimulation.cpp`, `src/Simulation.cpp` (visible in the diff as `\ No newline at end of file`). Minor, but easily fixed.
+- **Dead branch** at `main.cpp:87-88` in the preliminary-pass loop — `--debug` is parsed only in the main pass, so the preliminary branch is a no-op comment. Either remove it or actually handle the flag there.
+- **`Config.debug` is a non-const public member** with an in-class default initialiser, while every other field in `Config.h` is default-constructed via the loader. Style is consistent enough but inconsistent with the rest of the struct.
+- Trace routing to `stderr` is implemented thoroughly across all state-machine branches in `WallFollower.cpp`. No `std::cout` debug remains in that file.
+
+### Potentially surprising for a human reviewer
+
+- `Simulation::run` at line 326-329 still has a non-gated `std::cout` that prints "robot finished" / distance traveled at the end of every run, unconditionally. The spec's intent ("debug output off by default") might or might not include this — it is arguably a normal completion message, not debug — but worth a glance.
+- The behaviour change of dropping `radius_cm` from 15→10 changes physics for all existing batch runs. If downstream data analysis depends on prior radius, that is a soft breaking change that this PR does not call out.
+
+---
+
+## Verdict
+
+**REQUEST CHANGES**
+
+Blocking items:
+
+1. **R1 incomplete — `minimum_distance_to_wall_cm` is loaded but never consumed.** Wire it into `WallFollower` (and any collision-checking path in `Simulation`) per the explicit spec text: *"All components that currently use this concept (WallFollower, collision detection, Simulation) must read it from the loaded `Config` object."* Alternatively, justify why no component uses it — but the spec says it must be threaded.
+2. **R1 incomplete — `WallFollower::robot_radius_cm_` is hard-coded to 15.0** in `include/WallFollower.h:56` while `config.json` sets the robot radius to 10. The controller's safety-distance calculations (`WallFollower.cpp:164, 167`) silently use the wrong value. Source the robot radius from `Config` (e.g. a `setGeometry(double radius, double min_dist)` method called alongside `setDebug`).
+
+Non-blocking but recommended:
+
+- Remove dead `else if` for `--debug` in the preliminary parse pass (`main.cpp:87-88`).
+- Restore trailing newlines on the three modified files flagged above.
+- Consider gating the end-of-run "robot finished" stdout line in `Simulation.cpp:326-329` on `config.debug` for consistency.
+- The pre-existing `-Wall` warnings remain — out of scope for this spec strictly, but the spec constraint says zero. A follow-up to reorder the three offending member-init lists and remove the unused `found` in `Pathfinder.cpp` would close that gap cheaply.
