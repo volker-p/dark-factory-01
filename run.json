@@ -579,10 +579,11 @@
     "base_sha": "fe0bbe7584994d4d52579b8346e674a5f5bf6d2c"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-19T06:19:35.245936568Z",
-  "last_event_at": "2026-05-19T06:22:50.593560407Z",
+  "status_updated_at": "2026-05-19T06:22:53.382867847Z",
+  "last_event_at": "2026-05-19T06:22:53.382867847Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -623,9 +624,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 100,
       "checkpoint": {
-        "timestamp": "2026-05-19T06:22:50.691732796Z",
+        "timestamp": "2026-05-19T06:22:53.381517427Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -633,24 +634,121 @@
         ],
         "node_retries": {},
         "context_values": {
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
+          "internal.retry_count.start": 0,
+          "internal.thread_id": "planner",
+          "failure_signature": "",
+          "thread.planner.current_node": "plan",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "internal.node_visit_count": 1,
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.retry_count.plan": 0,
+          "current_node": "plan",
+          "internal.run_id": "01KRZE7FKPSYR8H53013FM84A0",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.fidelity": "compact",
+          "last_response": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_r",
+          "last_stage": "plan",
+          "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
+          "outcome": "succeeded"
+        },
+        "node_outcomes": {
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_response": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_r",
+              "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
+              "last_stage": "plan"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 34717,
+                    "output_tokens": 8674,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 358862,
+                    "cache_write_tokens": 37877
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 37877,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 483957
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_plan",
+        "git_commit_sha": "61ee2a8aa56c6bd4e075dbf6280ff30eaaf5fe95",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/plan.md b/plan.md\nnew file mode 100644\nindex 0000000..752e42c\n--- /dev/null\n+++ b/plan.md\n@@ -0,0 +1,328 @@\n+# Implementation Plan: Deterministic Scenario Testing with Wall-Safety Metrics\n+\n+## Goal\n+\n+Add five hand-crafted deterministic maze scenarios and a headless `ScenarioSimulation` class that runs the existing `WallFollower` controller through each scenario and reports per-run wall-safety metrics via two new CLI flags (`--scenario` / `--scenario-suite`).\n+\n+---\n+\n+## Files to Change\n+\n+| File | What changes and why |\n+|---|---|\n+| `include/Maze.h` | Add `ScenarioType` enum class; declare `static Maze createScenario(ScenarioType, int)`, `void setGoalPosition(double, double)`, and private `void removeWallBetween(int,int,int,int)` + `void generateScenario(ScenarioType)` |\n+| `src/Maze.cpp` | Implement `createScenario`, `generateScenario` (all five scenario geometries), `removeWallBetween`, `setGoalPosition`; also add a second constructor overload needed by `createScenario` to bypass random maze generation |\n+| `include/ScenarioSimulation.h` | **New file** — declares `ScenarioMetrics` struct and `ScenarioSimulation` class (R3 + R4) |\n+| `src/ScenarioSimulation.cpp` | **New file** — full implementation of `runScenario` and `runSuite` (R4) |\n+| `main.cpp` | Parse `--scenario <name>` and `--scenario-suite` flags before the existing argument loop; load `Config`, construct `ScenarioSimulation`, print results, and exit (R5 + R6) |\n+| `CMakeLists.txt` | Append `src/ScenarioSimulation.cpp` to the `SOURCES` list |\n+\n+---\n+\n+## Implementation Checklist\n+\n+### Step 1 — Add a bypass constructor to `Maze` (prerequisite for `createScenario`)\n+\n+`createScenario` needs to build a `Maze` of arbitrary dimensions without triggering `generateRecursiveBacktracking` or `setRandomGoal`.  The cleanest approach is a private constructor that only initialises the grid and the RNG, with no generation call.\n+\n+1. In `Maze.h`, declare a private constructor:\n+   ```cpp\n+   Maze(int width_cells, int height_cells, double cell_size_cm, bool /*tag*/);\n+   ```\n+   The `bool` parameter is a disambiguation tag (never used by name); it will be used only by `createScenario`.\n+\n+2. In `Maze.cpp`, implement it:\n+   ```cpp\n+   Maze::Maze(int w, int h, double cell_size, bool /*tag*/)\n+       : cell_size_cm(cell_size), width_cells(w), height_cells(h) {\n+       grid.resize(h);\n+       for (int y = 0; y < h; y++) {\n+           grid[y].reserve(w);\n+           for (int x = 0; x < w; x++)\n+               grid[y].emplace_back(x, y);\n+       }\n+   }\n+   ```\n+\n+### Step 2 — Extend `Maze.h`\n+\n+1. After the existing `#include` lines add the `ScenarioType` enum class:\n+   ```cpp\n+   enum class ScenarioType {\n+       STRAIGHT_TUNNEL,\n+       CORNER_RIGHT,\n+       CORNER_LEFT,\n+       T_JUNCTION,\n+       FOUR_WAY_CROSSING\n+   };\n+   ```\n+\n+2. In the `private:` section, add:\n+   ```cpp\n+   void removeWallBetween(int x1, int y1, int x2, int y2);\n+   void generateScenario(ScenarioType type);\n+   ```\n+\n+3. In the `public:` section, add:\n+   ```cpp\n+   static Maze createScenario(ScenarioType type, int cell_size_cm = 20);\n+   void setGoalPosition(double x_cm, double y_cm);\n+   ```\n+\n+### Step 3 — Implement `Maze::setGoalPosition` and `Maze::removeWallBetween` in `Maze.cpp`\n+\n+```cpp\n+void Maze::setGoalPosition(double x_cm, double y_cm) {\n+    goal_position = Position(x_cm, y_cm);\n+}\n+\n+void Maze::removeWallBetween(int x1, int y1, int x2, int y2) {\n+    // Determine which walls to remove based on relative position\n+    int dx = x2 - x1;\n+    int dy = y2 - y1;\n+    if (dx == 1) {          // (x2,y2) is East of (x1,y1)\n+        grid[y1][x1].walls[1] = false;   // remove East wall of (x1,y1)\n+        grid[y2][x2].walls[3] = false;   // remove West wall of (x2,y2)\n+    } else if (dx == -1) {  // West\n+        grid[y1][x1].walls[3] = false;\n+        grid[y2][x2].walls[1] = false;\n+    } else if (dy == 1) {   // (x2,y2) is South of (x1,y1)\n+        grid[y1][x1].walls[2] = false;   // remove South wall of (x1,y1)\n+        grid[y2][x2].walls[0] = false;   // remove North wall of (x2,y2)\n+    } else if (dy == -1) {  // North\n+        grid[y1][x1].walls[0] = false;\n+        grid[y2][x2].walls[2] = false;\n+    }\n+}\n+```\n+\n+### Step 4 — Implement `Maze::createScenario` in `Maze.cpp`\n+\n+```cpp\n+Maze Maze::createScenario(ScenarioType type, int cell_size_cm) {\n+    // Determine grid dimensions per scenario\n+    int w = 0, h = 0;\n+    switch (type) {\n+        case ScenarioType::STRAIGHT_TUNNEL:    w = 3; h = 5; break;\n+        case ScenarioType::CORNER_RIGHT:       w = 5; h = 4; break;\n+        case ScenarioType::CORNER_LEFT:        w = 5; h = 4; break;\n+        case ScenarioType::T_JUNCTION:         w = 5; h = 5; break;\n+        case ScenarioType::FOUR_WAY_CROSSING:  w = 5; h = 5; break;\n+    }\n+    Maze maze(w, h, static_cast<double>(cell_size_cm), true /*tag*/);\n+    maze.generateScenario(type);\n+    return maze;\n+}\n+```\n+\n+### Step 5 — Implement `Maze::generateScenario` in `Maze.cpp`\n+\n+Define geometry, wall removals, and goal placement for all five scenarios:\n+\n+**STRAIGHT_TUNNEL** (3 × 5):\n+- Remove walls along centre column: for `r = 0..3`, call `removeWallBetween(1, r, 1, r+1)`.\n+- Goal: `setGoalPosition((1 + 0.5) * cell_size_cm, (4 + 0.5) * cell_size_cm)`.\n+\n+**CORNER_RIGHT** (5 × 4):\n+- Vertical: `removeWallBetween(1,0,1,1)`, `removeWallBetween(1,1,1,2)`.\n+- Horizontal: `removeWallBetween(1,2,2,2)`, `removeWallBetween(2,2,3,2)`, `removeWallBetween(3,2,4,2)`.\n+- Goal: `setGoalPosition((4+0.5)*cs, (2+0.5)*cs)`.\n+\n+**CORNER_LEFT** (5 × 4):\n+- Vertical: `removeWallBetween(3,0,3,1)`, `removeWallBetween(3,1,3,2)`.\n+- Horizontal: `removeWallBetween(0,2,1,2)`, `removeWallBetween(1,2,2,2)`, `removeWallBetween(2,2,3,2)`.\n+- Goal: `setGoalPosition((0+0.5)*cs, (2+0.5)*cs)`.\n+\n+**T_JUNCTION** (5 × 5):\n+- Vertical: `removeWallBetween(2,0,2,1)`, `(2,1,2,2)`, `(2,2,2,3)`.\n+- Horizontal: `removeWallBetween(1,3,2,3)`, `(2,3,3,3)`.\n+- Goal: arbitrarily pick `(1, 3)` as the primary goal position for `createScenario` (the `isAtGoal` helper checks both cells).\n+\n+**FOUR_WAY_CROSSING** (5 × 5):\n+- Vertical: `removeWallBetween(2,0,2,1)`, `(2,1,2,2)`, `(2,2,2,3)`, `(2,3,2,4)`.\n+- Horizontal: `removeWallBetween(0,2,1,2)`, `(1,2,2,2)`, `(2,2,3,2)`, `(3,2,4,2)`.\n+- Goal: arbitrarily pick `(2, 4)` as primary goal (others also checked in `isAtGoal`).\n+\n+### Step 6 — Create `include/ScenarioSimulation.h`\n+\n+```cpp\n+#pragma once\n+#include \"Maze.h\"\n+#include \"Config.h\"\n+#include \"Robot.h\"\n+#include <vector>\n+\n+struct ScenarioMetrics {\n+    ScenarioType  scenario;\n+    bool          traversal_success;\n+    int           steps_taken;\n+    double        distance_cm;\n+    double        min_clearance_cm;\n+    int           near_miss_count;\n+    int           collision_count;\n+};\n+\n+class ScenarioSimulation {\n+public:\n+    explicit ScenarioSimulation(const Config& cfg);\n+\n+    ScenarioMetrics              runScenario(ScenarioType type);\n+    std::vector<ScenarioMetrics> runSuite();\n+\n+private:\n+    Config config;\n+    bool isAtGoal(const Maze& maze, const Robot& robot, ScenarioType type) const;\n+};\n+```\n+\n+### Step 7 — Create `src/ScenarioSimulation.cpp`\n+\n+Implement `ScenarioSimulation`:\n+\n+1. **Constructor**: store `config`.\n+\n+2. **`runScenario(ScenarioType type)`**:\n+   - Call `Maze maze = Maze::createScenario(type, config.cell_size_cm)`.\n+   - Determine the start pose for each scenario:\n+     - `STRAIGHT_TUNNEL`:   cell `(1,0)`, θ = −π/2 (South; recall y increases downward and physics: South = negative-Y direction = θ = -π/2 per `CLAUDE.md`).\n+\n+       > **Important coordinate note from `CLAUDE.md`**: `theta = -PI/2` → South (DOWN, +Y direction). Despite the comment being slightly confusing, `Simulation.cpp` lines 62-63 confirm: `South wall open → theta = PI/2`. Wait — re-reading: comment says \"Face South (positive Y direction)\" maps to `initial_theta = PI/2`. So **South = +π/2**.  \n+       > Cross-check from kinematics: `new_y = y + linear_vel * sin(theta) * dt`. For the robot to move southward (increasing y), `sin(theta) > 0` → `theta = π/2`. So South heading = **θ = +π/2**.\n+\n+     - `CORNER_RIGHT`:       cell `(1,0)`, θ = +π/2 (South).\n+     - `CORNER_LEFT`:        cell `(3,0)`, θ = +π/2 (South).\n+     - `T_JUNCTION`:         cell `(2,0)`, θ = +π/2 (South).\n+     - `FOUR_WAY_CROSSING`:  cell `(2,0)`, θ = +π/2 (South).\n+   \n+   - Construct `Robot robot(config.robot_radius_cm, config.sensor_range_cm, config.sensor_angles_deg, config.sensor_noise_sigma_cm)`.\n+   - Call `robot.reset(start_x, start_y, start_theta)` where `start_x = (cell_x + 0.5) * config.cell_size_cm`, same for y.\n+   - Construct `WallFollower controller`.\n+   - Initialise `ScenarioMetrics m{type, false, 0, 0.0, std::numeric_limits<double>::max(), 0, 0}`.\n+   - Loop for up to `config.max_steps`:\n+     - Get `auto readings = robot.getSensorReadings(maze, false)` (no noise).\n+     - Compute `min_reading = *std::min_element(readings.begin(), readings.end())`.\n+     - Update `m.min_clearance_cm = std::min(m.min_clearance_cm, min_reading)`.\n+     - Increment `m.near_miss_count` if `min_reading < config.robot_radius_cm + 2.0`.\n+     - Save `Pose before = robot.getPose()`.\n+     - Call `controller.updatePosition(before.x_cm, before.y_cm)`.\n+     - Get velocities from `controller.computeVelocity(readings, config.robot_radius_cm + 20.0, 50.0)`.\n+     - Call `robot.update(config.timestep_s, linear_vel, angular_vel, maze)`.\n+     - Detect collision: if `robot.getPose().x_cm == before.x_cm && robot.getPose().y_cm == before.y_cm`, increment `m.collision_count`. (Use exact equality — both values come from the same floating-point computation path, so if position didn't change, the values are bitwise identical.)\n+     - Increment `m.steps_taken`.\n+     - If `isAtGoal(maze, robot, type)`: set `m.traversal_success = true`, break.\n+   - Set `m.distance_cm = robot.getTotalDistance()`.\n+   - Return `m`.\n+\n+3. **`isAtGoal`**: compute Euclidean distance from robot centre to the goal position stored in `maze.getGoalPosition()`. Return true if `< config.cell_size_cm / 2.0`. For multi-goal scenarios (T_JUNCTION, FOUR_WAY_CROSSING), check all alternate goal cell centres as well:\n+   - T_JUNCTION alternates: `(1,3)`, `(3,3)`.\n+   - FOUR_WAY_CROSSING alternates: `(0,2)`, `(4,2)`, `(2,4)`.\n+\n+4. **`runSuite`**: iterate in enum order:\n+   ```cpp\n+   for (auto t : {ScenarioType::STRAIGHT_TUNNEL, ScenarioType::CORNER_RIGHT,\n+                  ScenarioType::CORNER_LEFT, ScenarioType::T_JUNCTION,\n+                  ScenarioType::FOUR_WAY_CROSSING})\n+       results.push_back(runScenario(t));\n+   ```\n+\n+### Step 8 — Modify `main.cpp`\n+\n+1. Add includes at the top:\n+   ```cpp\n+   #include \"ScenarioSimulation.h\"\n+   #include <iomanip>\n+   #include <cstdio>\n+   ```\n+\n+2. Add helper to convert `ScenarioType` → string name (used in output):\n+   ```cpp\n+   static const char* scenarioName(ScenarioType t) {\n+       switch (t) {\n+           case ScenarioType::STRAIGHT_TUNNEL:   return \"STRAIGHT_TUNNEL\";\n+           case ScenarioType::CORNER_RIGHT:      return \"CORNER_RIGHT\";\n+           case ScenarioType::CORNER_LEFT:       return \"CORNER_LEFT\";\n+           case ScenarioType::T_JUNCTION:        return \"T_JUNCTION\";\n+           case ScenarioType::FOUR_WAY_CROSSING: return \"FOUR_WAY_CROSSING\";\n+       }\n+       return \"UNKNOWN\";\n+   }\n+   ```\n+\n+3. Add helpers to print single metric and suite table (using `std::printf` / `std::setw`).\n+\n+4. Before the existing `for (int i = 1; ...)` loop, detect `--scenario` and `--scenario-suite` in a preliminary pass:\n+   ```cpp\n+   bool run_scenario = false;\n+   bool run_suite = false;\n+   std::string scenario_name;\n+\n+   for (int i = 1; i < argc; i++) {\n+       if (strcmp(argv[i], \"--scenario\") == 0 && i + 1 < argc) {\n+           run_scenario = true;\n+           scenario_name = argv[++i];\n+       } else if (strcmp(argv[i], \"--scenario-suite\") == 0) {\n+           run_suite = true;\n+       }\n+   }\n+   ```\n+\n+5. After loading `Config` (reuse the existing load block, possibly extract to a helper or just duplicate the minimal load), if `run_scenario` or `run_suite`:\n+   - Set `config.enable_visualization = false`.\n+   - Construct `ScenarioSimulation sim(config)`.\n+   - If `run_scenario`: map `scenario_name` string → `ScenarioType`, call `sim.runScenario(type)`, print single-scenario output, return 0.\n+   - If `run_suite`: call `sim.runSuite()`, print table, return 0.\n+\n+   **Insertion point**: insert the scenario handling block right after the config is loaded and overrides applied, before the \"Print configuration summary\" `std::cout` block. This avoids duplicating the load logic.\n+\n+6. Update `printUsage` to document the two new flags.\n+\n+### Step 9 — Update `CMakeLists.txt`\n+\n+Append `src/ScenarioSimulation.cpp` to the `SOURCES` list (after `src/BatchSimulation.cpp`).\n+\n+---\n+\n+## Test Strategy\n+\n+### Build verification\n+- Run `cmake -B cmake-build-debug -S . && cmake --build cmake-build-debug` — must compile without warnings under `-Wall`.\n+\n+### Smoke tests (headless CLI)\n+1. `./cmake-build-debug/SimulationPathFinder --scenario straight_tunnel`  \n+   → exits 0, prints the single-scenario block, \"Traversal success : YES\" is expected (STRAIGHT_TUNNEL has a trivially clear tunnel).\n+\n+2. `./cmake-build-debug/SimulationPathFinder --scenario-suite`  \n+   → exits 0, prints a 5-row table; all rows have `YES` in SUCCESS for well-tuned WallFollower.\n+\n+3. `./cmake-build-debug/SimulationPathFinder --scenario corner_right`  \n+   → exits 0, output matches format in R6.\n+\n+4. `./cmake-build-debug/SimulationPathFinder --scenario invalid_name`  \n+   → exits non-zero with an error message, does not crash.\n+\n+5. Verify existing batch mode is unaffected:  \n+   `./cmake-build-debug/SimulationPathFinder --batch 2 --headless --output-dir ./test_output/`  \n+   → exits 0, generates CSV files as before.\n+\n+### Unit-level checks (manual inspection)\n+- After `createScenario(STRAIGHT_TUNNEL, 20)`, confirm `getWidthCells()==3`, `getHeightCells()==5`.\n+- Confirm `getGoalPosition()` centre is `(30.0, 90.0)` for STRAIGHT_TUNNEL (`cell (1,4)` at cell_size=20).\n+- Confirm walls are correctly removed: e.g., for cell `(1,0)` South wall is `false` and for `(1,1)` North wall is `false`.\n+\n+### Existing tests not affected\n+- There are no formal unit test files in the repo (no `test/` directory, no gtest).  The project's \"test\" is building and doing a short batch headless run (`test.sh` / `run_test.sh`).  Both scripts remain valid and unchanged by this feature.\n+\n+---\n+\n+## Risks and Edge Cases\n+\n+| Risk | Mitigation |\n+|---|---|\n+| **Heading direction confusion**: `CLAUDE.md` is ambiguous (says `theta=PI/2` is North but `Simulation.cpp` uses `theta=PI/2` for South). Kinematics confirm South = `sin(theta) > 0` = `+π/2`. | Use kinematics cross-check; document in code comment. |\n+| **Robot collides immediately at start** if cell_size_cm (20 cm) < 2 × robot_radius_cm (15 cm default from config, so diameter = 30 cm > 20 cm). | `createScenario` takes `cell_size_cm` separately (defaults to 20). The scenario call in `ScenarioSimulation` should pass `config.cell_size_cm` (the user-configured value, typically 50 cm from `config.json`) not the hardcoded 20 — or ensure that scenario runs with robot radius that fits. The spec says `cell_size_cm = 20` for geometry descriptions, but `ScenarioSimulation` passes `config.cell_size_cm`. This is the intent per R4 step 1. Document that the default `config.json` uses `cell_size_cm=50`, which is fine. |\n+| **Collision detection for metrics**: pose comparison via `==` on `double` is safe here because if the collision check in `Robot::update` prevents the move, the position variables are literally never modified — no arithmetic is performed on them. | Confirmed by reading `Robot.cpp` lines 93–101. |\n+| **T_JUNCTION / FOUR_WAY_CROSSING goal detection**: the stored goal position (set by `createScenario`) is only one of the valid goal cells. | `isAtGoal` must check all valid goal cells explicitly for these two scenarios. |\n+| **SDL2 linkage at scenario runtime**: `Renderer.cpp` and `SDL2` are always compiled in, even for headless scenario runs. This is fine — `Renderer` is never instantiated in scenario runs. `SDL2_Init` is not called. | No change needed. |\n+| **`WallFollower` debug output** (`debug_ = true` by default in `WallFollower.h`): the controller prints state transitions to stdout during scenario runs, which will intersperse with metric output. | Either note it in the plan or (optionally) construct `WallFollower` and call `forceRecovery` — but do NOT modify `WallFollower`. The scenario output will follow after all debug lines, which is acceptable. Alternatively, redirect stdout for the loop, but this is unnecessary complexity. The spec does not mandate suppression. |\n+| **`max_steps` from config**: the default config has `max_steps = 10000`. A scenario that the WallFollower cannot solve will run the full 10 000 steps, taking ~0.16 s headlessly (since no SDL2 sleep is involved). This is acceptable. | No change needed. |\n+| **`removeWallBetween` called with non-adjacent cells**: the helper silently does nothing for non-adjacent inputs since none of the `dx`/`dy` conditions match. The scenario geometries never call it with invalid inputs. | No error handling needed. |\ndiff --git a/run-tests.sh b/run-tests.sh\nnew file mode 100755\nindex 0000000..215803e\n--- /dev/null\n+++ b/run-tests.sh\n@@ -0,0 +1,38 @@\n+#!/bin/bash\n+set -euo pipefail\n+\n+# -- Sandbox dependencies -------------------------------------------------\n+# SimulationPathFinder requires cmake, build-essential, and libsdl2-dev.\n+# nlohmann/json is bundled as a git submodule (no system package needed).\n+if ! command -v cmake &>/dev/null; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends \\\n+    cmake build-essential git libsdl2-dev\n+fi\n+\n+# Also ensure libsdl2-dev is present even if cmake already exists\n+if ! dpkg -s libsdl2-dev &>/dev/null 2>&1; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends libsdl2-dev\n+fi\n+# -------------------------------------------------------------------------\n+\n+# Initialise submodules (nlohmann/json lives in external/json)\n+cd target-repo\n+git submodule update --init --recursive\n+\n+# -- Build ----------------------------------------------------------------\n+mkdir -p cmake-build-debug\n+cmake -B cmake-build-debug -S .\n+cmake --build cmake-build-debug\n+# -------------------------------------------------------------------------\n+\n+# -- Tests ----------------------------------------------------------------\n+# 1. Existing batch smoke test (verifies nothing regressed)\n+mkdir -p test_output\n+./cmake-build-debug/SimulationPathFinder --batch 2 --headless --output-dir ./test_output/\n+\n+# 2. Single scenario smoke test\n+./cmake-build-debug/SimulationPathFinder --scenario straight_tunnel\n+\n+# 3. Full scenario suite\n+./cmake-build-debug/SimulationPathFinder --scenario-suite\n+# -------------------------------------------------------------------------\ndiff --git a/target-repo b/target-repo\nnew file mode 160000\nindex 0000000..363b116\n--- /dev/null\n+++ b/target-repo\n@@ -0,0 +1 @@\n+Subproject commit 363b11611963ab4686a0fb4ebb7505642d0e48cd\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 367,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T06:27:48.829411458Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
           "graph.rankdir": "LR",
           "internal.work_dir": "/workspace/dark-factory-01",
           "internal.run_id": "01KRZE7FKPSYR8H53013FM84A0",
           "thread.planner.current_node": "plan",
-          "current_node": "plan",
+          "human.gate.label": "[A] Approve",
+          "human.gate.selected": "A",
+          "current_node": "gate_plan",
           "outcome": "succeeded",
           "last_response": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_r",
+          "human.gate.gate_plan.answer": "A",
+          "human.gate.gate_plan.question": "Approve Plan",
           "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
-          "internal.thread_id": "planner",
+          "preferred_label": "[A] Approve",
+          "internal.thread_id": "plan",
           "internal.node_visit_count": 1,
+          "thread.plan.current_node": "gate_plan",
           "failure_signature": "",
+          "internal.retry_count.gate_plan": 0,
           "internal.fidelity": "compact",
           "last_stage": "plan",
           "internal.retry_count.plan": 0,
           "failure_class": "",
           "graph.goal": "Implement the spec at specs/simulation-path-finder/scenario-testing.md in the target repository and open a pull request",
           "internal.retry_count.start": 0,
-          "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run"
+          "response.plan": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run",
+          "human.gate.gate_plan.label": "[A] Approve"
         },
         "node_outcomes": {
           "start": {
@@ -692,12 +790,28 @@
               "/workspace/dark-factory-01/plan.md",
               "/workspace/dark-factory-01/run-tests.sh"
             ]
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.label": "[A] Approve",
+              "human.gate.selected": "A",
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
           }
         },
-        "next_node_id": "gate_plan",
+        "next_node_id": "implement",
         "node_visits": {
           "plan": 1,
-          "start": 1
+          "start": 1,
+          "gate_plan": 1
         }
       },
       "diff": {}
@@ -721,7 +835,29 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KRZEDJY61DMRFJB2KMVFZ63Z": {
+      "question": {
+        "id": "01KRZEDJY61DMRFJB2KMVFZ63Z",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false,
+        "context_display": "Both files are written and the script is executable. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read\n- **Spec** (`specs/simulation-path-finder/scenario-testing.md`): `target_repo = volker-p/SimulationPathFinder`, `type = feature`. Extracted all 6 requirements (R1–R6) and 6 file-change targets.\n- **Cloned repo** and read: `CLAUDE.md` (build/architecture docs), `CMakeLists.txt`, `include/Maze.h`, `src/Maze.cpp`, `include/Robot.h`, `src/Robot.cpp`, `include/Config.h`, `include/WallFollower.h`, `src/Simulation.cpp`, `main.cpp`, `include/BatchSimulation.h`, plus all build scripts.\n\n### `plan.md` covers\n1. **Goal** — one sentence\n2. **Files to change** — table with all 6 entries (4 modified, 2 new)\n3. **Implementation checklist** — 9 concrete steps, each with exact code snippets or pseudocode a junior developer can follow:\n   - Steps 1–5: `Maze` changes (bypass constructor, `ScenarioType` enum, `setGoalPosition`, `removeWallBetween`, `createScenario`, `generateScenario` geometries)\n   - Steps 6–7: new `ScenarioSimulation` header and implementation (incl. the heading angle gotcha resolved from kinematics)\n   - Step 8: `main.cpp` CLI extension\n   - Step 9: `CMakeLists.txt` addition\n4. **Test strategy** — 5 CLI smoke tests + unit-level checks + confirmation existing tests are unaffected\n5. **Risks and edge cases** — 7 items including the heading direction ambiguity, cell-size vs robot-radius fit, float equality for collision detection, multi-goal scenarios, and SDL2 linkage\n\n### `run-tests.sh`\n- Installs `cmake`, `build-essential`, `git`, `libsdl2-dev` (handles both cmake-absent and cmake-present-but-SDL2-absent cases)\n- Initialises the `nlohmann/json` submodule\n- Configures and builds via CMake\n- Runs 3 tests: existing batch smoke, single-scenario run, full suite run"
+      },
+      "started_at": "2026-05-19T06:22:53.382839125Z"
+    }
+  },
   "stages": {
     "start@1": {
       "first_event_seq": 15,
@@ -756,7 +892,12 @@
       "first_event_seq": 19,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: plan",
+        "failure_reason": null,
+        "timestamp": "2026-05-19T06:22:50.691004237Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -769,6 +910,7 @@
       "output": null,
       "started_at": "2026-05-19T06:19:36.690131843Z",
       "handler": "agent",
+      "duration_ms": 194000,
       "usage": {
         "input_tokens": 34717,
         "output_tokens": 8674,
@@ -781,6 +923,29 @@
       "model": {
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
+      },
+      "state": "succeeded"
+    },
+    "gate_plan@1": {
+      "first_event_seq": 103,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T06:22:53.382766777Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
       },
       "state": "running"
     }
