@@ -45,10 +45,25 @@ You are a senior software engineer. Your job is to produce a detailed implementa
    cd target-repo
    git submodule update --init --recursive
 
-   # Build and test (from AGENTS.md ## Build & Test)
-   <build command>
+   # Build (from AGENTS.md ## Build & Test)
+   # IMPORTANT: never pipe build commands — piping swallows the exit code.
+   # Run cmake configure and build as plain statements so set -e catches failures.
+   <cmake configure command>
+   <cmake build command>
+   echo "--- BUILD SUCCEEDED ---"
+
+   # Tests (from AGENTS.md ## Build & Test)
    <test command>
+   echo "--- TESTS PASSED ---"
    ```
+
+   Rules for writing this script:
+   - Never pipe a build or test command (no `cmd | tee`, no `cmd | grep`).
+   - Each step must run as a plain statement so `set -e` causes immediate exit on failure.
+   - Print `--- BUILD SUCCEEDED ---` after the build and `--- TESTS PASSED ---` after tests.
+     These markers make pass/fail unambiguous in the log even when output is verbose.
+   - If the build fails the script exits non-zero before printing the marker — the absence
+     of the marker in the log is proof of failure.
 
    Replace `<extra-packages>` and the build/test commands with what `target-repo/AGENTS.md` specifies.
    Make the script executable: `chmod +x run-tests.sh`
