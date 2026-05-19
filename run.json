@@ -574,14 +574,136 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KS015YGX6ETB1RFAPA0YSBTP",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-19T11:50:47.614074372Z",
+    "run_branch": "fabro/run/01KS015YGX6ETB1RFAPA0YSBTP",
+    "base_sha": "aa7f88e4adbaa6ffe3818f6f6e8a35f7c118e390"
   },
-  "status_updated_at": "2026-05-19T11:50:46.242527300Z",
-  "last_event_at": "2026-05-19T11:50:47.338692220Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-19T11:50:47.614119259Z",
+  "last_event_at": "2026-05-19T11:54:04.133621628Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 19,
+      "checkpoint": {
+        "timestamp": "2026-05-19T11:50:48.919842863Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower.md in the target repository and open a pull request",
+          "internal.fidelity": "compact",
+          "internal.run_id": "01KS015YGX6ETB1RFAPA0YSBTP",
+          "outcome": "succeeded",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.thread_id": null,
+          "current_node": "start",
+          "failure_signature": "",
+          "internal.node_visit_count": 1,
+          "internal.retry_count.start": 0
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-19T11:54:04.223739446Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "thread.planner.current_node": "plan",
+          "internal.run_id": "01KS015YGX6ETB1RFAPA0YSBTP",
+          "internal.retry_count.start": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower.md in the target repository and open a pull request",
+          "internal.thread_id": "planner",
+          "internal.fidelity": "compact",
+          "graph.rankdir": "LR",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "plan",
+          "internal.node_visit_count": 1,
+          "last_response": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo",
+          "failure_class": "",
+          "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test",
+          "internal.retry_count.plan": 0,
+          "failure_signature": "",
+          "graph.model_stylesheet": "\n            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }\n            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }\n            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }\n        ",
+          "last_stage": "plan",
+          "outcome": "succeeded"
+        },
+        "node_outcomes": {
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "plan",
+              "last_response": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo",
+              "response.plan": "Both files are complete and correct. Here's a summary of what was produced:\n\n---\n\n## Summary\n\n### What I read and discovered\n\n1. **Spec** (`specs/simulation-path-finder/wall-follower.md`): Target repo is `volker-p/SimulationPathFinder`. Feature spec requiring a complete rewrite of `WallFollower` with a new `Config`-based interface and absolute-angle stop-scan-drive algorithm.\n\n2. **Target repo** has `CLAUDE.md` (not `AGENTS.md`) documenting a C++20/CMake project with SDL2 and nlohmann/json. Build command: `cmake --build cmake-build-debug`.\n\n3. **Critical mismatch discovered**: The spec mandates a new interface `WallFollower(const Config&)` + `update(Robot&, const Maze&)`, but two callers — `Simulation.cpp` and `ScenarioSimulation.cpp` — use the old interface extensively (`computeVelocity()`, `updatePosition()`, `setDebug()`, `getState()`, etc.). Both callers must be updated.\n\n4. **Config**: Three new fields need adding (`wall_follow_kp`, `wall_target_distance_cm`, `angle_tolerance_rad`); no JSON config keys need to change (use `value()` defaults).\n\n---\n\n### `plan.md` covers\n- **Goal**, **files-to-change** table (6 files including 2 callers)\n- **7-step checklist** with code-level detail (field additions, full algorithm sketch, `rotateToHeading` helper, sensor index strategy, caller update steps)\n- **Test strategy** (3 scenario assertions, suite smoke, static grep checks)\n- **12 identified risks** (sensor index approximation, field naming, detection threshold, DataLogger Action coupling, step-count budget, etc.)\n\n### `run-tests.sh` covers\n- Dependency detection/installation (`cmake`, `libsdl2-dev`)\n- Submodule init + CMake configure + build (no pipes, `set -e` safe)\n- `--- BUILD SUCCEEDED ---` and `--- TESTS PASSED ---` markers\n- Static grep assertions (no banned symbols, all 3 config fields present)\n- All 3 spec-mandated scenario assertions (`Traversal success: YES`)\n- Suite table smoke test (header/column/row presence)\n- Batch headless smoke test"
+            },
+            "notes": "Stage completed: plan",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 44324,
+                    "output_tokens": 9735,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 416649,
+                    "cache_write_tokens": 50646
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 50646,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 593913
+            },
+            "files_touched": [
+              "/workspace/dark-factory-01/plan.md",
+              "/workspace/dark-factory-01/run-tests.sh"
+            ]
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -601,5 +723,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "start@1": {
+      "first_event_seq": 16,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-19T11:50:48.919691267Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T11:50:48.919568763Z",
+      "handler": "start",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "plan@1": {
+      "first_event_seq": 20,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-19T11:50:48.919964044Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 44324,
+        "output_tokens": 9735,
+        "total_tokens": 521354,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 416649,
+        "cache_write_tokens": 50646,
+        "total_usd_micros": 593913
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    }
+  }
 }
