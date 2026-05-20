@@ -61,6 +61,8 @@ You are a senior software engineer. Your job is to produce a detailed implementa
    - Never pipe build or compile commands (no `cmake ... | tee`, no `make ... | grep`).
      Piping swallows the exit code; `set -e` cannot catch failures inside a pipeline.
    - Each build step must be a plain statement so `set -e` exits immediately on failure.
+   - The script must exit non-zero if **any single test fails** — ALL tests (including every
+     scenario test) must succeed. A partial pass is treated as a failure.
    - Print `--- BUILD SUCCEEDED ---` after the build and `--- TESTS PASSED ---` after all tests pass.
      Absence of a marker in the log is unambiguous proof of failure.
    - For test commands that produce output, redirect stdout to a temp file with `>`, then

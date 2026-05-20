@@ -42,8 +42,10 @@ digraph ImplementSpec {
         script="bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}"
     ]
 
-    // Route on pass/fail
-    test_gate [shape=diamond, label="Tests pass?"]
+    // "Pass" (Yes) requires the script to exit 0, which only happens when every single test
+    // succeeds — including all scenario tests (e.g. SimulationPathFinder scenario suite).
+    // One failing test = non-zero exit = "Fix" branch. There is no partial pass.
+    test_gate [shape=diamond, label="Tests pass?\n(ALL tests must succeed)"]
 
     // Fix failures — shares thread with implement for full context
     fix [
