@@ -205,7 +205,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-20T15:21:18.752730911Z",
-  "last_event_at": "2026-05-20T15:21:27.820188638Z",
+  "last_event_at": "2026-05-20T15:21:30.557194808Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -245,9 +245,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 33,
       "checkpoint": {
-        "timestamp": "2026-05-20T15:21:27.873968232Z",
+        "timestamp": "2026-05-20T15:21:30.556731975Z",
         "current_node": "greet",
         "completed_nodes": [
           "start",
@@ -255,25 +255,29 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.retry_count.greet": 0,
-          "failure_signature": "",
-          "response.greet": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomous development pipeline for this project.\n\nHere's what's happening right now:\n\n- 🏭 **Fabro** has spun up this agent run inside a Docker sandbox on `fabro.uawg.xyz`\n- 🤖 **I (Claude)** am the `agent` node executing in the `hello` workflow\n- ✅ This smoke-test run verifies that the full stack is wired up correctly — LLM routing, sandbox execution, and workflow graph traversal all the way through\n\n**The bigger picture:** Once this smoke test passes, the `implement-spec` workflow (Phase 2) can take a feature or bug spec from the `specs/` directory and autonomously produce merge-ready code — complete with a pull request — against the target service repository. No human in the loop until the PR review gate.\n\nIn short: if you're reading this message, the Fabro → Claude integration is **working** 🎉",
-          "graph.rankdir": "LR",
-          "outcome": "succeeded",
-          "internal.node_visit_count": 1,
-          "last_stage": "greet",
           "internal.thread_id": "start",
-          "last_response": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomou",
-          "internal.run_id": "01KS2ZM4NKPNV0HMN3RQKATJV3",
+          "graph.rankdir": "LR",
           "internal.retry_count.start": 0,
-          "failure_class": "",
-          "thread.start.current_node": "greet",
-          "internal.fidelity": "compact",
           "internal.work_dir": "/workspace/dark-factory-01",
+          "last_response": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomou",
+          "thread.start.current_node": "greet",
+          "graph.goal": "Say hello and demonstrate a basic Fabro workflow",
+          "internal.node_visit_count": 1,
+          "internal.retry_count.greet": 0,
+          "last_stage": "greet",
+          "failure_class": "",
+          "failure_signature": "",
+          "outcome": "succeeded",
+          "internal.fidelity": "compact",
+          "response.greet": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomous development pipeline for this project.\n\nHere's what's happening right now:\n\n- 🏭 **Fabro** has spun up this agent run inside a Docker sandbox on `fabro.uawg.xyz`\n- 🤖 **I (Claude)** am the `agent` node executing in the `hello` workflow\n- ✅ This smoke-test run verifies that the full stack is wired up correctly — LLM routing, sandbox execution, and workflow graph traversal all the way through\n\n**The bigger picture:** Once this smoke test passes, the `implement-spec` workflow (Phase 2) can take a feature or bug spec from the `specs/` directory and autonomously produce merge-ready code — complete with a pull request — against the target service repository. No human in the loop until the PR review gate.\n\nIn short: if you're reading this message, the Fabro → Claude integration is **working** 🎉",
           "current_node": "greet",
-          "graph.goal": "Say hello and demonstrate a basic Fabro workflow"
+          "internal.run_id": "01KS2ZM4NKPNV0HMN3RQKATJV3"
         },
         "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
           "greet": {
             "status": "succeeded",
             "context_updates": {
@@ -305,22 +309,56 @@
               },
               "total_usd_micros": 20241
             }
-          },
-          "start": {
-            "status": "succeeded",
-            "usage": null
           }
         },
         "next_node_id": "exit",
+        "git_commit_sha": "eaff248726b215a83332c78571ff9452706f2114",
         "node_visits": {
-          "start": 1,
-          "greet": 1
+          "greet": 1,
+          "start": 1
         }
       },
-      "diff": {}
+      "diff": {
+        "summary": {
+          "files_changed": 0,
+          "additions": 0,
+          "deletions": 0
+        }
+      }
     }
   ],
-  "conclusion": null,
+  "conclusion": {
+    "timestamp": "2026-05-20T15:21:30.583363627Z",
+    "status": "succeeded",
+    "duration_ms": 11806,
+    "final_git_commit_sha": "eaff248726b215a83332c78571ff9452706f2114",
+    "stages": [
+      {
+        "stage_id": "start",
+        "stage_label": "start",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "greet",
+        "stage_label": "greet",
+        "duration_ms": 7777,
+        "billing_usd_micros": 20241,
+        "retries": 0
+      }
+    ],
+    "billing": {
+      "input_tokens": 356,
+      "output_tokens": 325,
+      "total_tokens": 4494,
+      "reasoning_tokens": 0,
+      "cache_read_tokens": 0,
+      "cache_write_tokens": 3813,
+      "total_usd_micros": 20241
+    },
+    "total_retries": 0,
+    "diff": {}
+  },
   "sandbox": {
     "provider": "docker",
     "image": "buildpack-deps:noble",
@@ -340,11 +378,45 @@
   "superseded_by": null,
   "pending_interviews": {},
   "stages": {
+    "exit@1": {
+      "first_event_seq": 36,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-20T15:21:30.557194808Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-20T15:21:30.557142700Z",
+      "handler": "exit",
+      "duration_ms": 0,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
     "greet@1": {
       "first_event_seq": 20,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Stage completed: greet",
+        "failure_reason": null,
+        "timestamp": "2026-05-20T15:21:27.873781793Z"
+      },
       "provider_used": {
         "mode": "agent",
         "provider": "anthropic",
@@ -357,6 +429,7 @@
       "output": null,
       "started_at": "2026-05-20T15:21:20.095590561Z",
       "handler": "agent",
+      "duration_ms": 7777,
       "usage": {
         "input_tokens": 356,
         "output_tokens": 325,
@@ -370,7 +443,7 @@
         "provider": "anthropic",
         "model_id": "claude-sonnet-4-6"
       },
-      "state": "running"
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 16,
