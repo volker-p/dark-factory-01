@@ -2,12 +2,6 @@ digraph ImplementSpec {
     graph [
         goal="Implement the spec at {{ inputs.spec_path }} in the target repository and open a pull request"
         rankdir=LR
-        model_stylesheet="
-            *         { model: claude-sonnet-4-6; reasoning_effort: medium; }
-            .planner  { model: claude-sonnet-4-6; reasoning_effort: high; }
-            .coder    { model: claude-sonnet-4-6; reasoning_effort: high; }
-            .reviewer { model: claude-opus-4-7;   reasoning_effort: high; }
-        "
     ]
 
     start [shape=Mdiamond, label="Start"]
@@ -16,8 +10,8 @@ digraph ImplementSpec {
     // Read spec, clone target repo, write plan.md and run-tests.sh
     plan [
         label="Plan"
-        prompt="@prompts/plan.md"
-        class="planner"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh"
         timeout="300s"
     ]
 
@@ -27,10 +21,8 @@ digraph ImplementSpec {
     // Implement plan.md in target-repo/
     implement [
         label="Implement"
-        prompt="@prompts/implement.md"
-        class="coder"
-        thread_id="impl"
-        fidelity="full"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh"
         timeout="900s"
         max_visits=4
     ]
@@ -47,22 +39,20 @@ digraph ImplementSpec {
     // One failing test = non-zero exit = "Fix" branch. There is no partial pass.
     test_gate [shape=diamond, label="Tests pass?\n(ALL tests must succeed)"]
 
-    // Fix failures — shares thread with implement for full context
+    // Fix failures — reads test-output.txt and code directly
     fix [
         label="Fix"
-        prompt="@prompts/fix.md"
-        class="coder"
-        thread_id="impl"
-        fidelity="full"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-fix-agent.sh"
         timeout="600s"
         max_visits=3
     ]
 
-    // Independent model reviews implementation against spec (agent, not prompt — needs tool access)
+    // Independent model reviews implementation against spec
     review [
         label="Review"
-        prompt="@prompts/review.md"
-        class="reviewer"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-review-agent.sh"
         timeout="300s"
     ]
 
