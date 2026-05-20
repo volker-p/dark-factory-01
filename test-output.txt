@@ -1,0 +1,24 @@
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /repos/volker-p/dark-factory-01/target-repo/build
+[  7%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Config.cpp.o
+[ 14%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Maze.cpp.o
+[ 21%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Robot.cpp.o
+[ 28%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/SensorNoise.cpp.o
+[ 35%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/WallFollower.cpp.o
+[ 42%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Pathfinder.cpp.o
+[ 50%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/PerformanceMetrics.cpp.o
+[ 57%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/DataLogger.cpp.o
+[ 64%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Renderer.cpp.o
+[ 71%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/Simulation.cpp.o
+[ 78%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/BatchSimulation.cpp.o
+[ 85%] Building CXX object CMakeFiles/SimulationPathFinder.dir/src/ScenarioSimulation.cpp.o
+[ 92%] Building CXX object CMakeFiles/SimulationPathFinder.dir/main.cpp.o
+[100%] Linking CXX executable SimulationPathFinder
+[100%] Built target SimulationPathFinder
+--- BUILD SUCCEEDED ---
+PASS: --scenario straight_tunnel produces clean tabular output
+PASS: --scenario-suite produces tabular output with all expected columns
+PASS: --debug enables WallFollower trace on stderr
+PASS: --headless --batch 5 completes successfully
+--- TESTS PASSED ---

@@ -1,0 +1,3 @@
+REPO=volker-p/SimulationPathFinder
+PR_NUMBER=3
+BRANCH=factory/implementation-plan-physical-configuration-consoli-202605190950
