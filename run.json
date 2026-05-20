@@ -196,14 +196,130 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KS2ZM4NKPNV0HMN3RQKATJV3",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-20T15:21:18.752691703Z",
+    "run_branch": "fabro/run/01KS2ZM4NKPNV0HMN3RQKATJV3",
+    "base_sha": "b4e93716730d423d02c7b0ec86c3a77773a7f78b"
   },
-  "status_updated_at": "2026-05-20T15:21:17.309454377Z",
-  "last_event_at": "2026-05-20T15:21:18.495828922Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-20T15:21:18.752730911Z",
+  "last_event_at": "2026-05-20T15:21:27.820188638Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 19,
+      "checkpoint": {
+        "timestamp": "2026-05-20T15:21:20.095484362Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.run_id": "01KS2ZM4NKPNV0HMN3RQKATJV3",
+          "internal.fidelity": "compact",
+          "graph.goal": "Say hello and demonstrate a basic Fabro workflow",
+          "internal.node_visit_count": 1,
+          "failure_class": "",
+          "internal.thread_id": null,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "start",
+          "outcome": "succeeded",
+          "failure_signature": "",
+          "graph.rankdir": "LR",
+          "internal.retry_count.start": 0
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "greet",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-20T15:21:27.873968232Z",
+        "current_node": "greet",
+        "completed_nodes": [
+          "start",
+          "greet"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "internal.retry_count.greet": 0,
+          "failure_signature": "",
+          "response.greet": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomous development pipeline for this project.\n\nHere's what's happening right now:\n\n- 🏭 **Fabro** has spun up this agent run inside a Docker sandbox on `fabro.uawg.xyz`\n- 🤖 **I (Claude)** am the `agent` node executing in the `hello` workflow\n- ✅ This smoke-test run verifies that the full stack is wired up correctly — LLM routing, sandbox execution, and workflow graph traversal all the way through\n\n**The bigger picture:** Once this smoke test passes, the `implement-spec` workflow (Phase 2) can take a feature or bug spec from the `specs/` directory and autonomously produce merge-ready code — complete with a pull request — against the target service repository. No human in the loop until the PR review gate.\n\nIn short: if you're reading this message, the Fabro → Claude integration is **working** 🎉",
+          "graph.rankdir": "LR",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "last_stage": "greet",
+          "internal.thread_id": "start",
+          "last_response": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomou",
+          "internal.run_id": "01KS2ZM4NKPNV0HMN3RQKATJV3",
+          "internal.retry_count.start": 0,
+          "failure_class": "",
+          "thread.start.current_node": "greet",
+          "internal.fidelity": "compact",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "greet",
+          "graph.goal": "Say hello and demonstrate a basic Fabro workflow"
+        },
+        "node_outcomes": {
+          "greet": {
+            "status": "succeeded",
+            "context_updates": {
+              "last_stage": "greet",
+              "last_response": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomou",
+              "response.greet": "Hello! 👋 I'm **Claude**, an AI coding assistant made by Anthropic.\n\nThis is a test of the **Fabro workflow engine** — a self-hosted orchestration platform that powers the *dark factory* autonomous development pipeline for this project.\n\nHere's what's happening right now:\n\n- 🏭 **Fabro** has spun up this agent run inside a Docker sandbox on `fabro.uawg.xyz`\n- 🤖 **I (Claude)** am the `agent` node executing in the `hello` workflow\n- ✅ This smoke-test run verifies that the full stack is wired up correctly — LLM routing, sandbox execution, and workflow graph traversal all the way through\n\n**The bigger picture:** Once this smoke test passes, the `implement-spec` workflow (Phase 2) can take a feature or bug spec from the `specs/` directory and autonomously produce merge-ready code — complete with a pull request — against the target service repository. No human in the loop until the PR review gate.\n\nIn short: if you're reading this message, the Fabro → Claude integration is **working** 🎉"
+            },
+            "notes": "Stage completed: greet",
+            "usage": {
+              "input": {
+                "usage": {
+                  "model": {
+                    "provider": "anthropic",
+                    "model_id": "claude-sonnet-4-6"
+                  },
+                  "tokens": {
+                    "input_tokens": 356,
+                    "output_tokens": 325,
+                    "reasoning_tokens": 0,
+                    "cache_read_tokens": 0,
+                    "cache_write_tokens": 3813
+                  }
+                },
+                "facts": {
+                  "algorithm": "anthropic",
+                  "cache_write_5m_tokens": 3813,
+                  "cache_write_1h_tokens": 0
+                }
+              },
+              "total_usd_micros": 20241
+            }
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "exit",
+        "node_visits": {
+          "start": 1,
+          "greet": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -223,5 +339,67 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "greet@1": {
+      "first_event_seq": 20,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": {
+        "mode": "agent",
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6"
+      },
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-20T15:21:20.095590561Z",
+      "handler": "agent",
+      "usage": {
+        "input_tokens": 356,
+        "output_tokens": 325,
+        "total_tokens": 4494,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3813,
+        "total_usd_micros": 20241
+      },
+      "model": {
+        "provider": "anthropic",
+        "model_id": "claude-sonnet-4-6"
+      },
+      "state": "running"
+    },
+    "start@1": {
+      "first_event_seq": 16,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-20T15:21:20.094365918Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-20T15:21:20.093342879Z",
+      "handler": "start",
+      "duration_ms": 1,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    }
+  }
 }
