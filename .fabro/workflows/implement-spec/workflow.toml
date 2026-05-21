@@ -4,7 +4,10 @@ _version = 1
 graph = "workflow.fabro"
 
 [run.sandbox]
-provider = "local"
+provider = "docker"
+
+[run.sandbox.docker]
+image = "fabro-sandbox-claude:latest"
 
 [run.inputs]
 spec_path = "specs/example.md"

@@ -4,4 +4,4 @@ _version = 1
 graph = "workflow.fabro"
 
 [run.sandbox]
-provider = "local"
+provider = "docker"
