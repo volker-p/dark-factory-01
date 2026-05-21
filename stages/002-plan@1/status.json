@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "notes": null,
+  "failure_reason": "Script failed with exit code: 1\n\n## output\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n--dangerously-skip-permissions cannot be used with root/sudo privileges for security reasons\n",
+  "timestamp": "2026-05-21T06:54:04.197288996Z"
+}
