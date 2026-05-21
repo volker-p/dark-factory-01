@@ -1,0 +1,12 @@
+diff --git a/test-output.txt b/test-output.txt
+new file mode 100644
+index 0000000..62310c6
+--- /dev/null
++++ b/test-output.txt
+@@ -0,0 +1,6 @@
++E: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)
++E: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)
++Submodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'
++Cloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...
++Submodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'
++run-tests.sh: line 21: cmake: command not found
