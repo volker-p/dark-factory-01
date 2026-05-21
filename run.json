@@ -444,10 +444,11 @@
     "base_sha": "91603fa7b95123c98d360b74a7ec741a26548ddf"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-21T10:21:14.528642293Z",
-  "last_event_at": "2026-05-21T10:23:46.851907627Z",
+  "status_updated_at": "2026-05-21T10:28:49.770531326Z",
+  "last_event_at": "2026-05-21T11:16:39.122427314Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -950,9 +951,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 75,
       "checkpoint": {
-        "timestamp": "2026-05-21T10:28:46.856510357Z",
+        "timestamp": "2026-05-21T10:28:49.766185977Z",
         "current_node": "review",
         "completed_nodes": [
           "start",
@@ -965,45 +966,65 @@
         ],
         "node_retries": {},
         "context_values": {
-          "internal.work_dir": "/workspace/dark-factory-01",
-          "thread.implement.current_node": "test",
-          "internal.retry_count.gate_plan": 0,
-          "current_node": "review",
-          "command.output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781",
-          "preferred_label": "[A] Approve",
-          "internal.retry_count.start": 0,
-          "human.gate.selected": "A",
-          "internal.retry_count.test_gate": 0,
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
-          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
-          "internal.retry_count.test": 0,
-          "internal.node_visit_count": 1,
-          "human.gate.gate_plan.answer": "A",
-          "internal.retry_count.implement": 0,
           "human.gate.gate_plan.label": "[A] Approve",
-          "internal.retry_count.review": 0,
-          "failure_class": "transient_infra",
-          "graph.rankdir": "LR",
-          "failure_signature": "review|transient_infra|handler timed out after 300000ms",
-          "thread.gate_plan.current_node": "implement",
-          "thread.plan.current_node": "gate_plan",
           "internal.fidelity": "compact",
-          "thread.start.current_node": "plan",
-          "internal.retry_count.plan": 0,
-          "internal.thread_id": "test_gate",
-          "outcome": "failed",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
           "human.gate.label": "[A] Approve",
-          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.retry_count.test": 0,
+          "human.gate.selected": "A",
+          "thread.gate_plan.current_node": "implement",
+          "thread.implement.current_node": "test",
+          "failure_signature": "review|transient_infra|handler timed out after 300000ms",
+          "internal.retry_count.start": 0,
+          "internal.retry_count.implement": 0,
+          "thread.test.current_node": "test_gate",
           "thread.test_gate.current_node": "review",
-          "thread.test.current_node": "test_gate"
+          "thread.plan.current_node": "gate_plan",
+          "human.gate.gate_plan.answer": "A",
+          "failure_class": "transient_infra",
+          "internal.retry_count.review": 0,
+          "internal.thread_id": "test_gate",
+          "internal.retry_count.gate_plan": 0,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "preferred_label": "[A] Approve",
+          "graph.rankdir": "LR",
+          "command.output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781",
+          "current_node": "review",
+          "internal.retry_count.test_gate": 0,
+          "internal.node_visit_count": 1,
+          "human.gate.gate_plan.question": "Approve Plan",
+          "internal.retry_count.plan": 0,
+          "outcome": "failed",
+          "thread.start.current_node": "plan",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ"
         },
         "node_outcomes": {
-          "plan": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "test": {
+            "status": "failed",
+            "context_updates": {
+              "command.output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781"
+            },
+            "failure": {
+              "message": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
+              "category": "deterministic"
+            },
+            "usage": null
+          },
+          "implement": {
             "status": "succeeded",
             "context_updates": {
-              "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
+              "command.output": "blob://sha256/3a7e543e08d20fccfd0f8216541f738ae1b1c5605641afe5cbdb372cd49ea301"
             },
-            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh",
+            "usage": null
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
             "usage": null
           },
           "gate_plan": {
@@ -1021,28 +1042,12 @@
             },
             "usage": null
           },
-          "implement": {
+          "plan": {
             "status": "succeeded",
             "context_updates": {
-              "command.output": "blob://sha256/3a7e543e08d20fccfd0f8216541f738ae1b1c5605641afe5cbdb372cd49ea301"
+              "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
             },
-            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh",
-            "usage": null
-          },
-          "test": {
-            "status": "failed",
-            "context_updates": {
-              "command.output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781"
-            },
-            "failure": {
-              "message": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
-              "category": "deterministic"
-            },
-            "usage": null
-          },
-          "test_gate": {
-            "status": "succeeded",
-            "notes": "Conditional node evaluated: test_gate",
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
             "usage": null
           },
           "review": {
@@ -1053,27 +1058,91 @@
               "system_actor": "timeout"
             },
             "usage": null
-          },
-          "start": {
-            "status": "succeeded",
-            "usage": null
           }
         },
         "next_node_id": "gate_pr",
+        "git_commit_sha": "2b6ea864c75adfafcb249b7ec7d92b12b4781d5e",
+        "loop_failure_signatures": {
+          "test|deterministic|script failed with exit code: <n> ## output e: list directory /var/lib/apt/lists/partial is missing. - acquire (<n>: permission denied) e: list directory /var/lib/apt/lists/partial is missing. - acquire (<n>: permission denied) submodule 'e": 1
+        },
         "node_visits": {
-          "test": 1,
-          "review": 1,
-          "gate_plan": 1,
-          "plan": 1,
-          "test_gate": 1,
           "start": 1,
+          "test": 1,
+          "test_gate": 1,
+          "plan": 1,
+          "gate_plan": 1,
+          "review": 1,
           "implement": 1
         }
       },
-      "diff": {}
+      "diff": {
+        "summary": {
+          "files_changed": 4,
+          "additions": 324,
+          "deletions": 0
+        }
+      }
     }
   ],
-  "conclusion": null,
+  "conclusion": {
+    "timestamp": "2026-05-21T11:16:39.146115862Z",
+    "status": "failed",
+    "duration_ms": 3600006,
+    "failure": {
+      "reason": "workflow_error",
+      "detail": {
+        "message": "stall watchdog: node \"gate_pr\" had no activity for 1800s",
+        "category": "deterministic"
+      }
+    },
+    "final_git_commit_sha": "2b6ea864c75adfafcb249b7ec7d92b12b4781d5e",
+    "stages": [
+      {
+        "stage_id": "start",
+        "stage_label": "start",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "plan",
+        "stage_label": "plan",
+        "duration_ms": 209729,
+        "retries": 0
+      },
+      {
+        "stage_id": "gate_plan",
+        "stage_label": "gate_plan",
+        "duration_ms": 60333,
+        "retries": 0
+      },
+      {
+        "stage_id": "implement",
+        "stage_label": "implement",
+        "duration_ms": 125729,
+        "retries": 0
+      },
+      {
+        "stage_id": "test",
+        "stage_label": "test",
+        "duration_ms": 14370,
+        "retries": 0
+      },
+      {
+        "stage_id": "test_gate",
+        "stage_label": "test_gate",
+        "duration_ms": 1,
+        "retries": 0
+      },
+      {
+        "stage_id": "review",
+        "stage_label": "review",
+        "duration_ms": 300002,
+        "retries": 0
+      }
+    ],
+    "total_retries": 0,
+    "diff": {}
+  },
   "sandbox": {
     "provider": "docker",
     "image": "fabro-sandbox-claude:latest",
@@ -1091,41 +1160,48 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KS519BFA51NB8HP72EV5Z355": {
+      "question": {
+        "id": "01KS519BFA51NB8HP72EV5Z355",
+        "text": "Approve PR",
+        "stage": "gate_pr",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "M",
+            "label": "[M] Merge"
+          },
+          {
+            "key": "R",
+            "label": "[R] Rework"
+          }
+        ],
+        "allow_freeform": false
+      },
+      "started_at": "2026-05-21T10:28:49.770476424Z"
+    }
+  },
   "stages": {
-    "test@1": {
-      "first_event_seq": 51,
+    "test_gate@1": {
+      "first_event_seq": 61,
       "prompt": null,
       "response": null,
       "completion": {
-        "outcome": "failed",
-        "notes": null,
-        "failure_reason": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
-        "timestamp": "2026-05-21T10:23:40.746665915Z"
+        "outcome": "succeeded",
+        "notes": "Conditional node evaluated: test_gate",
+        "failure_reason": null,
+        "timestamp": "2026-05-21T10:23:43.837962040Z"
       },
       "provider_used": null,
       "diff": null,
-      "script_invocation": {
-        "script": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
-        "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
-        "language": "shell"
-      },
-      "script_timing": {
-        "output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781",
-        "exit_code": 127,
-        "duration_ms": 14366,
-        "termination": "exited",
-        "output_bytes": 494,
-        "live_streaming": true
-      },
+      "script_invocation": null,
+      "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "output_bytes": 494,
-      "live_streaming": true,
-      "termination": "exited",
-      "started_at": "2026-05-21T10:23:26.373061220Z",
-      "handler": "command",
-      "duration_ms": 14370,
+      "started_at": "2026-05-21T10:23:43.836119173Z",
+      "handler": "conditional",
+      "duration_ms": 1,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1134,13 +1210,18 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "failed"
+      "state": "succeeded"
     },
     "review@1": {
       "first_event_seq": 69,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "handler timed out after 300000ms",
+        "timestamp": "2026-05-21T10:28:46.854995140Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -1154,6 +1235,7 @@
       "output": null,
       "started_at": "2026-05-21T10:23:46.851368931Z",
       "handler": "command",
+      "duration_ms": 300002,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1162,36 +1244,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
-    },
-    "gate_plan@1": {
-      "first_event_seq": 29,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": null,
-        "failure_reason": null,
-        "timestamp": "2026-05-21T10:21:14.528780028Z"
-      },
-      "provider_used": null,
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-21T10:20:14.194814007Z",
-      "handler": "human",
-      "duration_ms": 60333,
-      "usage": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "total_tokens": 0,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 0,
-        "cache_write_tokens": 0
-      },
-      "state": "succeeded"
+      "state": "failed"
     },
     "implement@1": {
       "first_event_seq": 41,
@@ -1227,35 +1280,6 @@
       "started_at": "2026-05-21T10:21:17.771013082Z",
       "handler": "command",
       "duration_ms": 125729,
-      "usage": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "total_tokens": 0,
-        "reasoning_tokens": 0,
-        "cache_read_tokens": 0,
-        "cache_write_tokens": 0
-      },
-      "state": "succeeded"
-    },
-    "test_gate@1": {
-      "first_event_seq": 61,
-      "prompt": null,
-      "response": null,
-      "completion": {
-        "outcome": "succeeded",
-        "notes": "Conditional node evaluated: test_gate",
-        "failure_reason": null,
-        "timestamp": "2026-05-21T10:23:43.837962040Z"
-      },
-      "provider_used": null,
-      "diff": null,
-      "script_invocation": null,
-      "script_timing": null,
-      "parallel_results": null,
-      "output": null,
-      "started_at": "2026-05-21T10:23:43.836119173Z",
-      "handler": "conditional",
-      "duration_ms": 1,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -1310,6 +1334,49 @@
       },
       "state": "succeeded"
     },
+    "test@1": {
+      "first_event_seq": 51,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
+        "timestamp": "2026-05-21T10:23:40.746665915Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "command": "exec 2>&1\nbash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}",
+        "language": "shell"
+      },
+      "script_timing": {
+        "output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781",
+        "exit_code": 127,
+        "duration_ms": 14366,
+        "termination": "exited",
+        "output_bytes": 494,
+        "live_streaming": true
+      },
+      "parallel_results": null,
+      "output": null,
+      "output_bytes": 494,
+      "live_streaming": true,
+      "termination": "exited",
+      "started_at": "2026-05-21T10:23:26.373061220Z",
+      "handler": "command",
+      "duration_ms": 14370,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "failed"
+    },
     "start@1": {
       "first_event_seq": 15,
       "prompt": null,
@@ -1338,6 +1405,58 @@
         "cache_write_tokens": 0
       },
       "state": "succeeded"
+    },
+    "gate_plan@1": {
+      "first_event_seq": 29,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-21T10:21:14.528780028Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-21T10:20:14.194814007Z",
+      "handler": "human",
+      "duration_ms": 60333,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "gate_pr@1": {
+      "first_event_seq": 78,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-21T10:28:49.769954414Z",
+      "handler": "human",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
     }
   }
 }
