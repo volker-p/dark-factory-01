@@ -1,0 +1,6 @@
+{
+  "outcome": "failed",
+  "notes": null,
+  "failure_reason": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
+  "timestamp": "2026-05-21T10:23:40.746665915Z"
+}

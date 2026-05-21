@@ -447,7 +447,7 @@
     "kind": "running"
   },
   "status_updated_at": "2026-05-21T10:21:14.528642293Z",
-  "last_event_at": "2026-05-21T10:23:40.743540039Z",
+  "last_event_at": "2026-05-21T10:23:42.061290748Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -720,25 +720,27 @@
     {
       "seq": 0,
       "checkpoint": {
-        "timestamp": "2026-05-21T10:23:40.747639130Z",
-        "current_node": "test",
+        "timestamp": "2026-05-21T10:23:43.838923338Z",
+        "current_node": "test_gate",
         "completed_nodes": [
           "start",
           "plan",
           "gate_plan",
           "implement",
-          "test"
+          "test",
+          "test_gate"
         ],
         "node_retries": {},
         "context_values": {
           "internal.work_dir": "/workspace/dark-factory-01",
           "thread.implement.current_node": "test",
           "internal.retry_count.gate_plan": 0,
-          "current_node": "test",
+          "current_node": "test_gate",
           "command.output": "blob://sha256/86a06c479094e3eaf26a35ff55a2232a3ec53e9c21431714ad7ed5a7f7474781",
           "preferred_label": "[A] Approve",
           "internal.retry_count.start": 0,
           "human.gate.selected": "A",
+          "internal.retry_count.test_gate": 0,
           "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
           "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
           "internal.retry_count.test": 0,
@@ -746,18 +748,19 @@
           "human.gate.gate_plan.answer": "A",
           "internal.retry_count.implement": 0,
           "human.gate.gate_plan.label": "[A] Approve",
-          "failure_class": "deterministic",
+          "failure_class": "",
           "graph.rankdir": "LR",
-          "failure_signature": "test|deterministic|script failed with exit code: <n> ## output e: list directory /var/lib/apt/lists/partial is missing. - acquire (<n>: permission denied) e: list directory /var/lib/apt/lists/partial is missing. - acquire (<n>: permission denied) submodule 'e",
+          "failure_signature": "",
           "thread.gate_plan.current_node": "implement",
           "thread.plan.current_node": "gate_plan",
           "internal.fidelity": "compact",
           "thread.start.current_node": "plan",
           "internal.retry_count.plan": 0,
-          "internal.thread_id": "implement",
-          "outcome": "failed",
+          "internal.thread_id": "test",
+          "outcome": "succeeded",
           "human.gate.label": "[A] Approve",
-          "human.gate.gate_plan.question": "Approve Plan"
+          "human.gate.gate_plan.question": "Approve Plan",
+          "thread.test.current_node": "test_gate"
         },
         "node_outcomes": {
           "start": {
@@ -777,6 +780,11 @@
               "human.gate.label": "[A] Approve",
               "human.gate.gate_plan.label": "[A] Approve"
             },
+            "usage": null
+          },
+          "test_gate": {
+            "status": "succeeded",
+            "notes": "Conditional node evaluated: test_gate",
             "usage": null
           },
           "implement": {
@@ -807,11 +815,12 @@
             "usage": null
           }
         },
-        "next_node_id": "test_gate",
+        "next_node_id": "review",
         "node_visits": {
           "test": 1,
           "gate_plan": 1,
           "plan": 1,
+          "test_gate": 1,
           "start": 1,
           "implement": 1
         }
@@ -843,7 +852,12 @@
       "first_event_seq": 51,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "Script failed with exit code: 127\n\n## output\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nE: List directory /var/lib/apt/lists/partial is missing. - Acquire (13: Permission denied)\nSubmodule 'external/json' (https://github.com/nlohmann/json.git) registered for path 'external/json'\nCloning into '/repos/volker-p/dark-factory-01/target-repo/external/json'...\nSubmodule path 'external/json': checked out '515d994acbac04e0efa41db21e0d16591f6f97c9'\nrun-tests.sh: line 21: cmake: command not found\n",
+        "timestamp": "2026-05-21T10:23:40.746665915Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -866,6 +880,7 @@
       "termination": "exited",
       "started_at": "2026-05-21T10:23:26.373061220Z",
       "handler": "command",
+      "duration_ms": 14370,
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -874,7 +889,7 @@
         "cache_read_tokens": 0,
         "cache_write_tokens": 0
       },
-      "state": "running"
+      "state": "failed"
     },
     "gate_plan@1": {
       "first_event_seq": 29,
