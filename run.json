@@ -444,10 +444,11 @@
     "base_sha": "91603fa7b95123c98d360b74a7ec741a26548ddf"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-21T10:16:39.122402536Z",
-  "last_event_at": "2026-05-21T10:16:41.263482550Z",
+  "status_updated_at": "2026-05-21T10:20:14.195293443Z",
+  "last_event_at": "2026-05-21T10:20:14.195293443Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -487,9 +488,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 26,
       "checkpoint": {
-        "timestamp": "2026-05-21T10:20:10.994821350Z",
+        "timestamp": "2026-05-21T10:20:14.192082901Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -497,21 +498,21 @@
         ],
         "node_retries": {},
         "context_values": {
+          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
+          "internal.thread_id": "start",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "internal.node_visit_count": 1,
+          "thread.start.current_node": "plan",
+          "internal.retry_count.plan": 0,
+          "outcome": "succeeded",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.retry_count.start": 0,
           "failure_class": "",
           "graph.rankdir": "LR",
-          "internal.work_dir": "/workspace/dark-factory-01",
-          "failure_signature": "",
-          "internal.fidelity": "compact",
           "current_node": "plan",
-          "thread.start.current_node": "plan",
-          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
-          "internal.retry_count.plan": 0,
-          "internal.retry_count.start": 0,
-          "internal.thread_id": "start",
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
-          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
-          "outcome": "succeeded",
-          "internal.node_visit_count": 1
+          "failure_signature": "",
+          "internal.fidelity": "compact"
         },
         "node_outcomes": {
           "plan": {
@@ -528,7 +529,89 @@
           }
         },
         "next_node_id": "gate_plan",
+        "git_commit_sha": "29cc1b0372808676d15a9e612c0d1f62def99400",
         "node_visits": {
+          "plan": 1,
+          "start": 1
+        }
+      },
+      "diff": {
+        "patch": "diff --git a/plan.md b/plan.md\nnew file mode 100644\nindex 0000000..3c78273\n--- /dev/null\n+++ b/plan.md\n@@ -0,0 +1,246 @@\n+# Implementation Plan: Sensor Config & Trajectory Tracing\n+\n+## Goal\n+\n+Add a configurable wall-scan-angles field to `Config`, replace the hardcoded two-scan loop in `WallFollower` with a loop driven by that field, expose per-step scan and decision data via public getters, implement a `--trace` CLI flag that writes a per-step CSV to a user-supplied path, and append trace-usage instructions to `fix.md` in dark-factory-01.\n+\n+---\n+\n+## Files to Change\n+\n+| File | What changes and why |\n+|------|----------------------|\n+| `include/Config.h` | Add `wall_scan_angles_deg` (`std::vector<double>`) field after `angle_tolerance_rad` in the wall-follower block so the scan angles are configurable at runtime |\n+| `src/Config.cpp` | Parse `wall_scan_angles_deg` via `.value()` with default `{-90.0, 90.0}`; add validation guard in `Config::validate()` rejecting an empty vector |\n+| `include/WallFollower.h` | Add nested `ScanResult` and `DecisionInfo` structs (public); add `getLastScanResults()` and `getLastDecision()` const getters; add private `last_scan_results_` and `last_decision_` members |\n+| `src/WallFollower.cpp` | Remove the hardcoded two-rotation/read block and the `scanReading()` helper; replace with a loop over `cfg_.wall_scan_angles_deg`; identify leftmost/rightmost walls from scan results; compute new heading using the R4/R5 case table; populate `last_decision_` before the drive step |\n+| `include/ScenarioSimulation.h` | Add `void writeTraceHeader(std::ostream& out) const`; update `runScenario` signature to `ScenarioMetrics runScenario(ScenarioType type, std::ostream* trace_out = nullptr)`; update `runSuite` signature to `std::vector<ScenarioMetrics> runSuite(std::ostream* trace_out = nullptr)` |\n+| `src/ScenarioSimulation.cpp` | Implement `writeTraceHeader` (dynamic sensor columns); add per-step trace writing inside the `runScenario` step loop: capture pose before/after update, derive `collided`, read `getLastScanResults()`/`getLastDecision()`, write one CSV row |\n+| `src/main.cpp` | Parse `--trace <filepath>` in the argument loop; open `std::ofstream` and call `sim.writeTraceHeader()` when path is non-empty; pass the stream pointer to `runScenario`/`runSuite`; update `printUsage()` |\n+| `.fabro/workflows/implement-spec/prompts/fix.md` *(dark-factory-01)* | Append the \"Scenario-test failures: use the trace\" block (with the three grep/sed commands) so the fix agent has step-by-step trace-reading instructions |\n+\n+---\n+\n+## Implementation Checklist\n+\n+### 1. `include/Config.h` — add field\n+\n+1. Open `include/Config.h`.\n+2. Locate the wall-follower parameter block (after `angle_tolerance_rad`).\n+3. Insert:\n+   ```cpp\n+   std::vector<double> wall_scan_angles_deg;   // degrees, relative to current heading\n+   ```\n+4. Verify `#include <vector>` is already present at the top (it is).\n+\n+### 2. `src/Config.cpp` — parse and validate\n+\n+1. Open `src/Config.cpp`, find the wall-follower optional parsing block (after `angle_tolerance_rad`).\n+2. Add:\n+   ```cpp\n+   config.wall_scan_angles_deg = j.value(\n+       \"wall_scan_angles_deg\",\n+       std::vector<double>{-90.0, 90.0}\n+   );\n+   ```\n+3. In `Config::validate()`, after the `sensor_angles_deg.empty()` guard, add:\n+   ```cpp\n+   if (wall_scan_angles_deg.empty()) {\n+       std::cerr << \"Error: wall_scan_angles_deg must not be empty\\n\";\n+       return false;\n+   }\n+   ```\n+4. Do **not** modify `config.json`.\n+\n+### 3. `include/WallFollower.h` — structs, getters, private members\n+\n+1. In the `public:` section of `WallFollower`, add:\n+   ```cpp\n+   struct ScanResult {\n+       double angle_deg;\n+       double distance_cm;\n+   };\n+\n+   struct DecisionInfo {\n+       enum class Kind { TUNNEL, RIGHT_WALL, LEFT_WALL, NO_WALL } kind;\n+       double wall_left_dist_cm;\n+       double wall_right_dist_cm;\n+       double correction_rad;\n+       double new_heading_rad;\n+   };\n+\n+   const std::vector<ScanResult>& getLastScanResults() const { return last_scan_results_; }\n+   const DecisionInfo& getLastDecision() const { return last_decision_; }\n+   ```\n+2. In the `private:` section, add:\n+   ```cpp\n+   std::vector<ScanResult> last_scan_results_;\n+   DecisionInfo last_decision_{};\n+   ```\n+\n+### 4. `src/WallFollower.cpp` — configurable scan loop\n+\n+1. Locate `WallFollower::update()`.\n+2. Remove the existing two-rotation block (rotate left → read → rotate right → read) and any `scanReading()` helper.\n+3. After recording `current_heading_rad_`, replace removed code with:\n+   ```cpp\n+   last_scan_results_.clear();\n+   last_scan_results_.reserve(cfg_.wall_scan_angles_deg.size());\n+\n+   for (double angle_deg : cfg_.wall_scan_angles_deg) {\n+       double target = normalise(current_heading_rad_ + angle_deg * M_PI / 180.0);\n+       rotateToHeading(robot, maze, target);\n+       auto readings = robot.getSensorReadings(maze, /*with_noise=*/false);\n+       last_scan_results_.push_back({angle_deg, readings[0]});\n+   }\n+   ```\n+4. After the loop, identify leftmost and rightmost walls:\n+   ```cpp\n+   double dist_left  = std::numeric_limits<double>::infinity();\n+   double dist_right = std::numeric_limits<double>::infinity();\n+   const ScanResult* left_entry  = nullptr;\n+   const ScanResult* right_entry = nullptr;\n+\n+   for (const auto& sr : last_scan_results_) {\n+       if (sr.distance_cm < cfg_.sensor_range_cm) {\n+           if (!left_entry  || sr.angle_deg > left_entry->angle_deg)  left_entry  = &sr;\n+           if (!right_entry || sr.angle_deg < right_entry->angle_deg) right_entry = &sr;\n+       }\n+   }\n+   if (left_entry)  dist_left  = left_entry->distance_cm;\n+   if (right_entry) dist_right = right_entry->distance_cm;\n+   ```\n+5. Implement the R4/R5 heading-correction table:\n+   - Both detected → `TUNNEL`, `error = dist_right − dist_left`, `correction = clamp(kp*error, -π/4, π/4)`, `new_heading = normalise(current + correction)`\n+   - Right only → `RIGHT_WALL`, `correction = kp*(dist_right − wall_target)`, `new_heading = normalise(current − correction)`\n+   - Left only → `LEFT_WALL`, `correction = kp*(dist_left − wall_target)`, `new_heading = normalise(current + correction)`\n+   - Neither → `NO_WALL`, `correction = 0`, `new_heading = current_heading_rad_`\n+6. Populate `last_decision_` before the drive step:\n+   ```cpp\n+   last_decision_ = {kind, dist_left, dist_right, correction, new_heading};\n+   ```\n+7. Rotate to `new_heading` and drive forward:\n+   ```cpp\n+   rotateToHeading(robot, maze, new_heading);\n+   robot.update(cfg_.timestep_s, cfg_.linear_velocity_cm_per_s, 0.0, maze);\n+   current_heading_rad_ = normalise(robot.getPose().theta_rad);\n+   ```\n+\n+### 5. `include/ScenarioSimulation.h` — new signatures\n+\n+1. Add `#include <ostream>` if not present.\n+2. Add the public method:\n+   ```cpp\n+   void writeTraceHeader(std::ostream& out) const;\n+   ```\n+3. Change `runScenario` to:\n+   ```cpp\n+   ScenarioMetrics runScenario(ScenarioType type, std::ostream* trace_out = nullptr);\n+   ```\n+4. Change `runSuite` to:\n+   ```cpp\n+   std::vector<ScenarioMetrics> runSuite(std::ostream* trace_out = nullptr);\n+   ```\n+\n+### 6. `src/ScenarioSimulation.cpp` — trace writing\n+\n+1. Implement `writeTraceHeader`:\n+   ```cpp\n+   void ScenarioSimulation::writeTraceHeader(std::ostream& out) const {\n+       out << \"step,x_cm,y_cm,heading_deg,cell_x,cell_y\";\n+       for (std::size_t i = 0; i < config.wall_scan_angles_deg.size(); ++i) {\n+           int a = static_cast<int>(std::round(config.wall_scan_angles_deg[i]));\n+           out << \",sensor_\" << i << \"_angle_\" << a << \"_cm\";\n+       }\n+       out << \",decision,wall_left_dist_cm,wall_right_dist_cm\"\n+              \",correction_rad,new_heading_deg,collided\\n\";\n+   }\n+   ```\n+   Add `#include <cmath>` and `#include <iomanip>` if not already present.\n+2. In `runScenario`, inside the step loop:\n+   a. Capture `Pose before = robot.getPose()` before `controller.update()`.\n+   b. Call `controller.update(robot, maze)`.\n+   c. Capture `Pose after = robot.getPose()`; derive `collided = (after.x == before.x && after.y == before.y) ? 1 : 0`.\n+   d. If `trace_out != nullptr`, format and write one CSV row using `controller.getLastScanResults()` and `controller.getLastDecision()`.\n+     - Use `std::fixed` with `std::setprecision(2)` for distances, `setprecision(1)` for degree headings, `setprecision(4)` for correction_rad.\n+     - Write `inf` (not `1e+inf`) for infinite distances.\n+     - `heading_deg` and `new_heading_deg` normalised to `[0, 360)`.\n+     - `cell_x = static_cast<int>(before.x_cm / config.cell_size_cm)`, same for `cell_y`.\n+     - `step` counter resets to 0 at the start of each `runScenario` call (suite runs get per-scenario reset automatically).\n+3. In `runSuite`, pass `trace_out` through to each `runScenario` call (step counter resets per scenario).\n+\n+### 7. `src/main.cpp` — `--trace` flag\n+\n+1. Declare `std::string trace_path;` among the top-level variable declarations (initialised to empty string).\n+2. In the argument-parsing loop, add:\n+   ```cpp\n+   } else if (strcmp(argv[i], \"--trace\") == 0 && i + 1 < argc) {\n+       trace_path = argv[++i];\n+   }\n+   ```\n+3. In `printUsage()`, add the line:\n+   ```\n+     --trace <filepath>    Write per-step trace CSV during --scenario / --scenario-suite runs\n+   ```\n+4. In the scenario-handling block (inside `if (run_scenario || run_suite)`), after `ScenarioSimulation sim(config);`:\n+   ```cpp\n+   std::ofstream trace_file;\n+   std::ostream* trace_out = nullptr;\n+\n+   if (!trace_path.empty()) {\n+       trace_file.open(trace_path);\n+       if (!trace_file.is_open()) {\n+           std::cerr << \"Error: cannot open trace file: \" << trace_path << \"\\n\";\n+           return 1;\n+       }\n+       sim.writeTraceHeader(trace_file);\n+       trace_out = &trace_file;\n+   }\n+   ```\n+5. Pass `trace_out` to `sim.runSuite(trace_out)` and `sim.runScenario(type, trace_out)`.\n+6. `--trace` used without `--scenario`/`--scenario-suite` must be a no-op (no file created, no error). This is satisfied because `trace_path` is ignored outside the scenario block.\n+\n+### 8. `.fabro/workflows/implement-spec/prompts/fix.md` (dark-factory-01)\n+\n+1. Open `.fabro/workflows/implement-spec/prompts/fix.md` in the **dark-factory-01** repo (not target-repo).\n+2. Append one blank line after the last existing line, then paste the \"Scenario-test failures: use the trace\" block verbatim from the spec (R5).\n+\n+---\n+\n+## Test Strategy\n+\n+### Existing tests to verify are unbroken\n+\n+- `--scenario-suite` run without `--trace`: output table must include `STRAIGHT_TUNNEL` and all five scenario rows. Zero regression on metrics.\n+- `--headless --batch N` runs: must still complete without error.\n+\n+### New behaviour to verify\n+\n+1. **Config default** — running without a `wall_scan_angles_deg` key in `config.json` still produces two scan angles (`-90`, `+90`).\n+2. **Validation** — passing an empty `wall_scan_angles_deg` array via a custom JSON should cause `Config::loadFromFile` to throw (non-zero exit).\n+3. **Trace file created** — `--scenario straight_tunnel --trace /tmp/t.csv` creates `/tmp/t.csv`.\n+4. **Header fixed columns** — first line contains `step,x_cm,y_cm,heading_deg,cell_x,cell_y`.\n+5. **Header sensor columns** — default config produces `sensor_0_angle_-90_cm` and `sensor_1_angle_90_cm`.\n+6. **Header decision columns** — `decision,wall_left_dist_cm,wall_right_dist_cm,correction_rad,new_heading_deg,collided`.\n+7. **Data rows present** — file has ≥ 2 lines (header + ≥ 1 data row).\n+8. **Collided column** — every value in the last column is exactly `0` or `1`.\n+9. **Suite trace** — `--scenario-suite --trace /tmp/suite_trace.csv` creates the file; `step` resets to 0 for each scenario.\n+10. **Silent no-op** — `--headless --batch 1 --trace /tmp/ignored.csv` exits 0 and does not create the file (trace_path is ignored outside scenario block).\n+11. **Headless batch unbroken** — `--headless --batch 3` completes with exit 0.\n+\n+### No unit tests to add (no test framework in repo)\n+\n+All verification is via the binary's exit code and stdout/file assertions in `run-tests.sh`.\n+\n+---\n+\n+## Risks and Edge Cases\n+\n+1. **Angle column sign formatting** — `static_cast<int>(std::round(-90.0))` produces `-90` which formats correctly as `sensor_0_angle_-90_cm`. Verify that no locale or printf formatting accidentally drops the minus sign.\n+2. **`inf` vs platform-specific infinity strings** — `std::isinf(d)` must be tested before using `std::fixed`/`std::setprecision`; otherwise C++ may write `inf`, `Inf`, or `1#INF` depending on platform and library version. Always branch on `std::isinf` and write the literal string `\"inf\"`.\n+3. **Collided detection false positives** — comparing `after.x == before.x` (floating-point equality) works only because `robot.update()` either moves the robot by a measurable delta or leaves it exactly unchanged when blocked. This is safe for the current physics implementation but would break under sub-step integrators.\n+4. **Suite step counter reset** — `runSuite` calls `runScenario` five times; each call has its own local `step` counter starting at 0, so resets happen naturally. No extra bookkeeping needed.\n+5. **Empty scan results when `wall_scan_angles_deg` has only 0°-angle entries** — a scan at exactly 0° reads the front sensor, which contributes no lateral information. The leftmost/rightmost selection logic correctly ignores it (angle_deg = 0 is neither the most-positive nor most-negative among non-zero angles). However, with only a 0° scan, both `left_entry` and `right_entry` may resolve to the same entry; the `NO_WALL` path will be taken if that single entry is at range, which is acceptable.\n+6. **Trace file path not writable** — the open-failure path (`if (!trace_file.is_open())`) returns exit code 1 immediately. Ensure this path is tested or at minimum not silently swallowed.\n+7. **`--Wall -Wextra` warnings** — `std::numeric_limits` requires `<limits>`; `std::round` requires `<cmath>`; ensure all headers are included in both `.h` and `.cpp` files where these are used.\n+8. **`runSuite` passes `trace_out` to a shared file** — all five scenarios append to the same `ofstream`. The header is written once (by `writeTraceHeader` in `main`), and each scenario writes rows immediately. The file must remain open for the duration of the suite run; `trace_file` in `main` lives long enough since it is declared before `sim.runSuite()` is called.\ndiff --git a/run-tests.sh b/run-tests.sh\nnew file mode 100755\nindex 0000000..d44175d\n--- /dev/null\n+++ b/run-tests.sh\n@@ -0,0 +1,71 @@\n+#!/bin/bash\n+set -euo pipefail\n+\n+# -- Sandbox dependencies -------------------------------------------------\n+# Install system packages required to build: cmake, build tools, SDL2, git.\n+if ! command -v cmake &>/dev/null; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends \\\n+    cmake build-essential git libsdl2-dev\n+fi\n+\n+if ! dpkg -s libsdl2-dev &>/dev/null 2>&1; then\n+  apt-get update -qq && apt-get install -y --no-install-recommends libsdl2-dev\n+fi\n+# -------------------------------------------------------------------------\n+\n+# Initialise submodules (nlohmann/json lives in external/)\n+cd target-repo\n+git submodule update --init --recursive\n+\n+# Build\n+cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS=\"-Wall -Wextra\"\n+cmake --build build\n+echo \"--- BUILD SUCCEEDED ---\"\n+\n+# -- Tests ----------------------------------------------------------------\n+\n+# 2. Suite still works unchanged\n+./build/SimulationPathFinder --scenario-suite > /tmp/suite.txt\n+grep -q \"STRAIGHT_TUNNEL\" /tmp/suite.txt || { echo \"FAIL: suite output missing STRAIGHT_TUNNEL\"; exit 1; }\n+echo \"--- SUITE OK ---\"\n+\n+# 3. Single scenario with trace creates the file\n+./build/SimulationPathFinder --scenario straight_tunnel --trace /tmp/t.csv\n+test -f /tmp/t.csv || { echo \"FAIL: trace file not created\"; exit 1; }\n+\n+# 4. Header — fixed columns\n+head -1 /tmp/t.csv > /tmp/header.txt\n+grep -q \"step,x_cm,y_cm,heading_deg,cell_x,cell_y\" /tmp/header.txt \\\n+    || { echo \"FAIL: header missing fixed columns\"; exit 1; }\n+\n+# 5. Header — default sensor columns\n+grep -q \"sensor_0_angle_-90_cm\" /tmp/header.txt \\\n+    || { echo \"FAIL: sensor_0_angle_-90_cm column missing\"; exit 1; }\n+grep -q \"sensor_1_angle_90_cm\" /tmp/header.txt \\\n+    || { echo \"FAIL: sensor_1_angle_90_cm column missing\"; exit 1; }\n+\n+# 6. Header — decision columns\n+grep -q \"decision,wall_left_dist_cm,wall_right_dist_cm,correction_rad,new_heading_deg,collided\" /tmp/header.txt \\\n+    || { echo \"FAIL: header missing decision columns\"; exit 1; }\n+\n+# 7. At least one data row (file must have >= 2 lines)\n+[ \"$(wc -l < /tmp/t.csv)\" -ge 2 ] || { echo \"FAIL: trace has no data rows\"; exit 1; }\n+\n+# 8. collided column is only 0 or 1 (last field of each non-header row)\n+tail -n +2 /tmp/t.csv > /tmp/data_rows.txt\n+awk -F',' '{print $NF}' /tmp/data_rows.txt > /tmp/collided_col.txt\n+grep -qvE '^[01]$' /tmp/collided_col.txt \\\n+    && { echo \"FAIL: collided column has non-0/1 values\"; exit 1; } || true\n+\n+# 9. Suite trace works\n+./build/SimulationPathFinder --scenario-suite --trace /tmp/suite_trace.csv\n+test -f /tmp/suite_trace.csv || { echo \"FAIL: suite trace file not created\"; exit 1; }\n+\n+# 10. --trace without --scenario is silent (no error, no file created)\n+rm -f /tmp/ignored.csv\n+./build/SimulationPathFinder --headless --batch 1 --trace /tmp/ignored.csv > /dev/null 2>&1\n+echo \"--- TRACE FLAG OK ---\"\n+\n+# 11. Headless batch unbroken\n+./build/SimulationPathFinder --headless --batch 3 > /dev/null\n+echo \"--- TESTS PASSED ---\"\ndiff --git a/target-repo b/target-repo\nnew file mode 160000\nindex 0000000..807e3b5\n--- /dev/null\n+++ b/target-repo\n@@ -0,0 +1 @@\n+Subproject commit 807e3b5b9c07e2ef58bf3ca06d310a2cc3dab6bc\n",
+        "summary": {
+          "files_changed": 3,
+          "additions": 318,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-21T10:21:14.529667696Z",
+        "current_node": "gate_plan",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_signature": "",
+          "thread.plan.current_node": "gate_plan",
+          "internal.fidelity": "compact",
+          "current_node": "gate_plan",
+          "thread.start.current_node": "plan",
+          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.start": 0,
+          "internal.retry_count.gate_plan": 0,
+          "preferred_label": "[A] Approve",
+          "human.gate.selected": "A",
+          "internal.thread_id": "plan",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "human.gate.gate_plan.answer": "A",
+          "human.gate.label": "[A] Approve",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "human.gate.gate_plan.label": "[A] Approve"
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.selected": "A",
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
+            },
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+            "usage": null
+          }
+        },
+        "next_node_id": "implement",
+        "node_visits": {
+          "gate_plan": 1,
           "start": 1,
           "plan": 1
         }
@@ -554,26 +637,42 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KS50SKZKTR3VVACA52B2XV40": {
+      "question": {
+        "id": "01KS50SKZKTR3VVACA52B2XV40",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false
+      },
+      "started_at": "2026-05-21T10:20:14.195256539Z"
+    }
+  },
   "stages": {
-    "plan@1": {
-      "first_event_seq": 19,
+    "gate_plan@1": {
+      "first_event_seq": 29,
       "prompt": null,
       "response": null,
       "completion": null,
       "provider_used": null,
       "diff": null,
-      "script_invocation": {
-        "script": "bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
-        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
-        "language": "shell",
-        "timeout_ms": 300000
-      },
+      "script_invocation": null,
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-21T10:16:41.263435981Z",
-      "handler": "command",
+      "started_at": "2026-05-21T10:20:14.194814007Z",
+      "handler": "human",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
@@ -583,6 +682,50 @@
         "cache_write_tokens": 0
       },
       "state": "running"
+    },
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+        "failure_reason": null,
+        "timestamp": "2026-05-21T10:20:10.993133826Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+        "language": "shell",
+        "timeout_ms": 300000
+      },
+      "script_timing": {
+        "output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
+        "exit_code": 0,
+        "duration_ms": 209722,
+        "termination": "exited",
+        "output_bytes": 1972,
+        "live_streaming": true
+      },
+      "parallel_results": null,
+      "output": null,
+      "output_bytes": 1972,
+      "live_streaming": true,
+      "termination": "exited",
+      "started_at": "2026-05-21T10:16:41.263435981Z",
+      "handler": "command",
+      "duration_ms": 209729,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
     },
     "start@1": {
       "first_event_seq": 15,
