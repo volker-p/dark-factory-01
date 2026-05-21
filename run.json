@@ -438,14 +438,104 @@
     }
   },
   "web_url": "https://fabro.uawg.xyz/runs/01KS50K0E34WJQ54PR9050CENZ",
-  "start": null,
-  "status": {
-    "kind": "starting"
+  "start": {
+    "start_time": "2026-05-21T10:16:39.122327423Z",
+    "run_branch": "fabro/run/01KS50K0E34WJQ54PR9050CENZ",
+    "base_sha": "91603fa7b95123c98d360b74a7ec741a26548ddf"
   },
-  "status_updated_at": "2026-05-21T10:16:37.650762161Z",
-  "last_event_at": "2026-05-21T10:16:38.872058566Z",
+  "status": {
+    "kind": "running"
+  },
+  "status_updated_at": "2026-05-21T10:16:39.122402536Z",
+  "last_event_at": "2026-05-21T10:16:41.263482550Z",
   "pending_control": null,
-  "checkpoints": [],
+  "checkpoints": [
+    {
+      "seq": 18,
+      "checkpoint": {
+        "timestamp": "2026-05-21T10:16:41.263284293Z",
+        "current_node": "start",
+        "completed_nodes": [
+          "start"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "failure_signature": "",
+          "internal.thread_id": null,
+          "graph.rankdir": "LR",
+          "internal.fidelity": "compact",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_class": "",
+          "current_node": "start",
+          "internal.retry_count.start": 0
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "plan",
+        "node_visits": {
+          "start": 1
+        }
+      },
+      "diff": {}
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-21T10:20:10.994821350Z",
+        "current_node": "plan",
+        "completed_nodes": [
+          "start",
+          "plan"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_signature": "",
+          "internal.fidelity": "compact",
+          "current_node": "plan",
+          "thread.start.current_node": "plan",
+          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.start": 0,
+          "internal.thread_id": "start",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1
+        },
+        "node_outcomes": {
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
+            },
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+            "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          }
+        },
+        "next_node_id": "gate_plan",
+        "node_visits": {
+          "start": 1,
+          "plan": 1
+        }
+      },
+      "diff": {}
+    }
+  ],
   "conclusion": null,
   "sandbox": {
     "provider": "docker",
@@ -465,5 +555,63 @@
   "pull_request": null,
   "superseded_by": null,
   "pending_interviews": {},
-  "stages": {}
+  "stages": {
+    "plan@1": {
+      "first_event_seq": 19,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+        "language": "shell",
+        "timeout_ms": 300000
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-21T10:16:41.263435981Z",
+      "handler": "command",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "running"
+    },
+    "start@1": {
+      "first_event_seq": 15,
+      "prompt": null,
+      "response": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-21T10:16:41.261639544Z"
+      },
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-21T10:16:41.259452992Z",
+      "handler": "start",
+      "duration_ms": 1,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    }
+  }
 }
