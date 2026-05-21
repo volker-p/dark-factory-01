@@ -444,11 +444,10 @@
     "base_sha": "91603fa7b95123c98d360b74a7ec741a26548ddf"
   },
   "status": {
-    "kind": "blocked",
-    "blocked_reason": "human_input_required"
+    "kind": "running"
   },
-  "status_updated_at": "2026-05-21T10:20:14.195293443Z",
-  "last_event_at": "2026-05-21T10:20:14.195293443Z",
+  "status_updated_at": "2026-05-21T10:21:14.528642293Z",
+  "last_event_at": "2026-05-21T10:21:17.771868852Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -545,9 +544,9 @@
       }
     },
     {
-      "seq": 0,
+      "seq": 38,
       "checkpoint": {
-        "timestamp": "2026-05-21T10:21:14.529667696Z",
+        "timestamp": "2026-05-21T10:21:17.769123946Z",
         "current_node": "gate_plan",
         "completed_nodes": [
           "start",
@@ -556,29 +555,29 @@
         ],
         "node_retries": {},
         "context_values": {
-          "failure_class": "",
+          "human.gate.gate_plan.label": "[A] Approve",
           "graph.rankdir": "LR",
-          "internal.work_dir": "/workspace/dark-factory-01",
           "failure_signature": "",
-          "thread.plan.current_node": "gate_plan",
-          "internal.fidelity": "compact",
-          "current_node": "gate_plan",
-          "thread.start.current_node": "plan",
-          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd",
-          "internal.retry_count.plan": 0,
-          "internal.retry_count.start": 0,
-          "internal.retry_count.gate_plan": 0,
-          "preferred_label": "[A] Approve",
-          "human.gate.selected": "A",
           "internal.thread_id": "plan",
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "current_node": "gate_plan",
+          "internal.retry_count.gate_plan": 0,
           "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
-          "outcome": "succeeded",
-          "internal.node_visit_count": 1,
           "human.gate.gate_plan.answer": "A",
+          "thread.plan.current_node": "gate_plan",
           "human.gate.label": "[A] Approve",
           "human.gate.gate_plan.question": "Approve Plan",
-          "human.gate.gate_plan.label": "[A] Approve"
+          "human.gate.selected": "A",
+          "internal.fidelity": "compact",
+          "internal.node_visit_count": 1,
+          "thread.start.current_node": "plan",
+          "internal.retry_count.plan": 0,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "preferred_label": "[A] Approve",
+          "outcome": "succeeded",
+          "internal.retry_count.start": 0,
+          "failure_class": "",
+          "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
         },
         "node_outcomes": {
           "start": {
@@ -610,10 +609,103 @@
           }
         },
         "next_node_id": "implement",
+        "git_commit_sha": "4051b77ad475b57a4bd947af5de28d710fc4f16e",
         "node_visits": {
           "gate_plan": 1,
           "start": 1,
           "plan": 1
+        }
+      },
+      "diff": {
+        "summary": {
+          "files_changed": 3,
+          "additions": 318,
+          "deletions": 0
+        }
+      }
+    },
+    {
+      "seq": 0,
+      "checkpoint": {
+        "timestamp": "2026-05-21T10:23:23.502098605Z",
+        "current_node": "implement",
+        "completed_nodes": [
+          "start",
+          "plan",
+          "gate_plan",
+          "implement"
+        ],
+        "node_retries": {},
+        "context_values": {
+          "failure_class": "",
+          "graph.rankdir": "LR",
+          "internal.work_dir": "/workspace/dark-factory-01",
+          "failure_signature": "",
+          "thread.gate_plan.current_node": "implement",
+          "thread.plan.current_node": "gate_plan",
+          "internal.fidelity": "compact",
+          "current_node": "implement",
+          "thread.start.current_node": "plan",
+          "command.output": "blob://sha256/3a7e543e08d20fccfd0f8216541f738ae1b1c5605641afe5cbdb372cd49ea301",
+          "internal.retry_count.plan": 0,
+          "internal.retry_count.start": 0,
+          "internal.retry_count.gate_plan": 0,
+          "preferred_label": "[A] Approve",
+          "human.gate.selected": "A",
+          "internal.thread_id": "gate_plan",
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.run_id": "01KS50K0E34WJQ54PR9050CENZ",
+          "outcome": "succeeded",
+          "internal.node_visit_count": 1,
+          "human.gate.gate_plan.answer": "A",
+          "human.gate.label": "[A] Approve",
+          "human.gate.gate_plan.question": "Approve Plan",
+          "human.gate.gate_plan.label": "[A] Approve",
+          "internal.retry_count.implement": 0
+        },
+        "node_outcomes": {
+          "start": {
+            "status": "succeeded",
+            "usage": null
+          },
+          "gate_plan": {
+            "status": "succeeded",
+            "preferred_label": "[A] Approve",
+            "suggested_next_ids": [
+              "implement"
+            ],
+            "context_updates": {
+              "human.gate.gate_plan.answer": "A",
+              "human.gate.gate_plan.question": "Approve Plan",
+              "human.gate.selected": "A",
+              "human.gate.label": "[A] Approve",
+              "human.gate.gate_plan.label": "[A] Approve"
+            },
+            "usage": null
+          },
+          "implement": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/3a7e543e08d20fccfd0f8216541f738ae1b1c5605641afe5cbdb372cd49ea301"
+            },
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh",
+            "usage": null
+          },
+          "plan": {
+            "status": "succeeded",
+            "context_updates": {
+              "command.output": "blob://sha256/64d888ae2d81188a6def999d35e55504c49acad4be31678d72e096a7c3dd56dd"
+            },
+            "notes": "Script completed: bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh",
+            "usage": null
+          }
+        },
+        "next_node_id": "test",
+        "node_visits": {
+          "gate_plan": 1,
+          "plan": 1,
+          "start": 1,
+          "implement": 1
         }
       },
       "diff": {}
@@ -637,34 +729,18 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {
-    "01KS50SKZKTR3VVACA52B2XV40": {
-      "question": {
-        "id": "01KS50SKZKTR3VVACA52B2XV40",
-        "text": "Approve Plan",
-        "stage": "gate_plan",
-        "question_type": "multiple_choice",
-        "options": [
-          {
-            "key": "A",
-            "label": "[A] Approve"
-          },
-          {
-            "key": "R",
-            "label": "[R] Revise"
-          }
-        ],
-        "allow_freeform": false
-      },
-      "started_at": "2026-05-21T10:20:14.195256539Z"
-    }
-  },
+  "pending_interviews": {},
   "stages": {
     "gate_plan@1": {
       "first_event_seq": 29,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "succeeded",
+        "notes": null,
+        "failure_reason": null,
+        "timestamp": "2026-05-21T10:21:14.528780028Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": null,
@@ -673,6 +749,35 @@
       "output": null,
       "started_at": "2026-05-21T10:20:14.194814007Z",
       "handler": "human",
+      "duration_ms": 60333,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "succeeded"
+    },
+    "implement@1": {
+      "first_event_seq": 41,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": {
+        "script": "bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh",
+        "command": "exec 2>&1\nbash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh",
+        "language": "shell",
+        "timeout_ms": 900000
+      },
+      "script_timing": null,
+      "parallel_results": null,
+      "output": null,
+      "started_at": "2026-05-21T10:21:17.771013082Z",
+      "handler": "command",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
