@@ -444,10 +444,11 @@
     "base_sha": "b4e93716730d423d02c7b0ec86c3a77773a7f78b"
   },
   "status": {
-    "kind": "running"
+    "kind": "blocked",
+    "blocked_reason": "human_input_required"
   },
-  "status_updated_at": "2026-05-21T06:49:25.998562244Z",
-  "last_event_at": "2026-05-21T06:49:27.393961876Z",
+  "status_updated_at": "2026-05-21T06:49:30.708912Z",
+  "last_event_at": "2026-05-21T06:49:30.708912Z",
   "pending_control": null,
   "checkpoints": [
     {
@@ -487,9 +488,9 @@
       "diff": {}
     },
     {
-      "seq": 0,
+      "seq": 27,
       "checkpoint": {
-        "timestamp": "2026-05-21T06:49:27.964245670Z",
+        "timestamp": "2026-05-21T06:49:30.704571019Z",
         "current_node": "plan",
         "completed_nodes": [
           "start",
@@ -497,27 +498,23 @@
         ],
         "node_retries": {},
         "context_values": {
-          "current_node": "plan",
-          "outcome": "failed",
-          "internal.retry_count.start": 0,
-          "internal.node_visit_count": 1,
-          "command.output": "blob://sha256/f2fa1685398d932def85e4ad7aab6c14b91979b746d42d943be07172b521fee3",
           "failure_signature": "plan|deterministic|script failed with exit code: <n> ## output claude configuration file not found at: /root/.claude.json a backup file exists at: /root/.claude/backups/.claude.json.backup.<hex> you can manually restore it by running: cp \"/root/.claude/backup",
-          "graph.rankdir": "LR",
-          "thread.start.current_node": "plan",
-          "failure_class": "deterministic",
-          "internal.thread_id": "start",
-          "internal.fidelity": "compact",
-          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.retry_count.start": 0,
           "internal.work_dir": "/workspace/dark-factory-01",
+          "current_node": "plan",
+          "command.output": "blob://sha256/f2fa1685398d932def85e4ad7aab6c14b91979b746d42d943be07172b521fee3",
           "internal.run_id": "01KS4MQJV0RR5R2MMF3TG8N51R",
-          "internal.retry_count.plan": 0
+          "outcome": "failed",
+          "internal.node_visit_count": 1,
+          "graph.goal": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request",
+          "internal.thread_id": "start",
+          "failure_class": "deterministic",
+          "graph.rankdir": "LR",
+          "internal.retry_count.plan": 0,
+          "internal.fidelity": "compact",
+          "thread.start.current_node": "plan"
         },
         "node_outcomes": {
-          "start": {
-            "status": "succeeded",
-            "usage": null
-          },
           "plan": {
             "status": "failed",
             "context_updates": {
@@ -528,18 +525,60 @@
               "category": "deterministic"
             },
             "usage": null
+          },
+          "start": {
+            "status": "succeeded",
+            "usage": null
           }
         },
         "next_node_id": "gate_plan",
+        "git_commit_sha": "cc1493aa5da5c42e6d45ec0aec34828342be8b1b",
+        "loop_failure_signatures": {
+          "plan|deterministic|script failed with exit code: <n> ## output claude configuration file not found at: /root/.claude.json a backup file exists at: /root/.claude/backups/.claude.json.backup.<hex> you can manually restore it by running: cp \"/root/.claude/backup": 1
+        },
         "node_visits": {
-          "start": 1,
-          "plan": 1
+          "plan": 1,
+          "start": 1
         }
       },
-      "diff": {}
+      "diff": {
+        "summary": {
+          "files_changed": 0,
+          "additions": 0,
+          "deletions": 0
+        }
+      }
     }
   ],
-  "conclusion": null,
+  "conclusion": {
+    "timestamp": "2026-05-21T06:49:34.611889666Z",
+    "status": "failed",
+    "duration_ms": 8609,
+    "failure": {
+      "reason": "cancelled",
+      "detail": {
+        "message": "Pipeline cancelled",
+        "category": "canceled"
+      }
+    },
+    "final_git_commit_sha": "cc1493aa5da5c42e6d45ec0aec34828342be8b1b",
+    "stages": [
+      {
+        "stage_id": "start",
+        "stage_label": "start",
+        "duration_ms": 0,
+        "retries": 0
+      },
+      {
+        "stage_id": "plan",
+        "stage_label": "plan",
+        "duration_ms": 566,
+        "retries": 0
+      }
+    ],
+    "total_retries": 0,
+    "diff": {}
+  },
   "sandbox": {
     "provider": "docker",
     "image": "fabro-sandbox-claude:latest",
@@ -557,7 +596,28 @@
   },
   "pull_request": null,
   "superseded_by": null,
-  "pending_interviews": {},
+  "pending_interviews": {
+    "01KS4MQRTMMAT9EEQXR5V5W21F": {
+      "question": {
+        "id": "01KS4MQRTMMAT9EEQXR5V5W21F",
+        "text": "Approve Plan",
+        "stage": "gate_plan",
+        "question_type": "multiple_choice",
+        "options": [
+          {
+            "key": "A",
+            "label": "[A] Approve"
+          },
+          {
+            "key": "R",
+            "label": "[R] Revise"
+          }
+        ],
+        "allow_freeform": false
+      },
+      "started_at": "2026-05-21T06:49:30.708870167Z"
+    }
+  },
   "stages": {
     "start@1": {
       "first_event_seq": 16,
@@ -592,7 +652,12 @@
       "first_event_seq": 20,
       "prompt": null,
       "response": null,
-      "completion": null,
+      "completion": {
+        "outcome": "failed",
+        "notes": null,
+        "failure_reason": "Script failed with exit code: 1\n\n## output\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n\nClaude configuration file not found at: /root/.claude.json\nA backup file exists at: /root/.claude/backups/.claude.json.backup.1779286760812\nYou can manually restore it by running: cp \"/root/.claude/backups/.claude.json.backup.1779286760812\" \"/root/.claude.json\"\n\n--dangerously-skip-permissions cannot be used with root/sudo privileges for security reasons\n",
+        "timestamp": "2026-05-21T06:49:27.962880238Z"
+      },
       "provider_used": null,
       "diff": null,
       "script_invocation": {
@@ -601,11 +666,45 @@
         "language": "shell",
         "timeout_ms": 300000
       },
+      "script_timing": {
+        "output": "blob://sha256/f2fa1685398d932def85e4ad7aab6c14b91979b746d42d943be07172b521fee3",
+        "exit_code": 1,
+        "duration_ms": 561,
+        "termination": "exited",
+        "output_bytes": 885,
+        "live_streaming": true
+      },
+      "parallel_results": null,
+      "output": null,
+      "output_bytes": 885,
+      "live_streaming": true,
+      "termination": "exited",
+      "started_at": "2026-05-21T06:49:27.393940384Z",
+      "handler": "command",
+      "duration_ms": 566,
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "reasoning_tokens": 0,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 0
+      },
+      "state": "failed"
+    },
+    "gate_plan@1": {
+      "first_event_seq": 30,
+      "prompt": null,
+      "response": null,
+      "completion": null,
+      "provider_used": null,
+      "diff": null,
+      "script_invocation": null,
       "script_timing": null,
       "parallel_results": null,
       "output": null,
-      "started_at": "2026-05-21T06:49:27.393940384Z",
-      "handler": "command",
+      "started_at": "2026-05-21T06:49:30.708129230Z",
+      "handler": "human",
       "usage": {
         "input_tokens": 0,
         "output_tokens": 0,
