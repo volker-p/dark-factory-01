@@ -1,0 +1,87 @@
+digraph ImplementSpec {
+    graph [
+        goal="Implement the spec at {{ inputs.spec_path }} in the target repository and open a pull request"
+        rankdir=LR
+    ]
+
+    start [shape=Mdiamond, label="Start"]
+    exit  [shape=Msquare,  label="Exit"]
+
+    // Read spec, clone target repo, write plan.md and run-tests.sh
+    plan [
+        label="Plan"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh"
+        timeout="300s"
+    ]
+
+    // Human reviews plan before any code is written
+    gate_plan [shape=hexagon, label="Approve Plan"]
+
+    // Implement plan.md in target-repo/
+    implement [
+        label="Implement"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh"
+        timeout="900s"
+        max_visits=4
+    ]
+
+    // Run the build and test suite written by the plan agent
+    test [
+        label="Test"
+        shape=parallelogram
+        script="bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}"
+    ]
+
+    // "Pass" (Yes) requires the script to exit 0, which only happens when every single test
+    // succeeds — including all scenario tests (e.g. SimulationPathFinder scenario suite).
+    // One failing test = non-zero exit = "Fix" branch. There is no partial pass.
+    test_gate [shape=diamond, label="Tests pass?\n(ALL tests must succeed)"]
+
+    // Fix failures — reads test-output.txt and code directly
+    fix [
+        label="Fix"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-fix-agent.sh"
+        timeout="600s"
+        max_visits=3
+    ]
+
+    // Independent model reviews implementation against spec
+    review [
+        label="Review"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/run-review-agent.sh"
+        timeout="300s"
+    ]
+
+    // Human sees satisfaction report, approves or requests rework
+    gate_pr [shape=hexagon, label="Approve PR"]
+
+    // Commit, push branch to target repo, open PR
+    push_pr [
+        label="Push PR"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/push-pr.sh"
+    ]
+
+    // Squash-merge the PR into master via GitHub API
+    merge_pr [
+        label="Merge PR"
+        shape=parallelogram
+        script="bash .fabro/workflows/implement-spec/scripts/merge-pr.sh"
+    ]
+
+    start    -> plan      -> gate_plan
+    gate_plan -> implement [label="[A] Approve"]
+    gate_plan -> plan      [label="[R] Revise"]
+    implement -> test      -> test_gate
+    test_gate -> review    [label="Pass",  condition="outcome=succeeded"]
+    test_gate -> fix       [label="Fix"]
+    fix       -> test
+    review    -> gate_pr
+    gate_pr   -> push_pr   [label="[M] Merge"]
+    gate_pr   -> implement [label="[R] Rework"]
+    push_pr   -> merge_pr  -> exit
+}

@@ -1,0 +1,469 @@
+{
+  "title": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target reposito...",
+  "spec": {
+    "run_id": "01KS4K2ZKY83XA108AVGJ4SBSS",
+    "settings": {
+      "project": {
+        "name": null,
+        "description": null,
+        "metadata": {}
+      },
+      "workflow": {
+        "name": null,
+        "description": null,
+        "graph": "workflow.fabro",
+        "metadata": {}
+      },
+      "run": {
+        "goal": {
+          "type": "inline",
+          "value": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request"
+        },
+        "working_dir": null,
+        "metadata": {},
+        "inputs": {
+          "spec_path": "specs/simulation-path-finder/wall-follower-update.md"
+        },
+        "model": {
+          "provider": "anthropic",
+          "name": "claude-sonnet-4-6",
+          "fallbacks": [],
+          "controls": {
+            "reasoning_effort": null,
+            "speed": null
+          }
+        },
+        "git": {
+          "author": null
+        },
+        "prepare": {
+          "commands": [],
+          "timeout_ms": 300000
+        },
+        "execution": {
+          "mode": "normal",
+          "approval": "prompt"
+        },
+        "checkpoint": {
+          "exclude_globs": []
+        },
+        "clone": {
+          "enabled": true
+        },
+        "run_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "meta_branch": {
+          "enabled": true,
+          "push": true
+        },
+        "sandbox": {
+          "provider": "docker",
+          "preserve": false,
+          "stop_on_terminal": true,
+          "devcontainer": false,
+          "env": {},
+          "docker": {
+            "image": "fabro-sandbox-claude:latest",
+            "network_mode": null,
+            "memory_limit": 4000000000,
+            "cpu_quota": 200000,
+            "env_vars": {}
+          },
+          "daytona": null
+        },
+        "notifications": {},
+        "interviews": {
+          "provider": null,
+          "slack": null
+        },
+        "agent": {
+          "permissions": null,
+          "mcps": {}
+        },
+        "hooks": [],
+        "scm": {
+          "provider": null,
+          "owner": null,
+          "repository": null,
+          "github": null
+        },
+        "pull_request": {
+          "enabled": true,
+          "draft": true,
+          "auto_merge": false,
+          "merge_strategy": "squash"
+        },
+        "artifacts": {
+          "include": []
+        },
+        "integrations": {
+          "github": {
+            "permissions": {
+              "contents": "write",
+              "pull_requests": "write"
+            }
+          }
+        }
+      }
+    },
+    "graph": {
+      "name": "ImplementSpec",
+      "nodes": {
+        "plan": {
+          "id": "plan",
+          "attrs": {
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh"
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 300,
+                "nanos": 0
+              }
+            },
+            "label": {
+              "String": "Plan"
+            }
+          }
+        },
+        "review": {
+          "id": "review",
+          "attrs": {
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/run-review-agent.sh"
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 300,
+                "nanos": 0
+              }
+            },
+            "label": {
+              "String": "Review"
+            }
+          }
+        },
+        "merge_pr": {
+          "id": "merge_pr",
+          "attrs": {
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/merge-pr.sh"
+            },
+            "label": {
+              "String": "Merge PR"
+            },
+            "shape": {
+              "String": "parallelogram"
+            }
+          }
+        },
+        "exit": {
+          "id": "exit",
+          "attrs": {
+            "shape": {
+              "String": "Msquare"
+            },
+            "label": {
+              "String": "Exit"
+            }
+          }
+        },
+        "gate_pr": {
+          "id": "gate_pr",
+          "attrs": {
+            "shape": {
+              "String": "hexagon"
+            },
+            "label": {
+              "String": "Approve PR"
+            }
+          }
+        },
+        "fix": {
+          "id": "fix",
+          "attrs": {
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/run-fix-agent.sh"
+            },
+            "max_visits": {
+              "Integer": 3
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 600,
+                "nanos": 0
+              }
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "label": {
+              "String": "Fix"
+            }
+          }
+        },
+        "push_pr": {
+          "id": "push_pr",
+          "attrs": {
+            "shape": {
+              "String": "parallelogram"
+            },
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/push-pr.sh"
+            },
+            "label": {
+              "String": "Push PR"
+            }
+          }
+        },
+        "gate_plan": {
+          "id": "gate_plan",
+          "attrs": {
+            "label": {
+              "String": "Approve Plan"
+            },
+            "shape": {
+              "String": "hexagon"
+            }
+          }
+        },
+        "implement": {
+          "id": "implement",
+          "attrs": {
+            "script": {
+              "String": "bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh"
+            },
+            "timeout": {
+              "Duration": {
+                "secs": 900,
+                "nanos": 0
+              }
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "label": {
+              "String": "Implement"
+            },
+            "max_visits": {
+              "Integer": 4
+            }
+          }
+        },
+        "start": {
+          "id": "start",
+          "attrs": {
+            "shape": {
+              "String": "Mdiamond"
+            },
+            "label": {
+              "String": "Start"
+            }
+          }
+        },
+        "test_gate": {
+          "id": "test_gate",
+          "attrs": {
+            "shape": {
+              "String": "diamond"
+            },
+            "label": {
+              "String": "Tests pass?\n(ALL tests must succeed)"
+            }
+          }
+        },
+        "test": {
+          "id": "test",
+          "attrs": {
+            "label": {
+              "String": "Test"
+            },
+            "shape": {
+              "String": "parallelogram"
+            },
+            "script": {
+              "String": "bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}"
+            }
+          }
+        }
+      },
+      "edges": [
+        {
+          "from": "start",
+          "to": "plan",
+          "attrs": {}
+        },
+        {
+          "from": "plan",
+          "to": "gate_plan",
+          "attrs": {}
+        },
+        {
+          "from": "gate_plan",
+          "to": "implement",
+          "attrs": {
+            "label": {
+              "String": "[A] Approve"
+            }
+          }
+        },
+        {
+          "from": "gate_plan",
+          "to": "plan",
+          "attrs": {
+            "label": {
+              "String": "[R] Revise"
+            }
+          }
+        },
+        {
+          "from": "implement",
+          "to": "test",
+          "attrs": {}
+        },
+        {
+          "from": "test",
+          "to": "test_gate",
+          "attrs": {}
+        },
+        {
+          "from": "test_gate",
+          "to": "review",
+          "attrs": {
+            "label": {
+              "String": "Pass"
+            },
+            "condition": {
+              "String": "outcome=succeeded"
+            }
+          }
+        },
+        {
+          "from": "test_gate",
+          "to": "fix",
+          "attrs": {
+            "label": {
+              "String": "Fix"
+            }
+          }
+        },
+        {
+          "from": "fix",
+          "to": "test",
+          "attrs": {}
+        },
+        {
+          "from": "review",
+          "to": "gate_pr",
+          "attrs": {}
+        },
+        {
+          "from": "gate_pr",
+          "to": "push_pr",
+          "attrs": {
+            "label": {
+              "String": "[M] Merge"
+            }
+          }
+        },
+        {
+          "from": "gate_pr",
+          "to": "implement",
+          "attrs": {
+            "label": {
+              "String": "[R] Rework"
+            }
+          }
+        },
+        {
+          "from": "push_pr",
+          "to": "merge_pr",
+          "attrs": {}
+        },
+        {
+          "from": "merge_pr",
+          "to": "exit",
+          "attrs": {}
+        }
+      ],
+      "attrs": {
+        "goal": {
+          "String": "Implement the spec at specs/simulation-path-finder/wall-follower-update.md in the target repository and open a pull request"
+        },
+        "rankdir": {
+          "String": "LR"
+        }
+      }
+    },
+    "graph_source": "digraph ImplementSpec {\n    graph [\n        goal=\"Implement the spec at {{ inputs.spec_path }} in the target repository and open a pull request\"\n        rankdir=LR\n    ]\n\n    start [shape=Mdiamond, label=\"Start\"]\n    exit  [shape=Msquare,  label=\"Exit\"]\n\n    // Read spec, clone target repo, write plan.md and run-tests.sh\n    plan [\n        label=\"Plan\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/run-plan-agent.sh\"\n        timeout=\"300s\"\n    ]\n\n    // Human reviews plan before any code is written\n    gate_plan [shape=hexagon, label=\"Approve Plan\"]\n\n    // Implement plan.md in target-repo/\n    implement [\n        label=\"Implement\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/run-implement-agent.sh\"\n        timeout=\"900s\"\n        max_visits=4\n    ]\n\n    // Run the build and test suite written by the plan agent\n    test [\n        label=\"Test\"\n        shape=parallelogram\n        script=\"bash run-tests.sh 2>&1 | tee test-output.txt; exit ${PIPESTATUS[0]}\"\n    ]\n\n    // \"Pass\" (Yes) requires the script to exit 0, which only happens when every single test\n    // succeeds — including all scenario tests (e.g. SimulationPathFinder scenario suite).\n    // One failing test = non-zero exit = \"Fix\" branch. There is no partial pass.\n    test_gate [shape=diamond, label=\"Tests pass?\\n(ALL tests must succeed)\"]\n\n    // Fix failures — reads test-output.txt and code directly\n    fix [\n        label=\"Fix\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/run-fix-agent.sh\"\n        timeout=\"600s\"\n        max_visits=3\n    ]\n\n    // Independent model reviews implementation against spec\n    review [\n        label=\"Review\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/run-review-agent.sh\"\n        timeout=\"300s\"\n    ]\n\n    // Human sees satisfaction report, approves or requests rework\n    gate_pr [shape=hexagon, label=\"Approve PR\"]\n\n    // Commit, push branch to target repo, open PR\n    push_pr [\n        label=\"Push PR\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/push-pr.sh\"\n    ]\n\n    // Squash-merge the PR into master via GitHub API\n    merge_pr [\n        label=\"Merge PR\"\n        shape=parallelogram\n        script=\"bash .fabro/workflows/implement-spec/scripts/merge-pr.sh\"\n    ]\n\n    start    -> plan      -> gate_plan\n    gate_plan -> implement [label=\"[A] Approve\"]\n    gate_plan -> plan      [label=\"[R] Revise\"]\n    implement -> test      -> test_gate\n    test_gate -> review    [label=\"Pass\",  condition=\"outcome=succeeded\"]\n    test_gate -> fix       [label=\"Fix\"]\n    fix       -> test\n    review    -> gate_pr\n    gate_pr   -> push_pr   [label=\"[M] Merge\"]\n    gate_pr   -> implement [label=\"[R] Rework\"]\n    push_pr   -> merge_pr  -> exit\n}\n",
+    "workflow_slug": "implement-spec",
+    "source_directory": "/home/fela/CLionProjects/dark-factory-01",
+    "provenance": {
+      "server": {
+        "version": "0.237.0-nightly.0"
+      },
+      "client": {
+        "user_agent": "fabro-cli/0.237.0-nightly.0",
+        "name": "fabro-cli",
+        "version": "0.237.0-nightly.0"
+      },
+      "subject": {
+        "kind": "user",
+        "identity": {
+          "issuer": "fabro:dev",
+          "subject": "dev"
+        },
+        "login": "dev",
+        "auth_method": "dev_token"
+      }
+    },
+    "manifest_blob": "c0c4ce8a7a9c0bfff781d0c479b34168108f885ef035e10f3175922d3bcf7231",
+    "definition_blob": "c5b81eda98e234cee9c38ae7e7ac102192992e4ff625c2119c30502ab014be09",
+    "git": {
+      "origin_url": "https://github.com/volker-p/dark-factory-01",
+      "branch": "master",
+      "sha": "b4e93716730d423d02c7b0ec86c3a77773a7f78b",
+      "dirty": "dirty",
+      "push_outcome": {
+        "type": "not_attempted"
+      }
+    }
+  },
+  "web_url": "https://fabro.uawg.xyz/runs/01KS4K2ZKY83XA108AVGJ4SBSS",
+  "start": null,
+  "status": {
+    "kind": "starting"
+  },
+  "status_updated_at": "2026-05-21T06:20:41.331869709Z",
+  "last_event_at": "2026-05-21T06:20:42.674157154Z",
+  "pending_control": null,
+  "checkpoints": [],
+  "conclusion": null,
+  "sandbox": {
+    "provider": "docker",
+    "image": "fabro-sandbox-claude:latest",
+    "runtime": {
+      "id": "f6ed4eafa9a3c6c65dcb30ca94125d7dedf0a460ecde960f5cb102c29176734d",
+      "working_directory": "/workspace/dark-factory-01",
+      "repo_cloned": true,
+      "clone_origin_url": "https://github.com/volker-p/dark-factory-01",
+      "clone_branch": "master",
+      "workspace_root": "/workspace",
+      "repos_root": "/repos",
+      "primary_repo_path": "/repos/volker-p/dark-factory-01",
+      "primary_repo_link": "/workspace/dark-factory-01"
+    }
+  },
+  "pull_request": null,
+  "superseded_by": null,
+  "pending_interviews": {},
+  "stages": {}
+}
