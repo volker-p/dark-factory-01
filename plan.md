@@ -1,0 +1,246 @@
+# Implementation Plan: Sensor Config & Trajectory Tracing
+
+## Goal
+
+Add a configurable wall-scan-angles field to `Config`, replace the hardcoded two-scan loop in `WallFollower` with a loop driven by that field, expose per-step scan and decision data via public getters, implement a `--trace` CLI flag that writes a per-step CSV to a user-supplied path, and append trace-usage instructions to `fix.md` in dark-factory-01.
+
+---
+
+## Files to Change
+
+| File | What changes and why |
+|------|----------------------|
+| `include/Config.h` | Add `wall_scan_angles_deg` (`std::vector<double>`) field after `angle_tolerance_rad` in the wall-follower block so the scan angles are configurable at runtime |
+| `src/Config.cpp` | Parse `wall_scan_angles_deg` via `.value()` with default `{-90.0, 90.0}`; add validation guard in `Config::validate()` rejecting an empty vector |
+| `include/WallFollower.h` | Add nested `ScanResult` and `DecisionInfo` structs (public); add `getLastScanResults()` and `getLastDecision()` const getters; add private `last_scan_results_` and `last_decision_` members |
+| `src/WallFollower.cpp` | Remove the hardcoded two-rotation/read block and the `scanReading()` helper; replace with a loop over `cfg_.wall_scan_angles_deg`; identify leftmost/rightmost walls from scan results; compute new heading using the R4/R5 case table; populate `last_decision_` before the drive step |
+| `include/ScenarioSimulation.h` | Add `void writeTraceHeader(std::ostream& out) const`; update `runScenario` signature to `ScenarioMetrics runScenario(ScenarioType type, std::ostream* trace_out = nullptr)`; update `runSuite` signature to `std::vector<ScenarioMetrics> runSuite(std::ostream* trace_out = nullptr)` |
+| `src/ScenarioSimulation.cpp` | Implement `writeTraceHeader` (dynamic sensor columns); add per-step trace writing inside the `runScenario` step loop: capture pose before/after update, derive `collided`, read `getLastScanResults()`/`getLastDecision()`, write one CSV row |
+| `src/main.cpp` | Parse `--trace <filepath>` in the argument loop; open `std::ofstream` and call `sim.writeTraceHeader()` when path is non-empty; pass the stream pointer to `runScenario`/`runSuite`; update `printUsage()` |
+| `.fabro/workflows/implement-spec/prompts/fix.md` *(dark-factory-01)* | Append the "Scenario-test failures: use the trace" block (with the three grep/sed commands) so the fix agent has step-by-step trace-reading instructions |
+
+---
+
+## Implementation Checklist
+
+### 1. `include/Config.h` — add field
+
+1. Open `include/Config.h`.
+2. Locate the wall-follower parameter block (after `angle_tolerance_rad`).
+3. Insert:
+   ```cpp
+   std::vector<double> wall_scan_angles_deg;   // degrees, relative to current heading
+   ```
+4. Verify `#include <vector>` is already present at the top (it is).
+
+### 2. `src/Config.cpp` — parse and validate
+
+1. Open `src/Config.cpp`, find the wall-follower optional parsing block (after `angle_tolerance_rad`).
+2. Add:
+   ```cpp
+   config.wall_scan_angles_deg = j.value(
+       "wall_scan_angles_deg",
+       std::vector<double>{-90.0, 90.0}
+   );
+   ```
+3. In `Config::validate()`, after the `sensor_angles_deg.empty()` guard, add:
+   ```cpp
+   if (wall_scan_angles_deg.empty()) {
+       std::cerr << "Error: wall_scan_angles_deg must not be empty\n";
+       return false;
+   }
+   ```
+4. Do **not** modify `config.json`.
+
+### 3. `include/WallFollower.h` — structs, getters, private members
+
+1. In the `public:` section of `WallFollower`, add:
+   ```cpp
+   struct ScanResult {
+       double angle_deg;
+       double distance_cm;
+   };
+
+   struct DecisionInfo {
+       enum class Kind { TUNNEL, RIGHT_WALL, LEFT_WALL, NO_WALL } kind;
+       double wall_left_dist_cm;
+       double wall_right_dist_cm;
+       double correction_rad;
+       double new_heading_rad;
+   };
+
+   const std::vector<ScanResult>& getLastScanResults() const { return last_scan_results_; }
+   const DecisionInfo& getLastDecision() const { return last_decision_; }
+   ```
+2. In the `private:` section, add:
+   ```cpp
+   std::vector<ScanResult> last_scan_results_;
+   DecisionInfo last_decision_{};
+   ```
+
+### 4. `src/WallFollower.cpp` — configurable scan loop
+
+1. Locate `WallFollower::update()`.
+2. Remove the existing two-rotation block (rotate left → read → rotate right → read) and any `scanReading()` helper.
+3. After recording `current_heading_rad_`, replace removed code with:
+   ```cpp
+   last_scan_results_.clear();
+   last_scan_results_.reserve(cfg_.wall_scan_angles_deg.size());
+
+   for (double angle_deg : cfg_.wall_scan_angles_deg) {
+       double target = normalise(current_heading_rad_ + angle_deg * M_PI / 180.0);
+       rotateToHeading(robot, maze, target);
+       auto readings = robot.getSensorReadings(maze, /*with_noise=*/false);
+       last_scan_results_.push_back({angle_deg, readings[0]});
+   }
+   ```
+4. After the loop, identify leftmost and rightmost walls:
+   ```cpp
+   double dist_left  = std::numeric_limits<double>::infinity();
+   double dist_right = std::numeric_limits<double>::infinity();
+   const ScanResult* left_entry  = nullptr;
+   const ScanResult* right_entry = nullptr;
+
+   for (const auto& sr : last_scan_results_) {
+       if (sr.distance_cm < cfg_.sensor_range_cm) {
+           if (!left_entry  || sr.angle_deg > left_entry->angle_deg)  left_entry  = &sr;
+           if (!right_entry || sr.angle_deg < right_entry->angle_deg) right_entry = &sr;
+       }
+   }
+   if (left_entry)  dist_left  = left_entry->distance_cm;
+   if (right_entry) dist_right = right_entry->distance_cm;
+   ```
+5. Implement the R4/R5 heading-correction table:
+   - Both detected → `TUNNEL`, `error = dist_right − dist_left`, `correction = clamp(kp*error, -π/4, π/4)`, `new_heading = normalise(current + correction)`
+   - Right only → `RIGHT_WALL`, `correction = kp*(dist_right − wall_target)`, `new_heading = normalise(current − correction)`
+   - Left only → `LEFT_WALL`, `correction = kp*(dist_left − wall_target)`, `new_heading = normalise(current + correction)`
+   - Neither → `NO_WALL`, `correction = 0`, `new_heading = current_heading_rad_`
+6. Populate `last_decision_` before the drive step:
+   ```cpp
+   last_decision_ = {kind, dist_left, dist_right, correction, new_heading};
+   ```
+7. Rotate to `new_heading` and drive forward:
+   ```cpp
+   rotateToHeading(robot, maze, new_heading);
+   robot.update(cfg_.timestep_s, cfg_.linear_velocity_cm_per_s, 0.0, maze);
+   current_heading_rad_ = normalise(robot.getPose().theta_rad);
+   ```
+
+### 5. `include/ScenarioSimulation.h` — new signatures
+
+1. Add `#include <ostream>` if not present.
+2. Add the public method:
+   ```cpp
+   void writeTraceHeader(std::ostream& out) const;
+   ```
+3. Change `runScenario` to:
+   ```cpp
+   ScenarioMetrics runScenario(ScenarioType type, std::ostream* trace_out = nullptr);
+   ```
+4. Change `runSuite` to:
+   ```cpp
+   std::vector<ScenarioMetrics> runSuite(std::ostream* trace_out = nullptr);
+   ```
+
+### 6. `src/ScenarioSimulation.cpp` — trace writing
+
+1. Implement `writeTraceHeader`:
+   ```cpp
+   void ScenarioSimulation::writeTraceHeader(std::ostream& out) const {
+       out << "step,x_cm,y_cm,heading_deg,cell_x,cell_y";
+       for (std::size_t i = 0; i < config.wall_scan_angles_deg.size(); ++i) {
+           int a = static_cast<int>(std::round(config.wall_scan_angles_deg[i]));
+           out << ",sensor_" << i << "_angle_" << a << "_cm";
+       }
+       out << ",decision,wall_left_dist_cm,wall_right_dist_cm"
+              ",correction_rad,new_heading_deg,collided\n";
+   }
+   ```
+   Add `#include <cmath>` and `#include <iomanip>` if not already present.
+2. In `runScenario`, inside the step loop:
+   a. Capture `Pose before = robot.getPose()` before `controller.update()`.
+   b. Call `controller.update(robot, maze)`.
+   c. Capture `Pose after = robot.getPose()`; derive `collided = (after.x == before.x && after.y == before.y) ? 1 : 0`.
+   d. If `trace_out != nullptr`, format and write one CSV row using `controller.getLastScanResults()` and `controller.getLastDecision()`.
+     - Use `std::fixed` with `std::setprecision(2)` for distances, `setprecision(1)` for degree headings, `setprecision(4)` for correction_rad.
+     - Write `inf` (not `1e+inf`) for infinite distances.
+     - `heading_deg` and `new_heading_deg` normalised to `[0, 360)`.
+     - `cell_x = static_cast<int>(before.x_cm / config.cell_size_cm)`, same for `cell_y`.
+     - `step` counter resets to 0 at the start of each `runScenario` call (suite runs get per-scenario reset automatically).
+3. In `runSuite`, pass `trace_out` through to each `runScenario` call (step counter resets per scenario).
+
+### 7. `src/main.cpp` — `--trace` flag
+
+1. Declare `std::string trace_path;` among the top-level variable declarations (initialised to empty string).
+2. In the argument-parsing loop, add:
+   ```cpp
+   } else if (strcmp(argv[i], "--trace") == 0 && i + 1 < argc) {
+       trace_path = argv[++i];
+   }
+   ```
+3. In `printUsage()`, add the line:
+   ```
+     --trace <filepath>    Write per-step trace CSV during --scenario / --scenario-suite runs
+   ```
+4. In the scenario-handling block (inside `if (run_scenario || run_suite)`), after `ScenarioSimulation sim(config);`:
+   ```cpp
+   std::ofstream trace_file;
+   std::ostream* trace_out = nullptr;
+
+   if (!trace_path.empty()) {
+       trace_file.open(trace_path);
+       if (!trace_file.is_open()) {
+           std::cerr << "Error: cannot open trace file: " << trace_path << "\n";
+           return 1;
+       }
+       sim.writeTraceHeader(trace_file);
+       trace_out = &trace_file;
+   }
+   ```
+5. Pass `trace_out` to `sim.runSuite(trace_out)` and `sim.runScenario(type, trace_out)`.
+6. `--trace` used without `--scenario`/`--scenario-suite` must be a no-op (no file created, no error). This is satisfied because `trace_path` is ignored outside the scenario block.
+
+### 8. `.fabro/workflows/implement-spec/prompts/fix.md` (dark-factory-01)
+
+1. Open `.fabro/workflows/implement-spec/prompts/fix.md` in the **dark-factory-01** repo (not target-repo).
+2. Append one blank line after the last existing line, then paste the "Scenario-test failures: use the trace" block verbatim from the spec (R5).
+
+---
+
+## Test Strategy
+
+### Existing tests to verify are unbroken
+
+- `--scenario-suite` run without `--trace`: output table must include `STRAIGHT_TUNNEL` and all five scenario rows. Zero regression on metrics.
+- `--headless --batch N` runs: must still complete without error.
+
+### New behaviour to verify
+
+1. **Config default** — running without a `wall_scan_angles_deg` key in `config.json` still produces two scan angles (`-90`, `+90`).
+2. **Validation** — passing an empty `wall_scan_angles_deg` array via a custom JSON should cause `Config::loadFromFile` to throw (non-zero exit).
+3. **Trace file created** — `--scenario straight_tunnel --trace /tmp/t.csv` creates `/tmp/t.csv`.
+4. **Header fixed columns** — first line contains `step,x_cm,y_cm,heading_deg,cell_x,cell_y`.
+5. **Header sensor columns** — default config produces `sensor_0_angle_-90_cm` and `sensor_1_angle_90_cm`.
+6. **Header decision columns** — `decision,wall_left_dist_cm,wall_right_dist_cm,correction_rad,new_heading_deg,collided`.
+7. **Data rows present** — file has ≥ 2 lines (header + ≥ 1 data row).
+8. **Collided column** — every value in the last column is exactly `0` or `1`.
+9. **Suite trace** — `--scenario-suite --trace /tmp/suite_trace.csv` creates the file; `step` resets to 0 for each scenario.
+10. **Silent no-op** — `--headless --batch 1 --trace /tmp/ignored.csv` exits 0 and does not create the file (trace_path is ignored outside scenario block).
+11. **Headless batch unbroken** — `--headless --batch 3` completes with exit 0.
+
+### No unit tests to add (no test framework in repo)
+
+All verification is via the binary's exit code and stdout/file assertions in `run-tests.sh`.
+
+---
+
+## Risks and Edge Cases
+
+1. **Angle column sign formatting** — `static_cast<int>(std::round(-90.0))` produces `-90` which formats correctly as `sensor_0_angle_-90_cm`. Verify that no locale or printf formatting accidentally drops the minus sign.
+2. **`inf` vs platform-specific infinity strings** — `std::isinf(d)` must be tested before using `std::fixed`/`std::setprecision`; otherwise C++ may write `inf`, `Inf`, or `1#INF` depending on platform and library version. Always branch on `std::isinf` and write the literal string `"inf"`.
+3. **Collided detection false positives** — comparing `after.x == before.x` (floating-point equality) works only because `robot.update()` either moves the robot by a measurable delta or leaves it exactly unchanged when blocked. This is safe for the current physics implementation but would break under sub-step integrators.
+4. **Suite step counter reset** — `runSuite` calls `runScenario` five times; each call has its own local `step` counter starting at 0, so resets happen naturally. No extra bookkeeping needed.
+5. **Empty scan results when `wall_scan_angles_deg` has only 0°-angle entries** — a scan at exactly 0° reads the front sensor, which contributes no lateral information. The leftmost/rightmost selection logic correctly ignores it (angle_deg = 0 is neither the most-positive nor most-negative among non-zero angles). However, with only a 0° scan, both `left_entry` and `right_entry` may resolve to the same entry; the `NO_WALL` path will be taken if that single entry is at range, which is acceptable.
+6. **Trace file path not writable** — the open-failure path (`if (!trace_file.is_open())`) returns exit code 1 immediately. Ensure this path is tested or at minimum not silently swallowed.
+7. **`--Wall -Wextra` warnings** — `std::numeric_limits` requires `<limits>`; `std::round` requires `<cmath>`; ensure all headers are included in both `.h` and `.cpp` files where these are used.
+8. **`runSuite` passes `trace_out` to a shared file** — all five scenarios append to the same `ofstream`. The header is written once (by `writeTraceHeader` in `main`), and each scenario writes rows immediately. The file must remain open for the duration of the suite run; `trace_file` in `main` lives long enough since it is declared before `sim.runSuite()` is called.
